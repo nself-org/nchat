@@ -26,12 +26,17 @@ global.XMLHttpRequest = jest.fn(() => mockXHR);
 global.URL.createObjectURL = jest.fn(() => "blob:test-url");
 global.URL.revokeObjectURL = jest.fn();
 
-// Mock crypto.randomUUID — save original so it can be restored after this file's tests
-// to prevent bleed into other test files (e.g. crypto.test.ts which tests real UUID generation)
-const _originalRandomUUID = global.crypto.randomUUID;
-global.crypto.randomUUID = jest.fn(
-  () => "test-uuid" as `${string}-${string}-${string}-${string}-${string}`,
-);
+// Mock crypto.randomUUID — must be inside beforeAll/afterAll to prevent module-level
+// assignment from bleeding into other test files run in the same Jest worker
+// (e.g. crypto.test.ts which tests real UUID generation via generateUUID())
+let _originalRandomUUID: typeof global.crypto.randomUUID;
+
+beforeAll(() => {
+  _originalRandomUUID = global.crypto.randomUUID;
+  global.crypto.randomUUID = jest.fn(
+    () => "test-uuid" as `${string}-${string}-${string}-${string}-${string}`,
+  );
+});
 
 afterAll(() => {
   global.crypto.randomUUID = _originalRandomUUID;
