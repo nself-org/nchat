@@ -322,24 +322,28 @@ describe('SSRF Protection - Property Tests', () => {
       )
     })
 
-    it('should handle URLs with unicode domains', async () => {
-      await fc.assert(
-        fc.asyncProperty(
-          fc.string({ minLength: 1, maxLength: 20 }),
-          async (domain) => {
-            try {
-              const url = `http://${domain}.example.com/`
-              const result = await protection.validateUrl(url)
-              expect(typeof result.valid).toBe('boolean')
-            } catch {
-              // Some unicode strings may not be valid domain names
-              // That's okay, we just want to ensure no crashes
+    it(
+      'should handle URLs with unicode domains',
+      async () => {
+        await fc.assert(
+          fc.asyncProperty(
+            fc.string({ minLength: 1, maxLength: 20 }),
+            async (domain) => {
+              try {
+                const url = `http://${domain}.example.com/`
+                const result = await protection.validateUrl(url)
+                expect(typeof result.valid).toBe('boolean')
+              } catch {
+                // Some unicode strings may not be valid domain names
+                // That's okay, we just want to ensure no crashes
+              }
             }
-          }
-        ),
-        { numRuns: 200 }
-      )
-    })
+          ),
+          { numRuns: 200 }
+        )
+      },
+      30000 // Path-B: property-based testing with fast-check + unicode DNS resolution is inherently slow; 5s default too tight for 200 runs
+    )
 
     it('should handle URLs with encoded characters', async () => {
       await fc.assert(

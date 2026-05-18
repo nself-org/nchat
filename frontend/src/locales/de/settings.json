@@ -13,7 +13,8 @@
     "language": "Sprache",
     "accessibility": "Barrierefreiheit",
     "advanced": "Erweitert",
-    "about": "Über"
+    "about": "Über",
+    "general": "General"
   },
   "profile": {
     "title": "Profil",
@@ -34,7 +35,19 @@
     "publicProfile": "Öffentliches Profil",
     "showEmail": "E-Mail anzeigen",
     "showPhone": "Telefon anzeigen",
-    "allowMessages": "Direktnachrichten erlauben"
+    "allowMessages": "Direktnachrichten erlauben",
+    "edit": "Edit profile",
+    "displayNameHelp": "This is how others will see you",
+    "username": "Username",
+    "usernameHelp": "Your unique identifier",
+    "emailHelp": "Used for notifications and login",
+    "phoneHelp": "Optional, for account recovery",
+    "bioPlaceholder": "Tell us about yourself",
+    "changeAvatar": "Change photo",
+    "timezoneHelp": "Used for scheduling and timestamps",
+    "pronounsHelp": "Optional",
+    "setStatus": "Set a status",
+    "clearAfter": "Clear after"
   },
   "account": {
     "title": "Konto",
@@ -56,7 +69,19 @@
     "revokeAllSessions": "Alle Sitzungen widerrufen",
     "deleteAccount": "Konto löschen",
     "deleteAccountWarning": "Diese Aktion ist unwiderruflich",
-    "confirmDeleteAccount": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten?"
+    "confirmDeleteAccount": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten?",
+    "email": "Email",
+    "changeEmail": "Change email",
+    "password": "Password",
+    "twoFactorEnabled": "Two-factor authentication is enabled",
+    "twoFactorDisabled": "Two-factor authentication is disabled",
+    "enable2FA": "Enable 2FA",
+    "disable2FA": "Disable 2FA",
+    "signOutAll": "Sign out of all sessions",
+    "signOutOther": "Sign out of other sessions",
+    "confirmDelete": "Type DELETE to confirm",
+    "exportData": "Export my data",
+    "downloadData": "Download your data"
   },
   "appearance": {
     "title": "Erscheinungsbild",
@@ -76,7 +101,23 @@
     "customCSS": "Benutzerdefiniertes CSS",
     "enableCustomCSS": "Benutzerdefiniertes CSS aktivieren",
     "previewTheme": "Thema vorschau",
-    "resetTheme": "Thema zurücksetzen"
+    "resetTheme": "Thema zurücksetzen",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "colors": "Colors",
+    "primaryColor": "Primary color",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "extraLarge": "Extra large",
+    "density": "Display density",
+    "sidebar": "Sidebar",
+    "sidebarPosition": "Sidebar position",
+    "left": "Left",
+    "right": "Right",
+    "animations": "Animations",
+    "reduceMotion": "Reduce motion"
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -103,7 +144,24 @@
     "to": "Bis",
     "emailDigest": "E-Mail-Zusammenfassung",
     "dailyDigest": "Tägliche Zusammenfassung",
-    "weeklyDigest": "Wöchentliche Zusammenfassung"
+    "weeklyDigest": "Wöchentliche Zusammenfassung",
+    "desktopHelp": "Receive notifications when the app is in the background",
+    "soundHelp": "Play a sound for new messages",
+    "emailHelp": "Receive email for important updates",
+    "mobileHelp": "Receive push notifications on your mobile device",
+    "mentionsHelp": "Notify me when I'm mentioned",
+    "dmHelp": "Notify me of new direct messages",
+    "channels": "Channel activity",
+    "channelsHelp": "Notify me of activity in channels",
+    "threads": "Thread replies",
+    "threadsHelp": "Notify me of replies to threads I'm in",
+    "schedule": "Notification schedule",
+    "scheduleHelp": "Set quiet hours",
+    "quietHours": "Quiet hours",
+    "allowFrom": "Allow notifications from",
+    "everyone": "Everyone",
+    "directOnly": "Direct messages only",
+    "noOne": "No one"
   },
   "privacy": {
     "title": "Datenschutz & Sicherheit",
@@ -125,7 +183,23 @@
     "shareErrorReports": "Fehlerberichte teilen",
     "dataExport": "Datenexport",
     "exportMyData": "Meine Daten exportieren",
-    "downloadData": "Daten herunterladen"
+    "downloadData": "Daten herunterladen",
+    "whoCanMessage": "Who can message me",
+    "everyone": "Everyone",
+    "teamOnly": "Team members only",
+    "noOne": "No one",
+    "activityStatus": "Show my activity status",
+    "profileVisibility": "Profile visibility",
+    "public": "Public",
+    "membersOnly": "Members only",
+    "private": "Private",
+    "blockList": "Blocked users",
+    "noBlocked": "No blocked users",
+    "unblock": "Unblock",
+    "loginHistory": "Login history",
+    "connectedApps": "Connected apps",
+    "noConnectedApps": "No connected apps",
+    "revokeAccess": "Revoke access"
   },
   "language": {
     "title": "Sprache & Region",
@@ -143,7 +217,15 @@
     "currencyFormat": "Währungsformat",
     "spellCheck": "Rechtschreibprüfung",
     "enableSpellCheck": "Rechtschreibprüfung aktivieren",
-    "dictionary": "Wörterbuch"
+    "dictionary": "Wörterbuch",
+    "language": "Language",
+    "region": "Region",
+    "selectRegion": "Select region",
+    "twelveHour": "12-hour",
+    "twentyFourHour": "24-hour",
+    "spellCheckHelp": "Check spelling as you type",
+    "autoTranslate": "Auto-translate messages",
+    "autoTranslateHelp": "Automatically translate messages in other languages"
   },
   "accessibility": {
     "title": "Barrierefreiheit",
@@ -165,7 +247,15 @@
     "colorBlindMode": "Farbenblindmodus",
     "protanopia": "Protanopie",
     "deuteranopia": "Deuteranopie",
-    "tritanopia": "Tritanopie"
+    "tritanopia": "Tritanopie",
+    "screenReaderHelp": "Optimize for screen readers",
+    "keyboardNavigation": "Keyboard navigation",
+    "keyboardHelp": "Navigate using keyboard only",
+    "highContrastHelp": "Increase contrast for better visibility",
+    "largeText": "Large text",
+    "largeTextHelp": "Use larger text throughout the app",
+    "reducedMotionHelp": "Reduce animations and motion effects",
+    "colorBlindHelp": "Adjust colors for color blindness"
   },
   "advanced": {
     "title": "Erweiterte Einstellungen",
@@ -188,7 +278,19 @@
     "downloadMessages": "Nachrichten herunterladen",
     "resetSettings": "Einstellungen zurücksetzen",
     "resetAllSettings": "Alle Einstellungen zurücksetzen",
-    "confirmReset": "Sind Sie sicher, dass Sie alle Einstellungen zurücksetzen möchten?"
+    "confirmReset": "Sind Sie sicher, dass Sie alle Einstellungen zurücksetzen möchten?",
+    "developerModeHelp": "Enable developer features and logging",
+    "experimentalHelp": "Try new features before they're released",
+    "cacheManagement": "Cache management",
+    "cacheCleared": "Cache cleared successfully",
+    "localStorage": "Local storage",
+    "clearLocalStorage": "Clear local storage",
+    "networkSettings": "Network settings",
+    "proxySettings": "Proxy settings",
+    "logs": "Logs",
+    "downloadLogs": "Download logs",
+    "resetWarning": "This will reset all settings to their defaults",
+    "resetConfirm": "Reset settings"
   },
   "about": {
     "title": "Über",
@@ -214,6 +316,9 @@
     "credits": "Credits",
     "contributors": "Mitwirkende",
     "openSource": "Open Source",
-    "thirdPartyLicenses": "Drittanbieter-Lizenzen"
+    "thirdPartyLicenses": "Drittanbieter-Lizenzen",
+    "checkUpdates": "Check for updates",
+    "changelog": "Changelog",
+    "feedback": "Send feedback"
   }
 }

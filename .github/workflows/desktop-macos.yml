@@ -5,7 +5,7 @@ on:
     tags: ['v*']
   pull_request:
     paths:
-      - 'nchat/desktop/**'
+      - 'desktop/**'
       - '.github/workflows/desktop-macos.yml'
   workflow_dispatch:
 
@@ -42,15 +42,13 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: pnpm
-          cache-dependency-path: nchat/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -60,15 +58,15 @@ jobs:
       - name: Cache Rust
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: nchat/desktop/src-tauri -> target
-          key: macos-${{ matrix.arch }}-${{ hashFiles('nchat/desktop/src-tauri/Cargo.lock') }}
+          workspaces: desktop/src-tauri -> target
+          key: macos-${{ matrix.arch }}-${{ hashFiles('desktop/src-tauri/Cargo.lock') }}
 
       - name: Install pnpm deps
-        working-directory: nchat
+        working-directory: .
         run: pnpm install --frozen-lockfile
 
       - name: Build Tauri (macOS ${{ matrix.arch }})
-        working-directory: nchat/desktop
+        working-directory: desktop
         run: pnpm tauri build --target ${{ matrix.rust_target }}
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -134,15 +132,13 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: pnpm
-          cache-dependency-path: nchat/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -152,22 +148,22 @@ jobs:
       - name: Cache Rust
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: nchat/desktop/src-tauri -> target
+          workspaces: desktop/src-tauri -> target
 
       - name: Install deps
-        working-directory: nchat
+        working-directory: .
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
-        working-directory: nchat/desktop
+        working-directory: desktop
         run: pnpx playwright install chromium
 
       - name: Build (dev binary for e2e)
-        working-directory: nchat/desktop
+        working-directory: desktop
         run: pnpm tauri build --debug --target aarch64-apple-darwin
 
       - name: Run e2e tests
-        working-directory: nchat/desktop
+        working-directory: desktop
         run: pnpm test:e2e
         env:
           TAURI_BINARY: src-tauri/target/aarch64-apple-darwin/debug/nchat-desktop

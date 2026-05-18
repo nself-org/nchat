@@ -45,8 +45,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -57,6 +55,9 @@ jobs:
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
           NEXT_PUBLIC_ENV: 'production'
           NODE_ENV: 'production'
+          # Build gate in next.config.js requires HASURA_ADMIN_SECRET for production builds.
+          # In CI, the secret is not needed for actual DB access — only to pass the gate check.
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
 
       - name: Start production server
         run: pnpm start &

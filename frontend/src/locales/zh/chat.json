@@ -41,7 +41,8 @@
     "markdownSupported": "支持Markdown",
     "characterCount": "{{count}}/{{max}}字符",
     "scheduledFor": "计划于{{date}}",
-    "sentAt": "发送于{{time}}"
+    "sentAt": "发送于{{time}}",
+    "newMessages_one": "{{count}} new message"
   },
   "channels": {
     "channel": "频道",
@@ -86,7 +87,8 @@
     "mute": "静音频道",
     "unmute": "取消静音",
     "notifications": "通知设置",
-    "memberCount_other": "{{count}}位成员"
+    "memberCount_other": "{{count}}位成员",
+    "memberCount_one": "{{count}} member"
   },
   "threads": {
     "thread": "话题",
@@ -100,7 +102,8 @@
     "alsoSendToChannel": "同时发送到#{{channel}}",
     "following": "正在关注",
     "follow": "关注话题",
-    "unfollow": "取消关注"
+    "unfollow": "取消关注",
+    "replies_one": "{{count}} reply"
   },
   "directMessages": {
     "dm": "私信",
@@ -155,7 +158,8 @@
     "hasFile": "包含文件",
     "hasLink": "包含链接",
     "recent": "最近搜索",
-    "clearRecent": "清除最近搜索"
+    "clearRecent": "清除最近搜索",
+    "resultsCount_one": "{{count}} result"
   },
   "presence": {
     "online": "在线",
@@ -212,7 +216,8 @@
     "youReacted": "你使用{{emoji}}回应",
     "andOthers_other": "和其他{{count}}人",
     "removeReaction": "点击移除",
-    "addReaction": "添加表情回应"
+    "addReaction": "添加表情回应",
+    "andOthers_one": "and {{count}} other"
   },
   "formatting": {
     "bold": "粗体",

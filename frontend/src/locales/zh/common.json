@@ -88,7 +88,14 @@
     "years_other": "{{count}}年",
     "ago": "{{time}}前",
     "in": "{{time}}后",
-    "at": "{{time}}"
+    "at": "{{time}}",
+    "seconds_one": "{{count}} second",
+    "minutes_one": "{{count}} minute",
+    "hours_one": "{{count}} hour",
+    "days_one": "{{count}} day",
+    "weeks_one": "{{count}} week",
+    "months_one": "{{count}} month",
+    "years_one": "{{count}} year"
   },
   "validation": {
     "required": "此字段为必填项",

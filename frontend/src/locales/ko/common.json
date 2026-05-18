@@ -88,7 +88,14 @@
     "years_other": "{{count}}년",
     "ago": "{{time}} 전",
     "in": "{{time}} 후",
-    "at": "{{time}}"
+    "at": "{{time}}",
+    "seconds_one": "{{count}} second",
+    "minutes_one": "{{count}} minute",
+    "hours_one": "{{count}} hour",
+    "days_one": "{{count}} day",
+    "weeks_one": "{{count}} week",
+    "months_one": "{{count}} month",
+    "years_one": "{{count}} year"
   },
   "validation": {
     "required": "필수 항목입니다",

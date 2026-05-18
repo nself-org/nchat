@@ -8,5 +8,10 @@
     "lint": "pnpm -r lint",
     "type-check": "pnpm -r type-check",
     "test": "pnpm -r test"
+  },
+  "pnpm": {
+    "overrides": {
+      "protobufjs@>=8.0.0 <8.0.2": ">=8.0.2"
+    }
   }
 }

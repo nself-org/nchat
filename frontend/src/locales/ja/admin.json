@@ -8,7 +8,10 @@
     "analytics": "分析",
     "moderation": "モデレーション",
     "integrations": "統合",
-    "logs": "ログ"
+    "logs": "ログ",
+    "overview": "Overview",
+    "messages": "Messages",
+    "billing": "Billing"
   },
   "dashboard": {
     "title": "ダッシュボード",
@@ -24,7 +27,16 @@
     "userGrowth": "ユーザー増加",
     "channelActivity": "チャンネルアクティビティ",
     "topChannels": "トップチャンネル",
-    "topUsers": "トップユーザー"
+    "topUsers": "トップユーザー",
+    "welcome": "Welcome back, {{name}}",
+    "totalUsers": "Total Users",
+    "messagesThisWeek": "Messages this week",
+    "newUsersThisWeek": "New users this week",
+    "quickActions": "Quick Actions",
+    "systemHealth": "System Health",
+    "healthy": "Healthy",
+    "warning": "Warning",
+    "critical": "Critical"
   },
   "users": {
     "title": "ユーザー管理",
@@ -49,7 +61,21 @@
     "sendInvite": "招待を送信",
     "confirmDelete": "本当にこのユーザーを削除しますか？",
     "bulkActions": "一括操作",
-    "selectedUsers": "選択されたユーザー: {{count}}"
+    "selectedUsers": "選択されたユーザー: {{count}}",
+    "allUsers": "All Users",
+    "pendingUsers": "Pending Approval",
+    "inviteUser": "Invite User",
+    "createUser": "Create User",
+    "assignRole": "Assign Role",
+    "removeRole": "Remove Role",
+    "lastActive": "Last Active",
+    "dateJoined": "Date Joined",
+    "emailVerified": "Email Verified",
+    "filterByRole": "Filter by role",
+    "filterByStatus": "Filter by status",
+    "importUsers": "Import Users",
+    "selectedUsers_one": "{{count}} user selected",
+    "selectedUsers_other": "{{count}} users selected"
   },
   "roles": {
     "title": "ロールと権限",
@@ -73,7 +99,16 @@
     "manageRoles": "ロールを管理",
     "manageSettings": "設定を管理",
     "viewAnalytics": "分析を表示",
-    "moderateContent": "コンテンツをモデレート"
+    "moderateContent": "コンテンツをモデレート",
+    "role": "Role",
+    "roles": "Roles",
+    "createRole": "Create Role",
+    "assignPermissions": "Assign Permissions",
+    "custom": "Custom Role",
+    "setAsDefault": "Set as Default",
+    "cannotDelete": "Cannot delete system role",
+    "membersWithRole_one": "{{count}} member with this role",
+    "membersWithRole_other": "{{count}} members with this role"
   },
   "channels": {
     "title": "チャンネル管理",
@@ -94,7 +129,16 @@
     "createdBy": "作成者",
     "createdAt": "作成日",
     "confirmArchive": "本当にこのチャンネルをアーカイブしますか？",
-    "confirmDelete": "本当にこのチャンネルを完全に削除しますか？"
+    "confirmDelete": "本当にこのチャンネルを完全に削除しますか？",
+    "allChannels": "All Channels",
+    "createChannel": "Create Channel",
+    "setDefault": "Set as Default",
+    "defaultChannel": "Default Channel",
+    "memberCount": "Members",
+    "created": "Created",
+    "lastActivity": "Last Activity",
+    "searchChannels": "Search channels...",
+    "exportChannels": "Export Channels"
   },
   "moderation": {
     "title": "モデレーション",
@@ -118,7 +162,22 @@
     "moderationAction": "モデレーションアクション",
     "warnUser": "ユーザーに警告",
     "muteUser": "ユーザーをミュート",
-    "banUser": "ユーザーをバン"
+    "banUser": "ユーザーをバン",
+    "reportedMessages": "Reported Messages",
+    "reportedUsers": "Reported Users",
+    "pendingReview": "Pending Review",
+    "resolved": "Resolved",
+    "dismissed": "Dismissed",
+    "reviewReport": "Review Report",
+    "reporter": "Reporter",
+    "reportReason": "Reason",
+    "reportedAt": "Reported",
+    "takeAction": "Take Action",
+    "deleteMessage": "Delete Message",
+    "dismiss": "Dismiss Report",
+    "linkFilter": "Link Filter",
+    "addBannedWord": "Add Banned Word",
+    "moderationLogs": "Moderation Logs"
   },
   "analytics": {
     "title": "分析とレポート",
@@ -138,7 +197,21 @@
     "filters": "フィルター",
     "generateReport": "レポートを生成",
     "downloadPDF": "PDFをダウンロード",
-    "downloadCSV": "CSVをダウンロード"
+    "downloadCSV": "CSVをダウンロード",
+    "userGrowth": "User Growth",
+    "engagement": "Engagement",
+    "messageVolume": "Message Volume",
+    "activeChannels": "Active Channels",
+    "topChannels": "Top Channels",
+    "topUsers": "Top Users",
+    "retention": "Retention",
+    "timeRange": "Time Range",
+    "last7Days": "Last 7 days",
+    "last30Days": "Last 30 days",
+    "last90Days": "Last 90 days",
+    "lastYear": "Last year",
+    "custom": "Custom range",
+    "exportData": "Export Data"
   },
   "settings": {
     "title": "管理者設定",
@@ -163,7 +236,29 @@
     "dataRetention": "データ保持",
     "backupFrequency": "バックアップ頻度",
     "saveChanges": "変更を保存",
-    "resetDefaults": "デフォルトにリセット"
+    "resetDefaults": "デフォルトにリセット",
+    "appName": "App Name",
+    "appDescription": "App Description",
+    "logo": "Logo",
+    "favicon": "Favicon",
+    "authentication": "Authentication",
+    "authMethods": "Authentication Methods",
+    "emailAuth": "Email & Password",
+    "socialAuth": "Social Login",
+    "ssoAuth": "Single Sign-On",
+    "registration": "Registration",
+    "allowRegistration": "Allow Registration",
+    "requireApproval": "Require Approval",
+    "emailVerification": "Email Verification",
+    "inviteOnly": "Invite Only",
+    "domains": "Allowed Domains",
+    "enableFeature": "Enable {{feature}}",
+    "disableFeature": "Disable {{feature}}",
+    "fileUpload": "File Upload",
+    "maxFileSize": "Max File Size",
+    "allowedFileTypes": "Allowed File Types",
+    "rateLimit": "Rate Limiting",
+    "ipWhitelist": "IP Whitelist"
   },
   "integrations": {
     "title": "統合",
@@ -185,7 +280,17 @@
     "webhookUrl": "Webhook URL",
     "webhookEvents": "Webhookイベント",
     "testWebhook": "Webhookをテスト",
-    "apiDocumentation": "APIドキュメント"
+    "apiDocumentation": "APIドキュメント",
+    "install": "Install",
+    "uninstall": "Uninstall",
+    "createWebhook": "Create Webhook",
+    "webhookSecret": "Webhook Secret",
+    "events": "Events",
+    "createApiKey": "Create API Key",
+    "apiKeyName": "Key Name",
+    "apiKeyScopes": "Scopes",
+    "lastUsed": "Last Used",
+    "revokeKey": "Revoke Key"
   },
   "logs": {
     "title": "監査ログ",
@@ -207,7 +312,25 @@
     "details": "詳細",
     "filterByUser": "ユーザーでフィルター",
     "filterByAction": "アクションでフィルター",
-    "filterByDate": "日付でフィルター"
+    "filterByDate": "日付でフィルター",
+    "allLogs": "All Logs",
+    "filterLogs": "Filter Logs",
+    "target": "Target",
+    "exportLogs": "Export Logs",
+    "retention": "Log Retention",
+    "actions": {
+      "userCreated": "User Created",
+      "userUpdated": "User Updated",
+      "userDeleted": "User Deleted",
+      "userSuspended": "User Suspended",
+      "channelCreated": "Channel Created",
+      "channelUpdated": "Channel Updated",
+      "channelDeleted": "Channel Deleted",
+      "roleAssigned": "Role Assigned",
+      "settingsUpdated": "Settings Updated",
+      "loginSuccess": "Login Success",
+      "loginFailed": "Login Failed"
+    }
   },
   "setup": {
     "title": "セットアップウィザード",
@@ -226,6 +349,13 @@
     "permissions": "権限",
     "features": "機能",
     "review": "レビュー",
-    "launch": "起動"
+    "launch": "起動",
+    "letsGetStarted": "Let's get your workspace set up!",
+    "branding": "Branding",
+    "theme": "Theme",
+    "authentication": "Authentication",
+    "completeMessage": "Your workspace is ready!",
+    "goToChat": "Go to Chat",
+    "goToAdmin": "Go to Admin"
   }
 }

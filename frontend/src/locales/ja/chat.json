@@ -41,7 +41,8 @@
     "markdownSupported": "Markdownに対応しています",
     "characterCount": "{{count}}/{{max}}文字",
     "scheduledFor": "{{date}}に予約済み",
-    "sentAt": "{{time}}に送信"
+    "sentAt": "{{time}}に送信",
+    "newMessages_one": "{{count}} new message"
   },
   "channels": {
     "channel": "チャンネル",
@@ -86,7 +87,8 @@
     "mute": "チャンネルをミュート",
     "unmute": "ミュートを解除",
     "notifications": "通知設定",
-    "memberCount_other": "{{count}}人のメンバー"
+    "memberCount_other": "{{count}}人のメンバー",
+    "memberCount_one": "{{count}} member"
   },
   "threads": {
     "thread": "スレッド",
@@ -100,7 +102,8 @@
     "alsoSendToChannel": "#{{channel}}にも送信",
     "following": "フォロー中",
     "follow": "スレッドをフォロー",
-    "unfollow": "フォロー解除"
+    "unfollow": "フォロー解除",
+    "replies_one": "{{count}} reply"
   },
   "directMessages": {
     "dm": "ダイレクトメッセージ",
@@ -155,7 +158,8 @@
     "hasFile": "ファイルあり",
     "hasLink": "リンクあり",
     "recent": "最近の検索",
-    "clearRecent": "最近の検索をクリア"
+    "clearRecent": "最近の検索をクリア",
+    "resultsCount_one": "{{count}} result"
   },
   "presence": {
     "online": "オンライン",
@@ -212,7 +216,8 @@
     "youReacted": "あなたが{{emoji}}でリアクション",
     "andOthers_other": "他{{count}}人",
     "removeReaction": "クリックして削除",
-    "addReaction": "リアクションを追加"
+    "addReaction": "リアクションを追加",
+    "andOthers_one": "and {{count}} other"
   },
   "formatting": {
     "bold": "太字",

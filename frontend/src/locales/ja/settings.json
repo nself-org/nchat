@@ -13,7 +13,8 @@
     "language": "言語",
     "accessibility": "アクセシビリティ",
     "advanced": "詳細設定",
-    "about": "について"
+    "about": "について",
+    "general": "General"
   },
   "profile": {
     "title": "プロフィール",
@@ -34,7 +35,19 @@
     "publicProfile": "公開プロフィール",
     "showEmail": "メールを表示",
     "showPhone": "電話番号を表示",
-    "allowMessages": "ダイレクトメッセージを許可"
+    "allowMessages": "ダイレクトメッセージを許可",
+    "edit": "Edit profile",
+    "displayNameHelp": "This is how others will see you",
+    "username": "Username",
+    "usernameHelp": "Your unique identifier",
+    "emailHelp": "Used for notifications and login",
+    "phoneHelp": "Optional, for account recovery",
+    "bioPlaceholder": "Tell us about yourself",
+    "changeAvatar": "Change photo",
+    "timezoneHelp": "Used for scheduling and timestamps",
+    "pronounsHelp": "Optional",
+    "setStatus": "Set a status",
+    "clearAfter": "Clear after"
   },
   "account": {
     "title": "アカウント",
@@ -56,7 +69,19 @@
     "revokeAllSessions": "すべてのセッションを無効化",
     "deleteAccount": "アカウントを削除",
     "deleteAccountWarning": "この操作は元に戻せません",
-    "confirmDeleteAccount": "本当にアカウントを削除しますか？"
+    "confirmDeleteAccount": "本当にアカウントを削除しますか？",
+    "email": "Email",
+    "changeEmail": "Change email",
+    "password": "Password",
+    "twoFactorEnabled": "Two-factor authentication is enabled",
+    "twoFactorDisabled": "Two-factor authentication is disabled",
+    "enable2FA": "Enable 2FA",
+    "disable2FA": "Disable 2FA",
+    "signOutAll": "Sign out of all sessions",
+    "signOutOther": "Sign out of other sessions",
+    "confirmDelete": "Type DELETE to confirm",
+    "exportData": "Export my data",
+    "downloadData": "Download your data"
   },
   "appearance": {
     "title": "外観",
@@ -76,7 +101,23 @@
     "customCSS": "カスタムCSS",
     "enableCustomCSS": "カスタムCSSを有効化",
     "previewTheme": "テーマをプレビュー",
-    "resetTheme": "テーマをリセット"
+    "resetTheme": "テーマをリセット",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "colors": "Colors",
+    "primaryColor": "Primary color",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "extraLarge": "Extra large",
+    "density": "Display density",
+    "sidebar": "Sidebar",
+    "sidebarPosition": "Sidebar position",
+    "left": "Left",
+    "right": "Right",
+    "animations": "Animations",
+    "reduceMotion": "Reduce motion"
   },
   "notifications": {
     "title": "通知",
@@ -103,7 +144,24 @@
     "to": "終了",
     "emailDigest": "メールダイジェスト",
     "dailyDigest": "デイリーダイジェスト",
-    "weeklyDigest": "ウィークリーダイジェスト"
+    "weeklyDigest": "ウィークリーダイジェスト",
+    "desktopHelp": "Receive notifications when the app is in the background",
+    "soundHelp": "Play a sound for new messages",
+    "emailHelp": "Receive email for important updates",
+    "mobileHelp": "Receive push notifications on your mobile device",
+    "mentionsHelp": "Notify me when I'm mentioned",
+    "dmHelp": "Notify me of new direct messages",
+    "channels": "Channel activity",
+    "channelsHelp": "Notify me of activity in channels",
+    "threads": "Thread replies",
+    "threadsHelp": "Notify me of replies to threads I'm in",
+    "schedule": "Notification schedule",
+    "scheduleHelp": "Set quiet hours",
+    "quietHours": "Quiet hours",
+    "allowFrom": "Allow notifications from",
+    "everyone": "Everyone",
+    "directOnly": "Direct messages only",
+    "noOne": "No one"
   },
   "privacy": {
     "title": "プライバシーとセキュリティ",
@@ -125,7 +183,23 @@
     "shareErrorReports": "エラーレポートを共有",
     "dataExport": "データエクスポート",
     "exportMyData": "マイデータをエクスポート",
-    "downloadData": "データをダウンロード"
+    "downloadData": "データをダウンロード",
+    "whoCanMessage": "Who can message me",
+    "everyone": "Everyone",
+    "teamOnly": "Team members only",
+    "noOne": "No one",
+    "activityStatus": "Show my activity status",
+    "profileVisibility": "Profile visibility",
+    "public": "Public",
+    "membersOnly": "Members only",
+    "private": "Private",
+    "blockList": "Blocked users",
+    "noBlocked": "No blocked users",
+    "unblock": "Unblock",
+    "loginHistory": "Login history",
+    "connectedApps": "Connected apps",
+    "noConnectedApps": "No connected apps",
+    "revokeAccess": "Revoke access"
   },
   "language": {
     "title": "言語と地域",
@@ -143,7 +217,15 @@
     "currencyFormat": "通貨形式",
     "spellCheck": "スペルチェック",
     "enableSpellCheck": "スペルチェックを有効化",
-    "dictionary": "辞書"
+    "dictionary": "辞書",
+    "language": "Language",
+    "region": "Region",
+    "selectRegion": "Select region",
+    "twelveHour": "12-hour",
+    "twentyFourHour": "24-hour",
+    "spellCheckHelp": "Check spelling as you type",
+    "autoTranslate": "Auto-translate messages",
+    "autoTranslateHelp": "Automatically translate messages in other languages"
   },
   "accessibility": {
     "title": "アクセシビリティ",
@@ -165,7 +247,15 @@
     "colorBlindMode": "色覚異常モード",
     "protanopia": "第一色盲",
     "deuteranopia": "第二色盲",
-    "tritanopia": "第三色盲"
+    "tritanopia": "第三色盲",
+    "screenReaderHelp": "Optimize for screen readers",
+    "keyboardNavigation": "Keyboard navigation",
+    "keyboardHelp": "Navigate using keyboard only",
+    "highContrastHelp": "Increase contrast for better visibility",
+    "largeText": "Large text",
+    "largeTextHelp": "Use larger text throughout the app",
+    "reducedMotionHelp": "Reduce animations and motion effects",
+    "colorBlindHelp": "Adjust colors for color blindness"
   },
   "advanced": {
     "title": "詳細設定",
@@ -188,7 +278,19 @@
     "downloadMessages": "メッセージをダウンロード",
     "resetSettings": "設定をリセット",
     "resetAllSettings": "すべての設定をリセット",
-    "confirmReset": "本当にすべての設定をリセットしますか？"
+    "confirmReset": "本当にすべての設定をリセットしますか？",
+    "developerModeHelp": "Enable developer features and logging",
+    "experimentalHelp": "Try new features before they're released",
+    "cacheManagement": "Cache management",
+    "cacheCleared": "Cache cleared successfully",
+    "localStorage": "Local storage",
+    "clearLocalStorage": "Clear local storage",
+    "networkSettings": "Network settings",
+    "proxySettings": "Proxy settings",
+    "logs": "Logs",
+    "downloadLogs": "Download logs",
+    "resetWarning": "This will reset all settings to their defaults",
+    "resetConfirm": "Reset settings"
   },
   "about": {
     "title": "について",
@@ -214,6 +316,9 @@
     "credits": "クレジット",
     "contributors": "貢献者",
     "openSource": "オープンソース",
-    "thirdPartyLicenses": "サードパーティライセンス"
+    "thirdPartyLicenses": "サードパーティライセンス",
+    "checkUpdates": "Check for updates",
+    "changelog": "Changelog",
+    "feedback": "Send feedback"
   }
 }
