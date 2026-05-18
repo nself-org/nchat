@@ -197,15 +197,15 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Validate translation coverage
-        working-directory: .
-        run: pnpm --dir frontend tsx scripts/validate-translations.ts
+        working-directory: frontend
+        run: pnpm tsx scripts/validate-translations.ts
 
       - name: Generate translation report
         if: always()
-        working-directory: .
+        working-directory: frontend
         run: |
           echo "## Translation Coverage Report" >> $GITHUB_STEP_SUMMARY
-          pnpm --dir frontend tsx scripts/validate-translations.ts 2>&1 | tail -n 50 >> $GITHUB_STEP_SUMMARY
+          pnpm tsx scripts/validate-translations.ts 2>&1 | tail -n 50 >> $GITHUB_STEP_SUMMARY
 
   accessibility-summary:
     name: Accessibility Summary

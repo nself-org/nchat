@@ -97,7 +97,7 @@
     "@types/qrcode.react": "^3.0.0",
     "bcryptjs": "^3.0.2",
     "blurhash": "^2.0.5",
-    "canvas": "^2.11.2",
+    "canvas": "^3.2.3",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

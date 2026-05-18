@@ -5,7 +5,7 @@ on:
     tags: ['v*']
   pull_request:
     paths:
-      - 'nchat/desktop/**'
+      - 'desktop/**'
       - '.github/workflows/desktop-linux.yml'
   workflow_dispatch:
 
@@ -50,7 +50,7 @@ jobs:
         with:
           node-version: '22'
           cache: pnpm
-          cache-dependency-path: nchat/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -58,15 +58,15 @@ jobs:
       - name: Cache Rust
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: nchat/desktop/src-tauri -> target
-          key: linux-x64-${{ hashFiles('nchat/desktop/src-tauri/Cargo.lock') }}
+          workspaces: desktop/src-tauri -> target
+          key: linux-x64-${{ hashFiles('desktop/src-tauri/Cargo.lock') }}
 
       - name: Install pnpm deps
-        working-directory: nchat
+        working-directory: .
         run: pnpm install --frozen-lockfile
 
       - name: Build Tauri (Linux x64)
-        working-directory: nchat/desktop
+        working-directory: desktop
         run: pnpm tauri build
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
