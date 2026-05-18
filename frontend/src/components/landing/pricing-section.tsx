@@ -92,7 +92,7 @@ export function PricingSection() {
             >
               {plan.highlighted && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="rounded-full bg-primary px-3 py-1 text-sm font-medium text-white">
+                  <span className="rounded-full bg-primary px-3 py-1 text-sm font-medium text-primary-foreground">
                     Most Popular
                   </span>
                 </div>
