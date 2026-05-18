@@ -87,17 +87,15 @@ describe("WalletStore", () => {
         provider: "metamask",
         balance: "1.5",
       });
-      useWalletStore
-        .getState()
-        .setTokens([
-          {
-            address: "0xToken",
-            symbol: "TKN",
-            balance: "100",
-            decimals: 18,
-            name: "Token",
-          },
-        ]);
+      useWalletStore.getState().setTokens([
+        {
+          address: "0xToken",
+          symbol: "TKN",
+          balance: "100",
+          decimals: 18,
+          name: "Token",
+        },
+      ]);
       useWalletStore.getState().setWalletModalOpen(true);
 
       // Disconnect
@@ -400,17 +398,15 @@ describe("WalletStore", () => {
         provider: "metamask",
         balance: "1.5",
       });
-      useWalletStore
-        .getState()
-        .setTokens([
-          {
-            address: "0xToken",
-            symbol: "TKN",
-            balance: "100",
-            decimals: 18,
-            name: "Token",
-          },
-        ]);
+      useWalletStore.getState().setTokens([
+        {
+          address: "0xToken",
+          symbol: "TKN",
+          balance: "100",
+          decimals: 18,
+          name: "Token",
+        },
+      ]);
       useWalletStore.getState().setNFTs([
         {
           contractAddress: "0xNFT",

@@ -246,9 +246,7 @@ interface FileSystemWindowExtras {
       readFile: (path: string, encoding?: string) => Promise<string | Buffer>;
       writeFile: (path: string, data: string | Buffer) => Promise<void>;
       unlink: (path: string) => Promise<void>;
-      stat: (
-        path: string,
-      ) => Promise<{
+      stat: (path: string) => Promise<{
         size: number;
         mtime: Date;
         isDirectory: () => boolean;

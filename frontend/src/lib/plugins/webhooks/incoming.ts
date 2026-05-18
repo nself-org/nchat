@@ -298,9 +298,7 @@ export function validateIncomingPayload(
 /**
  * Validate an embed object.
  */
-function validateEmbed(
-  embed: unknown,
-):
+function validateEmbed(embed: unknown):
   | {
       valid: true;
       embed: NonNullable<NormalizedIncomingPayload["embeds"]>[number];

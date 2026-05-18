@@ -547,9 +547,7 @@ export class EmbeddingPipeline {
   /**
    * Process a batch of messages
    */
-  private async processBatch(
-    messages: MessageForEmbedding[],
-  ): Promise<{
+  private async processBatch(messages: MessageForEmbedding[]): Promise<{
     successful: MessageForEmbedding[];
     failed: MessageForEmbedding[];
   }> {

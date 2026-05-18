@@ -232,14 +232,12 @@ describe("File System Adapters", () => {
         readFile: jest.fn().mockResolvedValue({ data: "content" }),
         writeFile: jest.fn().mockResolvedValue(undefined),
         deleteFile: jest.fn().mockResolvedValue(undefined),
-        stat: jest
-          .fn()
-          .mockResolvedValue({
-            type: "file",
-            size: 100,
-            mtime: Date.now(),
-            uri: "/path",
-          }),
+        stat: jest.fn().mockResolvedValue({
+          type: "file",
+          size: 100,
+          mtime: Date.now(),
+          uri: "/path",
+        }),
         readdir: jest.fn().mockResolvedValue({ files: [] }),
         mkdir: jest.fn().mockResolvedValue(undefined),
         rmdir: jest.fn().mockResolvedValue(undefined),

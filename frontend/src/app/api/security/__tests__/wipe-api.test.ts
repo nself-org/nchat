@@ -84,13 +84,11 @@ jest.mock("@/lib/secure-storage", () => {
       }),
       getItemMeta: jest.fn().mockResolvedValue(null),
       isBiometricAvailable: jest.fn().mockResolvedValue(false),
-      authenticateBiometric: jest
-        .fn()
-        .mockResolvedValue({
-          success: false,
-          data: null,
-          error: "Not available",
-        }),
+      authenticateBiometric: jest.fn().mockResolvedValue({
+        success: false,
+        data: null,
+        error: "Not available",
+      }),
     }),
   };
 });

@@ -125,9 +125,7 @@ export class TwitterClient implements SocialAPIClient {
   /**
    * Get authenticated user's account information
    */
-  async getAccountInfo(
-    accessToken: string,
-  ): Promise<{
+  async getAccountInfo(accessToken: string): Promise<{
     id: string;
     name: string;
     handle?: string;

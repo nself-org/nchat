@@ -629,9 +629,7 @@ export class RoutingService {
   /**
    * Apply routing rules to a conversation
    */
-  private async applyRoutingRules(
-    conversation: Conversation,
-  ): Promise<{
+  private async applyRoutingRules(conversation: Conversation): Promise<{
     ruleId: string;
     ruleName: string;
     agentId?: string;

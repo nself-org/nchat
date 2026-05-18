@@ -69,13 +69,11 @@ jest.mock("../sync-queue", () => ({
 
 // Mock conflict resolver
 const mockConflictResolver = {
-  resolve: jest
-    .fn()
-    .mockResolvedValue({
-      resolved: true,
-      result: {},
-      strategy: "last_write_wins",
-    }),
+  resolve: jest.fn().mockResolvedValue({
+    resolved: true,
+    result: {},
+    strategy: "last_write_wins",
+  }),
   setUserChoiceCallback: jest.fn(),
 };
 

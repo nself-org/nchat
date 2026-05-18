@@ -572,9 +572,7 @@ export class RecoveryLockManager {
   /**
    * Regenerates verification code for a contact
    */
-  async regenerateVerificationCode(
-    contactId: string,
-  ): Promise<{
+  async regenerateVerificationCode(contactId: string): Promise<{
     success: boolean;
     verificationCode: string | null;
     error: string | null;

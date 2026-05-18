@@ -597,25 +597,23 @@ describe("Integration Store", () => {
   describe("Utility Methods", () => {
     beforeEach(() => {
       act(() => {
-        useIntegrationStore
-          .getState()
-          .setIntegrations([
-            createMockIntegration({
-              id: "slack",
-              category: "communication",
-              status: "connected",
-            }),
-            createMockIntegration({
-              id: "github",
-              category: "devtools",
-              status: "connected",
-            }),
-            createMockIntegration({
-              id: "jira",
-              category: "productivity",
-              status: "disconnected",
-            }),
-          ]);
+        useIntegrationStore.getState().setIntegrations([
+          createMockIntegration({
+            id: "slack",
+            category: "communication",
+            status: "connected",
+          }),
+          createMockIntegration({
+            id: "github",
+            category: "devtools",
+            status: "connected",
+          }),
+          createMockIntegration({
+            id: "jira",
+            category: "productivity",
+            status: "disconnected",
+          }),
+        ]);
       });
     });
 

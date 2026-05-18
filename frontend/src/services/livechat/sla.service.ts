@@ -502,9 +502,7 @@ export class SLAService {
   /**
    * Start SLA tracking for a conversation
    */
-  async startTracking(
-    conversationId: string,
-  ): Promise<
+  async startTracking(conversationId: string): Promise<
     APIResponse<{
       policy: SLAPolicy;
       targets: { firstResponse: Date; resolution: Date };

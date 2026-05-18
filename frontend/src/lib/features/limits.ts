@@ -1176,9 +1176,7 @@ function formatDuration(ms: number): string {
 /**
  * Get all limits in a specific category
  */
-export function getLimitsByCategory(
-  category: string,
-): Array<{
+export function getLimitsByCategory(category: string): Array<{
   key: LimitKey;
   value: number;
   metadata: (typeof LIMIT_METADATA)[LimitKey];

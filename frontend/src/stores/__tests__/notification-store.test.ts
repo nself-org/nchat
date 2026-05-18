@@ -453,14 +453,12 @@ describe("Notification Store", () => {
 
       it("should reset all unread counts", () => {
         act(() => {
-          useNotificationStore
-            .getState()
-            .addNotification(
-              createTestNotification({
-                type: "mention",
-                channelId: "channel-1",
-              }),
-            );
+          useNotificationStore.getState().addNotification(
+            createTestNotification({
+              type: "mention",
+              channelId: "channel-1",
+            }),
+          );
           useNotificationStore
             .getState()
             .addNotification(
@@ -626,42 +624,34 @@ describe("Notification Store", () => {
     describe("getFilteredNotifications", () => {
       beforeEach(() => {
         act(() => {
-          useNotificationStore
-            .getState()
-            .addNotification(
-              createTestNotification({
-                id: "notif-1",
-                type: "mention",
-                isRead: false,
-              }),
-            );
-          useNotificationStore
-            .getState()
-            .addNotification(
-              createTestNotification({
-                id: "notif-2",
-                type: "thread_reply",
-                isRead: false,
-              }),
-            );
-          useNotificationStore
-            .getState()
-            .addNotification(
-              createTestNotification({
-                id: "notif-3",
-                type: "reaction",
-                isRead: true,
-              }),
-            );
-          useNotificationStore
-            .getState()
-            .addNotification(
-              createTestNotification({
-                id: "notif-4",
-                type: "mention",
-                isArchived: true,
-              }),
-            );
+          useNotificationStore.getState().addNotification(
+            createTestNotification({
+              id: "notif-1",
+              type: "mention",
+              isRead: false,
+            }),
+          );
+          useNotificationStore.getState().addNotification(
+            createTestNotification({
+              id: "notif-2",
+              type: "thread_reply",
+              isRead: false,
+            }),
+          );
+          useNotificationStore.getState().addNotification(
+            createTestNotification({
+              id: "notif-3",
+              type: "reaction",
+              isRead: true,
+            }),
+          );
+          useNotificationStore.getState().addNotification(
+            createTestNotification({
+              id: "notif-4",
+              type: "mention",
+              isArchived: true,
+            }),
+          );
         });
       });
 
@@ -739,15 +729,13 @@ describe("Notification Store", () => {
             .addNotification(
               createTestNotification({ id: "notif-2", isRead: true }),
             );
-          useNotificationStore
-            .getState()
-            .addNotification(
-              createTestNotification({
-                id: "notif-3",
-                isRead: false,
-                isArchived: true,
-              }),
-            );
+          useNotificationStore.getState().addNotification(
+            createTestNotification({
+              id: "notif-3",
+              isRead: false,
+              isArchived: true,
+            }),
+          );
         });
 
         const unread = useNotificationStore.getState().getUnreadNotifications();

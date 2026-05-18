@@ -141,9 +141,7 @@ export class InstagramClient implements SocialAPIClient {
   /**
    * Get Instagram Business Account info
    */
-  async getAccountInfo(
-    accessToken: string,
-  ): Promise<{
+  async getAccountInfo(accessToken: string): Promise<{
     id: string;
     name: string;
     handle?: string;

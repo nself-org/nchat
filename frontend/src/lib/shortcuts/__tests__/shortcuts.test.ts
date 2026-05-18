@@ -1380,24 +1380,20 @@ describe("ShortcutManager", () => {
 
   describe("conflict detection", () => {
     it("should detect conflicts via manager", () => {
-      manager
-        .getRegistry()
-        .register({
-          id: "a",
-          keys: "mod+k",
-          description: "A",
-          category: "navigation",
-          context: "global",
-        });
-      manager
-        .getRegistry()
-        .register({
-          id: "b",
-          keys: "mod+k",
-          description: "B",
-          category: "navigation",
-          context: "global",
-        });
+      manager.getRegistry().register({
+        id: "a",
+        keys: "mod+k",
+        description: "A",
+        category: "navigation",
+        context: "global",
+      });
+      manager.getRegistry().register({
+        id: "b",
+        keys: "mod+k",
+        description: "B",
+        category: "navigation",
+        context: "global",
+      });
       const conflicts = manager.detectConflicts();
       expect(conflicts.length).toBeGreaterThan(0);
     });

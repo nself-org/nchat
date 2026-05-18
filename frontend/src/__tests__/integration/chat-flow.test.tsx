@@ -828,16 +828,14 @@ describe.skip("Store Integration Tests", () => {
 
       const onSendMessage = jest.fn((channelId, content) => {
         act(() => {
-          useMessageStore
-            .getState()
-            .addMessage(
+          useMessageStore.getState().addMessage(
+            channelId,
+            createMockMessage({
+              id: `new-msg-${Date.now()}`,
               channelId,
-              createMockMessage({
-                id: `new-msg-${Date.now()}`,
-                channelId,
-                content,
-              }),
-            );
+              content,
+            }),
+          );
         });
       });
 

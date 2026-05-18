@@ -287,9 +287,7 @@ export function getGitHubIssueApiUrl(
 /**
  * Parse Spotify URL into components
  */
-export function parseSpotifyUrl(
-  url: string,
-): {
+export function parseSpotifyUrl(url: string): {
   type: "track" | "album" | "playlist" | "artist" | "episode" | "show";
   id: string;
 } | null {

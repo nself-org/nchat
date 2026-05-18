@@ -86,9 +86,7 @@ export class LinkedInClient implements SocialAPIClient {
   /**
    * Get authenticated user's profile information
    */
-  async getAccountInfo(
-    accessToken: string,
-  ): Promise<{
+  async getAccountInfo(accessToken: string): Promise<{
     id: string;
     name: string;
     handle?: string;

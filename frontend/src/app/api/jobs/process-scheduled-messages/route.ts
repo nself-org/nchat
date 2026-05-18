@@ -15,7 +15,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
-import { apolloClient } from "@/lib/apollo-client";
+import { getServerApolloClient } from "@/lib/apollo-client";
 import { gql } from "@apollo/client";
 import { getScheduledMessageService } from "@/services/messages/scheduled.service";
 import { getMessageService } from "@/services/messages/message.service";
@@ -210,7 +210,8 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date().toISOString();
-    const messageService = getMessageService(apolloClient);
+    const client = getServerApolloClient();
+    const messageService = getMessageService(client);
     const stats = {
       processed: 0,
       sent: 0,
@@ -220,7 +221,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Fetch due messages in batches
-    const { data, errors } = await apolloClient.query({
+    const { data, errors } = await client.query({
       query: GET_DUE_SCHEDULED_MESSAGES,
       variables: { now, limit: BATCH_SIZE },
       fetchPolicy: "network-only",
@@ -245,7 +246,7 @@ export async function POST(request: NextRequest) {
             channelId: scheduledMsg.channel_id,
           });
           stats.skipped++;
-          await apolloClient.mutate({
+          await client.mutate({
             mutation: MARK_MESSAGE_AS_FAILED,
             variables: {
               id: scheduledMsg.id,
@@ -278,7 +279,7 @@ export async function POST(request: NextRequest) {
         const sentMessage = result.data;
 
         // Mark as sent
-        await apolloClient.mutate({
+        await client.mutate({
           mutation: MARK_MESSAGE_AS_SENT,
           variables: {
             id: scheduledMsg.id,
@@ -297,7 +298,7 @@ export async function POST(request: NextRequest) {
           );
 
           if (nextOccurrence) {
-            await apolloClient.mutate({
+            await client.mutate({
               mutation: CREATE_RECURRING_MESSAGE,
               variables: {
                 channelId: scheduledMsg.channel_id,
@@ -356,7 +357,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Mark as failed and increment retry count
-        await apolloClient.mutate({
+        await client.mutate({
           mutation: MARK_MESSAGE_AS_FAILED,
           variables: {
             id: scheduledMsg.id,
@@ -415,7 +416,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const scheduledMessageService = getScheduledMessageService(apolloClient);
+    const client = getServerApolloClient();
+    const scheduledMessageService = getScheduledMessageService(client);
 
     // Get stats
     const pendingResult = await scheduledMessageService.getScheduledMessages({
@@ -426,7 +428,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Query actual failed message count
-    const failedCountResult = await apolloClient.query({
+    const failedCountResult = await client.query({
       query: gql`
         query GetFailedScheduledMessageCount {
           nchat_scheduled_message_aggregate(

@@ -173,9 +173,7 @@ async function extractImageMetadata(
   }
 }
 
-async function extractVideoMetadata(
-  buffer: Buffer,
-): Promise<{
+async function extractVideoMetadata(buffer: Buffer): Promise<{
   width?: number;
   height?: number;
   duration?: number;

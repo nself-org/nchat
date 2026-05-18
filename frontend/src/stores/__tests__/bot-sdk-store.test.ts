@@ -613,22 +613,18 @@ describe("Selectors", () => {
   describe("selectFilteredInstalledBots", () => {
     beforeEach(() => {
       act(() => {
-        useBotSdkStore
-          .getState()
-          .addInstalledBot(
-            createTestInstalledBot("bot_1", {
-              name: "Alpha Bot",
-              status: "online",
-            }),
-          );
-        useBotSdkStore
-          .getState()
-          .addInstalledBot(
-            createTestInstalledBot("bot_2", {
-              name: "Beta Bot",
-              status: "offline",
-            }),
-          );
+        useBotSdkStore.getState().addInstalledBot(
+          createTestInstalledBot("bot_1", {
+            name: "Alpha Bot",
+            status: "online",
+          }),
+        );
+        useBotSdkStore.getState().addInstalledBot(
+          createTestInstalledBot("bot_2", {
+            name: "Beta Bot",
+            status: "offline",
+          }),
+        );
       });
     });
 

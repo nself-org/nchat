@@ -117,9 +117,15 @@ const splitLink =
       )
     : from([errorLink, authLink, httpLink]);
 
-// Apollo Client instance
-export const apolloClient: ApolloClient<NormalizedCacheObject> =
-  new ApolloClient({
+// Apollo Client instance (browser-side only)
+// On the server (API routes, server components), use getServerApolloClient() instead.
+let _browserApolloClient: ApolloClient<NormalizedCacheObject> | null = null;
+
+function getBrowserApolloClient(): ApolloClient<NormalizedCacheObject> {
+  if (_browserApolloClient) {
+    return _browserApolloClient;
+  }
+  _browserApolloClient = new ApolloClient({
     link: splitLink,
     cache: new InMemoryCache({
       typePolicies: {
@@ -140,6 +146,30 @@ export const apolloClient: ApolloClient<NormalizedCacheObject> =
       },
     },
   });
+  return _browserApolloClient;
+}
+
+/**
+ * Apollo Client singleton.
+ * - In browser (client components): returns the WebSocket-capable browser client.
+ * - On server (API routes, server components): returns the server-side client with
+ *   admin-secret auth and no-cache policy via getServerApolloClient().
+ *
+ * API routes SHOULD call getServerApolloClient() directly for clarity, but importing
+ * apolloClient is safe in any environment.
+ */
+export const apolloClient: ApolloClient<NormalizedCacheObject> =
+  typeof window === "undefined"
+    ? // Server-side: delegate to lazy server client (avoids browser-only APIs)
+      (new Proxy({} as ApolloClient<NormalizedCacheObject>, {
+        get(_target, prop) {
+          return getServerApolloClient()[
+            prop as keyof ApolloClient<NormalizedCacheObject>
+          ];
+        },
+      }) as ApolloClient<NormalizedCacheObject>)
+    : // Browser: return the real browser client (lazy singleton)
+      getBrowserApolloClient();
 
 // Utility function to close WebSocket connection (useful for logout)
 export function closeWebSocketConnection(): void {

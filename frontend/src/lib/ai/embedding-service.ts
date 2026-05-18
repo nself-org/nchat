@@ -437,9 +437,7 @@ export class EmbeddingService {
   /**
    * Get cached embedding by content hash
    */
-  private async getCachedEmbedding(
-    contentHash: string,
-  ): Promise<{
+  private async getCachedEmbedding(contentHash: string): Promise<{
     id: string;
     embedding: number[];
     model: string;

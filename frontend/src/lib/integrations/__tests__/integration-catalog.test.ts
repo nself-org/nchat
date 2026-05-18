@@ -598,26 +598,22 @@ describe("BaseConnector", () => {
     });
 
     it("does not retry non-retryable errors", async () => {
-      const fn = jest
-        .fn()
-        .mockRejectedValue(
-          new ConnectorError("auth error", "auth", "test", {
-            retryable: false,
-          }),
-        );
+      const fn = jest.fn().mockRejectedValue(
+        new ConnectorError("auth error", "auth", "test", {
+          retryable: false,
+        }),
+      );
 
       await expect(connector.testWithRetry(fn)).rejects.toThrow("auth error");
       expect(fn).toHaveBeenCalledTimes(1);
     });
 
     it("exhausts max retries", async () => {
-      const fn = jest
-        .fn()
-        .mockRejectedValue(
-          new ConnectorError("network error", "network", "test", {
-            retryable: true,
-          }),
-        );
+      const fn = jest.fn().mockRejectedValue(
+        new ConnectorError("network error", "network", "test", {
+          retryable: true,
+        }),
+      );
 
       await expect(connector.testWithRetry(fn)).rejects.toThrow();
       expect(fn).toHaveBeenCalledTimes(4); // 1 initial + 3 retries

@@ -205,12 +205,10 @@ describe("InteractionRouter", () => {
     });
 
     it("should route form submit to handler", async () => {
-      const handler = jest
-        .fn()
-        .mockResolvedValue({
-          type: "ephemeral",
-          message: { text: "Submitted" },
-        });
+      const handler = jest.fn().mockResolvedValue({
+        type: "ephemeral",
+        message: { text: "Submitted" },
+      });
       router.onFormSubmit("contact_form", handler);
 
       const interaction = createFormInteraction("contact_form", [
