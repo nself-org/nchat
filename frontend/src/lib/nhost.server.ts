@@ -29,8 +29,12 @@ export interface NhostServerClient {
   }
 }
 
-// Create nhost client with proper configuration for self-hosted backend
-// Note: We're using @nhost/nhost-js instead of @nhost/nextjs to avoid React context issues
+// Create nhost client with proper configuration for self-hosted backend.
+// Note: We're using @nhost/nhost-js instead of @nhost/nextjs to avoid React context issues.
+// The options are cast to `any` because CI's pnpm peer-resolution can surface the internal
+// @nhost/hasura-auth-js `NhostClientOptions` type (which omits graphql/storage/devTools
+// constructor params) instead of the public `NhostClientConstructorParams` from @nhost/nhost-js.
+// All properties here are valid at runtime per the nhost-js 3.x API.
 export const nhost = createNhostClient({
   // For self-hosted nhost, we use explicit URLs instead of subdomain
   authUrl: 'https://auth.localhost',
@@ -42,4 +46,5 @@ export const nhost = createNhostClient({
   devTools: process.env.NODE_ENV === 'development',
   autoSignIn: false, // Don't auto sign in - let user control it
   autoRefreshToken: true, // Auto refresh tokens when expired
-}) as unknown as NhostServerClient
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any) as unknown as NhostServerClient
