@@ -118,7 +118,7 @@ function startListening(): () => void {
     }
   )
 
-  return () => listener.remove()
+  return () => { listener.then((l) => l.remove()).catch(() => {}) }
 }
 
 /**

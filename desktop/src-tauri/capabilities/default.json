@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.tauri.app/config/2/capability",
+  "identifier": "default",
+  "description": "Default capability set for nChat Desktop — grants core window, clipboard, notification, shell, deep-link, store, and updater access.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "window-state:default",
+    "autostart:default",
+    "notification:default",
+    "clipboard-manager:default",
+    "store:default",
+    "deep-link:default",
+    "shell:allow-open",
+    "updater:default"
+  ]
+}

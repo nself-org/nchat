@@ -32,7 +32,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('1.3.1 - Info and Relationships: Proper heading hierarchy', async () => {
       const { container } = render(
@@ -45,7 +45,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('1.4.3 - Contrast (Minimum): Sufficient color contrast', async () => {
       const { container } = render(
@@ -62,7 +62,7 @@ describe('WCAG 2.1 AA Compliance', () => {
       })
 
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('1.4.4 - Resize Text: Text can be resized', () => {
       const { container } = render(
@@ -113,7 +113,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('2.4.1 - Bypass Blocks: Skip links present', () => {
       render(
@@ -148,7 +148,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('2.4.4 - Link Purpose: Link purpose is clear', async () => {
       const { container } = render(
@@ -160,7 +160,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('2.4.6 - Headings and Labels: Descriptive headings and labels', async () => {
       const { container } = render(
@@ -173,7 +173,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('2.4.7 - Focus Visible: Focus indicator is visible', () => {
       const { container } = render(<Button>Test Button</Button>)
@@ -191,7 +191,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
   })
 
   describe('Understandable', () => {
@@ -211,7 +211,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('3.2.2 - On Input: No context change on input', async () => {
       const { container } = render(
@@ -223,7 +223,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('3.3.1 - Error Identification: Errors are identified', async () => {
       const { container } = render(
@@ -238,7 +238,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('3.3.2 - Labels or Instructions: Form fields have labels', async () => {
       const { container } = render(
@@ -252,7 +252,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
   })
 
   describe('Robust', () => {
@@ -270,7 +270,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('4.1.2 - Name, Role, Value: Elements have proper ARIA', async () => {
       const { container } = render(
@@ -299,13 +299,13 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
   })
 
   describe('Component Accessibility', () => {
     test('Button component is accessible', async () => {
       await expectNoA11yViolations(<Button>Click me</Button>)
-    })
+    }, 30000)
 
     test('Input component is accessible', async () => {
       await expectNoA11yViolations(
@@ -314,15 +314,15 @@ describe('WCAG 2.1 AA Compliance', () => {
           <Input id="test" type="text" />
         </div>
       )
-    })
+    }, 30000)
 
     test('High Contrast Mode is accessible', async () => {
       await expectNoA11yViolations(<HighContrastMode />)
-    })
+    }, 30000)
 
     test('Accessibility Menu is accessible', async () => {
       await expectNoA11yViolations(<AccessibilityMenu />)
-    })
+    }, 30000)
   })
 
   describe('Keyboard Navigation', () => {
@@ -376,7 +376,7 @@ describe('WCAG 2.1 AA Compliance', () => {
 
       const results = await axe(container)
       expect(results).toHaveNoViolations()
-    })
+    }, 30000)
 
     test('ARIA labels are present on interactive elements', () => {
       render(

@@ -13,7 +13,7 @@
  * shows the sign-in page.
  */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@nself-chat/state'
 

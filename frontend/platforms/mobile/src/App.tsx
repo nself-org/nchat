@@ -5,16 +5,20 @@
  * with mobile-specific adapters and navigation
  */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 
 import { logger } from '@nself-chat/core'
-import { ApolloProvider } from '@nself-chat/api'
+import { ApolloProvider, createApolloClient } from '@nself-chat/api'
 import { useAuthStore } from '@nself-chat/state'
+
+// Stub client — real wiring in S05 when backend URL is configured
+const apolloClient = createApolloClient({ uri: '/graphql' })
 
 import { usePushNotifications } from './hooks/use-push-notifications'
 import { useNetworkStatus } from './hooks/use-network-status'
 import { mobileStorage } from './adapters/storage'
+import { MobileRouterProvider } from './adapters/router'
 import { AppNavigator } from './navigation/AppNavigator'
 
 import '@nself-chat/ui/styles.css'
@@ -90,8 +94,9 @@ export function App() {
   }, [networkStatus.connected, networkStatus.connectionType])
 
   return (
-    <ApolloProvider>
+    <ApolloProvider client={apolloClient}>
       <BrowserRouter>
+        <MobileRouterProvider>
         <div className="app">
           {networkStatus.offline && (
             <div
@@ -117,6 +122,7 @@ export function App() {
           )}
           <AppNavigator />
         </div>
+        </MobileRouterProvider>
       </BrowserRouter>
     </ApolloProvider>
   )

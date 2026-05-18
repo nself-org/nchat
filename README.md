@@ -69,22 +69,50 @@ cd backend && ./scripts/seed.sh
 ## Project Structure
 
 ```
-nself-chat/
-├── backend/          # nSelf CLI backend (PostgreSQL + Hasura + Auth)
-├── frontend/         # Next.js 15 web app (single app, not a monorepo)
+nself-chat/                   # pnpm workspace root
+├── frontend/                 # @nself-chat/web — Next.js 15 web app
+│   ├── platforms/
+│   │   ├── desktop/          # @nself-chat/desktop — Electron shell
+│   │   └── mobile/           # @nself-chat/mobile — Capacitor shell
 │   └── src/
-│       ├── app/      # Next.js App Router
+│       ├── app/              # Next.js App Router
 │       ├── components/
-│       ├── config/   # AppConfig + feature flags
+│       ├── config/           # AppConfig + feature flags
 │       ├── contexts/
 │       ├── graphql/
 │       ├── hooks/
 │       ├── lib/
-│       ├── platforms/ # Capacitor, Electron, Tauri configs
 │       └── types/
-├── tests/            # E2E tests (Playwright)
-├── integration_test/ # Backend integration tests (Bats)
-└── .github/          # CI/CD workflows
+├── packages/                 # Shared workspace packages
+│   ├── core/                 # @nself-chat/core — domain models + business logic
+│   ├── api/                  # @nself-chat/api — GraphQL client + typed hooks
+│   ├── state/                # @nself-chat/state — Zustand stores
+│   ├── ui/                   # @nself-chat/ui — shared React component library
+│   ├── config/               # @nself-chat/config — AppConfig + feature flags
+│   └── testing/              # @nself-chat/testing — test utilities + fixtures
+├── tests/                    # E2E tests (Playwright)
+├── integration_test/         # Backend integration tests (Bats)
+└── .github/                  # CI/CD workflows
+```
+
+### Workspace Filters
+
+Use `pnpm --filter` to target a specific package or platform:
+
+```bash
+# Build a specific platform
+pnpm --filter @nself-chat/desktop build
+pnpm --filter @nself-chat/mobile build
+
+# Build all shared packages
+pnpm --filter "@nself-chat/core" build
+pnpm --filter "@nself-chat/api" build
+
+# Run dev for the web frontend
+pnpm --filter @nself-chat/web dev
+
+# Type-check a platform in isolation
+pnpm --filter @nself-chat/desktop type-check
 ```
 
 ---

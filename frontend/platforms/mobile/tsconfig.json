@@ -18,14 +18,14 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@nself-chat/core": ["../../packages/core/src"],
-      "@nself-chat/api": ["../../packages/api/src"],
-      "@nself-chat/state": ["../../packages/state/src"],
-      "@nself-chat/ui": ["../../packages/ui/src"],
-      "@nself-chat/config": ["../../packages/config/src"],
-      "@nself-chat/testing": ["../../packages/testing/src"]
+      "@nself-chat/core": ["../../../packages/core/src"],
+      "@nself-chat/api": ["../../../packages/api/src"],
+      "@nself-chat/state": ["../../../packages/state/src"],
+      "@nself-chat/ui": ["../../../packages/ui/src"],
+      "@nself-chat/config": ["../../../packages/config/src"],
+      "@nself-chat/testing": ["../../../packages/testing/src"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "android", "ios"]
+  "exclude": ["node_modules", "dist", "android", "ios", "src/**/__tests__/**", "src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx"]
 }

@@ -85,7 +85,7 @@ export const mobileNetwork: NetworkAdapter = {
    * Listen for network status changes
    */
   addStatusChangeListener(handler: (status: NetworkStatus) => void) {
-    const listener = Network.addListener(
+    const listenerPromise = Network.addListener(
       'networkStatusChange',
       (status: ConnectionStatus) => {
         const networkStatus: NetworkStatus = {
@@ -102,7 +102,7 @@ export const mobileNetwork: NetworkAdapter = {
     )
 
     return () => {
-      listener.remove()
+      listenerPromise.then((l) => l.remove()).catch(() => {})
     }
   },
 

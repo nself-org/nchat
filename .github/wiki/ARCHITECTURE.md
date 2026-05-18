@@ -619,6 +619,54 @@ subscription OnNewMessage($channelId: uuid!) {
 
 ---
 
+## Shared Packages (Monorepo)
+
+Six workspace packages under `packages/` provide shared logic consumed by the web frontend, Electron desktop, and Capacitor mobile platforms.
+
+| Package | npm name | Status | Depends on |
+|---------|----------|--------|------------|
+| `packages/core` | `@nself-chat/core` | Active — logger stub, shared types, utils | (none) |
+| `packages/api` | `@nself-chat/api` | Active — Apollo client factory, ApolloProvider re-export | `@nself-chat/core` |
+| `packages/state` | `@nself-chat/state` | Active — Zustand stores | `@nself-chat/core`, `@nself-chat/api` |
+| `packages/ui` | `@nself-chat/ui` | Active — shared React components, global CSS | `@nself-chat/core` |
+| `packages/config` | `@nself-chat/config` | Active — runtime configuration | `@nself-chat/core` |
+| `packages/testing` | `@nself-chat/testing` | Stub — testing utilities added in future sprint | (none) |
+
+### Dependency Direction
+
+Packages are strictly layered. Dependencies only flow downward:
+
+```
+@nself-chat/state  ──> @nself-chat/api  ──> @nself-chat/core
+@nself-chat/ui     ──────────────────────────────────────────> @nself-chat/core
+@nself-chat/config ──────────────────────────────────────────> @nself-chat/core
+@nself-chat/testing ──> (no workspace deps)
+```
+
+No package may import from `frontend/` or from a platform (`desktop/`, `mobile/`). Platforms consume packages — never the reverse.
+
+### Build
+
+Packages are resolved via Vite aliases (source-level) during platform builds — no pre-build step required for local development. Each package ships `src/index.ts` as its source entry.
+
+```bash
+# Build all packages (TypeScript declarations + JS)
+pnpm --filter "@nself-chat/*" build
+
+# Build specific platform (resolves packages via vite aliases)
+pnpm --filter @nself-chat/desktop build
+pnpm --filter @nself-chat/mobile build
+```
+
+### Adding a New Package
+
+1. Create `packages/<name>/` with `package.json` (`name: "@nself-chat/<name>"`), `src/index.ts`, and `tsconfig.json` extending `../../tsconfig.json`.
+2. Add `"@nself-chat/<name>": "workspace:*"` to any consumer's `package.json` `dependencies`.
+3. Add a vite alias in the consumer's `vite.config.ts`: `'@nself-chat/<name>': resolve(__dirname, '../../packages/<name>/src')`.
+4. Add a `paths` entry in the consumer's `tsconfig.json`: `"@nself-chat/<name>/*": ["../../../packages/<name>/src/*"]`.
+
+---
+
 ## Backend Services
 
 ### nSelf CLI Services
@@ -893,6 +941,58 @@ Or via console:
 - Fixed all TypeScript errors
 - Achieved 98%+ test pass rate
 - Production-ready build
+
+---
+
+## Desktop Platform — Tauri 2
+
+**Added:** S12 (P103 sprint). Replaces the Electron shell at `platforms/desktop/`.
+
+### Stack
+
+| Layer | Technology |
+|---|---|
+| Renderer | React/Vite (`@nself-chat/web` workspace package) |
+| Shell | Rust + Tauri 2 |
+| IPC | Tauri `invoke()` commands (18 channels) |
+| Packaging | Tauri `bundle` → DMG (macOS), MSI/NSIS (Windows), AppImage/deb (Linux) |
+| Distribution | GitHub Releases + S3 updater feed at `packages.nself.org` |
+
+### Workspace package
+
+`nchat/desktop/` — `@nself-chat/desktop`. All Tauri 2 source lives here, separate from the
+legacy Electron shell at `platforms/desktop/` (removed in T19).
+
+### Key features
+
+- Native menus (File/Edit/View/Window) with keyboard shortcuts
+- System tray with hide-to-tray on macOS close
+- Deep-link handler for `nchat://chat/<room>` and `nchat://invite/<token>`
+- Window state persistence (size, position, maximized, fullscreen)
+- Auto-updater with semver downgrade guard
+- macOS dock badge via `app_set_badge_count`
+- Optional crash reporting via sentry-tauri (DSN from env)
+
+### Build
+
+```bash
+cd nchat && pnpm install
+cd desktop && pnpm tauri:dev     # dev mode
+cd desktop && pnpm tauri:build   # release build
+cd desktop && pnpm test          # vitest unit tests
+cd desktop && pnpm ipc-parity    # IPC channel parity check
+cd desktop && pnpm test:e2e      # Playwright e2e (requires built binary)
+```
+
+### CI workflows
+
+| Workflow | Trigger | Notes |
+|---|---|---|
+| `.github/workflows/desktop-macos.yml` | tag push, PR, dispatch | arm64 + x64 matrix; bundle size gate (≤90 MB); e2e job |
+| `.github/workflows/desktop-linux.yml` | tag push, PR, dispatch | Ubuntu 22.04; libwebkit2gtk-4.1-dev; Wayland DMA-BUF disabled |
+| `.github/workflows/desktop-windows.yml` | tag push, PR, dispatch | x64; EV signing via SSL.com eSigner |
+
+Full documentation: [DESKTOP.md](./DESKTOP.md)
 
 ---
 

@@ -1,0 +1,173 @@
+name: Desktop — macOS (Tauri 2)
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - 'nchat/desktop/**'
+      - '.github/workflows/desktop-macos.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_INCREMENTAL: 0
+  RUST_BACKTRACE: short
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: aarch64
+            runner: macos-14
+            rust_target: aarch64-apple-darwin
+          - arch: x64
+            runner: macos-13
+            rust_target: x86_64-apple-darwin
+
+    name: Build (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: nchat/pnpm-lock.yaml
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: nchat/desktop/src-tauri -> target
+          key: macos-${{ matrix.arch }}-${{ hashFiles('nchat/desktop/src-tauri/Cargo.lock') }}
+
+      - name: Install pnpm deps
+        working-directory: nchat
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Tauri (macOS ${{ matrix.arch }})
+        working-directory: nchat/desktop
+        run: pnpm tauri build --target ${{ matrix.rust_target }}
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      # T27 — bundle size budget gate (arm64 only, ~10 MB threshold = 90 MB)
+      - name: Bundle size gate
+        if: matrix.arch == 'aarch64'
+        run: |
+          DMG=$(ls nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg 2>/dev/null | head -1)
+          if [ -z "$DMG" ]; then
+            echo "ERROR: no DMG found"
+            exit 1
+          fi
+          SIZE=$(du -m "$DMG" | cut -f1)
+          echo "Bundle size: ${SIZE} MB"
+          if [ "$SIZE" -gt 90 ]; then
+            echo "ERROR: Bundle ${SIZE} MB exceeds 90 MB budget"
+            exit 1
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-macos-${{ matrix.arch }}
+          path: |
+            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg
+            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz
+            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig
+          retention-days: 14
+
+      # T18 — publish updater feed to S3 (tag pushes only)
+      - name: Publish updater feed (S3)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.HETZNER_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.HETZNER_S3_SECRET_KEY }}
+          AWS_DEFAULT_REGION: eu-central-1
+          AWS_ENDPOINT_URL: https://fsn1.your-objectstorage.com
+        run: |
+          for sig in nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig; do
+            [ -f "$sig" ] || continue
+            aws s3 cp "$sig" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
+            aws s3 cp "${sig%.sig}" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
+          done
+
+  # T30 e2e via tauri-driver — only on tag push or workflow_dispatch
+  e2e:
+    name: E2E (Playwright + tauri-driver)
+    runs-on: macos-14
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: nchat/pnpm-lock.yaml
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: nchat/desktop/src-tauri -> target
+
+      - name: Install deps
+        working-directory: nchat
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        working-directory: nchat/desktop
+        run: pnpx playwright install chromium
+
+      - name: Build (dev binary for e2e)
+        working-directory: nchat/desktop
+        run: pnpm tauri build --debug --target aarch64-apple-darwin
+
+      - name: Run e2e tests
+        working-directory: nchat/desktop
+        run: pnpm test:e2e
+        env:
+          TAURI_BINARY: src-tauri/target/aarch64-apple-darwin/debug/nchat-desktop

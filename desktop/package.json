@@ -1,0 +1,45 @@
+{
+  "name": "@nself-chat/desktop",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "ipc-parity": "ts-node --esm tests/ipc-parity.ts"
+  },
+  "dependencies": {
+    "@nself-chat/ui": "workspace:*",
+    "@nself-chat/web": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-autostart": "^2",
+    "@tauri-apps/plugin-deep-link": "^2",
+    "@tauri-apps/plugin-notification": "^2",
+    "@tauri-apps/plugin-shell": "^2",
+    "@tauri-apps/plugin-store": "^2",
+    "@tauri-apps/plugin-updater": "^2",
+    "@tauri-apps/plugin-window-state": "^2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/cli": "^2",
+    "@testing-library/jest-dom": "^6",
+    "@testing-library/react": "^16",
+    "@vitejs/plugin-react": "^4",
+    "@vitest/coverage-v8": "^2",
+    "jsdom": "^24",
+    "ts-node": "^10",
+    "typescript": "^6.0.3",
+    "vite": "^6",
+    "vitest": "^2"
+  }
+}

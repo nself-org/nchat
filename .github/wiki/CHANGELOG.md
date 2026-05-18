@@ -5,6 +5,53 @@ All notable changes to ɳChat will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Tauri 2 desktop shell — full migration (S12):** The nChat desktop application is now built with [Tauri 2](https://tauri.app), replacing the Electron shell. Workspace package `@nself-chat/desktop` at `nchat/desktop/`. Rust shell in `src-tauri/` with EIE command layout (`commands/`, `state/`, `capabilities/`).
+  - 19 IPC channels available via `invoke()` — verified by `pnpm ipc-parity` script.
+  - Native system tray on macOS and Windows with Show, New Conversation, Preferences, and Quit actions.
+  - Deep-link scheme `nchat://` — supports `nchat://chat/<room>` and `nchat://invite/<token>`.
+  - Window state persistence (size, position, maximized, fullscreen) via `tauri-plugin-window-state`.
+  - Auto-updater endpoint at `https://packages.nself.org/chat-desktop/latest-{{target}}-{{arch}}.json` with semver downgrade guard.
+  - macOS dock badge count via `app_set_badge_count` IPC command.
+  - Optional Sentry crash reporting — set `SENTRY_DSN` env var; no-op if unset.
+  - macOS: close hides window to tray (Cmd+Q to quit). Windows/Linux: close exits the app.
+- **Per-platform CI workflows (S12):**
+  - `desktop-macos.yml` — arm64 (macos-14) and x64 (macos-13) matrix; bundle size gate enforces ≤ 90 MB DMG on arm64.
+  - `desktop-linux.yml` — Ubuntu 22.04 with `libwebkit2gtk-4.1-dev`; Wayland compositor fix (`WEBKIT_DISABLE_DMABUF_RENDERER=1`).
+  - `desktop-windows.yml` — EV code-signing via `SSLcom/esigner-codesign@v1.3.2`; conditional on `SSL_COM_USERNAME` org secret.
+  - All three workflows publish updater artifacts to S3 (`s3://packages.nself.org/chat-desktop/`) on tag push.
+- **Vitest unit tests for IPC layer (S12):** `desktop/src/lib/ipc.ts` typed wrappers + `desktop/src/lib/ipc.test.ts` — 4 test suites covering app info, window controls, notifications, and update check.
+- **Playwright E2E tests for desktop (S12):** `desktop/tests/e2e/` — launch, IPC round-trip, and window control specs driven by `tauri-driver`.
+- **IPC parity check script (S12):** `pnpm ipc-parity` in `desktop/` — parses `lib.rs` handler registration and verifies all 19 expected channels are present. Exits non-zero on any missing channel.
+- **Windows desktop EV code-signing (S20):** `desktop-windows.yml` added — builds Tauri desktop MSI on Windows runner and wires `SSLcom/esigner-codesign@v1.3.2` for EV Organization Validation code-signing. Signing is conditional on `SSL_COM_USERNAME` org secret being set; CI stays green when secrets absent. Once secrets are provisioned, release MSIs will pass SmartScreen without "Unknown Publisher" warnings.
+
+---
+
+## [Unreleased] — P103 S04 Monorepo Scaffold
+
+### Added
+
+- **`@nself-chat/testing` package** (`packages/testing/`): stub package with empty exports — testing utilities added in S05+.
+- **`packages/core/src/logger/`**: stub logger (`debug`, `info`, `warn`, `error`) exported from `@nself-chat/core`.
+- **`packages/ui/src/styles.css`**: stub CSS entry point for UI package global styles.
+- **`tsconfig.json`** at monorepo root: shared base TypeScript compiler options extended by all platform tsconfigs.
+
+### Fixed
+
+- Mobile and desktop tsconfigs now correctly resolve `@nself-chat/*` paths to `../../../packages/*/src` (corrected from `../../packages/*/src`).
+- Mobile vite.config aliases corrected to three-level relative paths matching actual filesystem layout.
+- `frontend/platforms/mobile/tsconfig.json` now excludes `__tests__/**` from the production type-check pass.
+- Capacitor `addListener()` return type is `Promise<PluginListenerHandle>` — all 6 listener cleanup paths in `notifications`, `fcm`, and `network` adapters now resolve the promise before calling `.remove()`.
+- `BrowserWindow.fromWebContents(event.sender)` replaces deprecated `event.sender.getOwnerBrowserWindow()` in desktop ipc-handlers (4 call sites).
+- `ApolloProvider` in `App.tsx` now receives a `client` prop (stub client from `createApolloClient`).
+- Removed unused `React` import from 5 mobile source files (React 19 JSX transform).
+- Desktop vite.config `rollupOptions.external` prevents Electron/Node.js modules from being bundled into the browser renderer.
+
+---
+
 ## [1.0.0] — 2026-05-15
 
 First stable release. Full-featured self-hosted chat. ɳChat bundle (9 plugins) available at nself.org.

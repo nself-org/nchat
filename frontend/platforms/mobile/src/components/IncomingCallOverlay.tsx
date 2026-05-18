@@ -13,7 +13,7 @@
  * FCM data message arrives while the app is foregrounded.
  */
 
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { FcmCallPayload } from '../adapters/fcm'
 
 export interface IncomingCallOverlayProps {

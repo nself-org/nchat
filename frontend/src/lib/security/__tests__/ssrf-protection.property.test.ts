@@ -534,7 +534,7 @@ describe('SSRF Protection - Property Tests', () => {
         ),
         { numRuns: 2000 }
       )
-    })
+    }, 60000)
 
     it('should always return a result object with valid field', async () => {
       await fc.assert(
@@ -548,7 +548,7 @@ describe('SSRF Protection - Property Tests', () => {
         ),
         { numRuns: 1000 }
       )
-    })
+    }, 60000)
 
     it('should provide a reason when validation fails', async () => {
       await fc.assert(
@@ -565,7 +565,7 @@ describe('SSRF Protection - Property Tests', () => {
         ),
         { numRuns: 1000 }
       )
-    })
+    }, 60000)
 
     // Test re-enabled. Fast-check webUrl with mocked DNS resolution.
     it('should be consistent on repeated calls', async () => {

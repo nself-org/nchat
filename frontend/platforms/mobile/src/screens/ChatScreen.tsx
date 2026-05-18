@@ -11,7 +11,7 @@
  *   /chat/dm/:userId           → jump to a DM thread
  */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@nself-chat/state'
 

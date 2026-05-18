@@ -10,7 +10,7 @@ import {
   ActionPerformed,
   Token,
 } from '@capacitor/push-notifications'
-import { App } from '@capacitor/app'
+import { Capacitor } from '@capacitor/core'
 
 /**
  * Notification permission status
@@ -111,8 +111,9 @@ export const mobileNotifications: NotificationsAdapter = {
   async setBadgeCount(count: number): Promise<void> {
     try {
       // iOS only - Android handles badges differently
-      if ((await App.getInfo()).platform === 'ios') {
-        await PushNotifications.setBadgeCount({ count })
+      if (Capacitor.getPlatform() === 'ios') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (PushNotifications as any).setBadgeCount({ count })
       }
     } catch (error) {
       console.error('[Notifications] Error setting badge:', error)
@@ -132,7 +133,7 @@ export const mobileNotifications: NotificationsAdapter = {
   addNotificationReceivedListener(
     handler: (notification: PushNotificationSchema) => void
   ) {
-    const listener = PushNotifications.addListener(
+    const listenerPromise = PushNotifications.addListener(
       'pushNotificationReceived',
       (notification) => {
         console.log('[Notifications] Received:', notification)
@@ -141,7 +142,7 @@ export const mobileNotifications: NotificationsAdapter = {
     )
 
     return () => {
-      listener.remove()
+      listenerPromise.then((l) => l.remove()).catch(() => {})
     }
   },
 
@@ -149,7 +150,7 @@ export const mobileNotifications: NotificationsAdapter = {
    * Listen for notification actions (user tapped notification)
    */
   addNotificationActionListener(handler: (action: ActionPerformed) => void) {
-    const listener = PushNotifications.addListener(
+    const listenerPromise = PushNotifications.addListener(
       'pushNotificationActionPerformed',
       (action) => {
         console.log('[Notifications] Action performed:', action)
@@ -158,7 +159,7 @@ export const mobileNotifications: NotificationsAdapter = {
     )
 
     return () => {
-      listener.remove()
+      listenerPromise.then((l) => l.remove()).catch(() => {})
     }
   },
 
@@ -166,7 +167,7 @@ export const mobileNotifications: NotificationsAdapter = {
    * Listen for successful registration
    */
   addRegistrationListener(handler: (token: string) => void) {
-    const listener = PushNotifications.addListener(
+    const listenerPromise = PushNotifications.addListener(
       'registration',
       (token: Token) => {
         console.log('[Notifications] Registration success:', token.value)
@@ -175,7 +176,7 @@ export const mobileNotifications: NotificationsAdapter = {
     )
 
     return () => {
-      listener.remove()
+      listenerPromise.then((l) => l.remove()).catch(() => {})
     }
   },
 
@@ -183,7 +184,7 @@ export const mobileNotifications: NotificationsAdapter = {
    * Listen for registration errors
    */
   addRegistrationErrorListener(handler: (error: any) => void) {
-    const listener = PushNotifications.addListener(
+    const listenerPromise = PushNotifications.addListener(
       'registrationError',
       (error: any) => {
         console.error('[Notifications] Registration error:', error)
@@ -192,7 +193,7 @@ export const mobileNotifications: NotificationsAdapter = {
     )
 
     return () => {
-      listener.remove()
+      listenerPromise.then((l) => l.remove()).catch(() => {})
     }
   },
 }

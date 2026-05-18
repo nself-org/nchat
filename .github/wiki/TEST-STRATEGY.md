@@ -2851,11 +2851,109 @@ it('uses context value', () => {
 
 ---
 
+---
+
+## Desktop Testing — Vitest + Playwright (S12, Tauri 2)
+
+The `nchat/desktop/` workspace package uses a separate testing stack from the Next.js frontend.
+
+### Unit Tests — Vitest
+
+**Framework:** Vitest 2 + jsdom + React Testing Library 16
+
+**Config:** `desktop/vitest.config.ts`
+
+```ts
+// jsdom environment, @/ alias to src/, v8 coverage
+```
+
+**Setup:** `desktop/src/test/setup.ts` — imports `@testing-library/jest-dom`, calls `mockIPC()` before each test to stub Tauri command dispatch, calls `clearMocks()` after each.
+
+**Running:**
+
+```bash
+cd nchat/desktop
+pnpm test          # run once
+pnpm test:watch    # watch mode
+pnpm test:coverage # v8 coverage report
+```
+
+**IPC test helpers:** `desktop/src/lib/ipc.ts` exports typed wrappers around `invoke()`. Tests import these wrappers and use `mockIPC` from `@tauri-apps/api/mocks` to stub responses.
+
+```ts
+import { mockIPC, clearMocks } from "@tauri-apps/api/mocks";
+
+beforeEach(() => mockIPC((cmd, args) => { /* return stub */ }));
+afterEach(() => clearMocks());
+```
+
+**Test file:** `desktop/src/lib/ipc.test.ts` — 4 suites:
+
+| Suite | What it tests |
+|---|---|
+| `app_info` | `app_get_name` → "nChat"; `app_get_version` → semver; error propagation |
+| `window_minimize` | Calls `window_minimize` channel with no args |
+| `notification_show` | Passes title + body to `notification_show` |
+| `update_check` | `available: true`, `available: false`, downgrade guard pass-through |
+
+**Coverage target:** 80% branch on `src/lib/`; 100% on security-critical paths.
+
+---
+
+### E2E Tests — Playwright + tauri-driver
+
+**Framework:** Playwright 1.44 + `tauri-driver` WebDriver bridge
+
+**Config:** `desktop/playwright.config.ts` — connects to `ws://localhost:4444` (tauri-driver); `TAURI_BINARY` env override for binary path; 2 retries in CI.
+
+**Requirements before running:**
+
+1. Build the desktop binary: `pnpm tauri:build` in `nchat/desktop/`
+2. Install tauri-driver: `cargo install tauri-driver`
+3. Start tauri-driver: `tauri-driver` (separate terminal or let Playwright webServer start it)
+
+**Running:**
+
+```bash
+cd nchat/desktop
+pnpm test:e2e
+```
+
+**Test files:** `desktop/tests/e2e/`
+
+| File | What it covers |
+|---|---|
+| `launch.spec.ts` | App launches; title matches `/nChat/`; `#root` visible |
+| `ipc.spec.ts` | `app_get_name` → "nChat"; `app_get_version` → semver string |
+| `window-controls.spec.ts` | `window_is_maximized` → boolean; `window_minimize` resolves without error |
+
+**CI:** E2E job runs in `desktop-macos.yml` on tag push and `workflow_dispatch`. Requires a built binary — runs AFTER the build job completes.
+
+**Note:** E2E tests invoke real Tauri commands against the compiled binary. They are not mocked. A full `pnpm tauri:build` is required before running.
+
+---
+
+### IPC Parity Check
+
+Ensures the Rust handler registration in `lib.rs` stays in sync with the documented IPC channel table in `DESKTOP.md`.
+
+```bash
+cd nchat/desktop
+pnpm ipc-parity
+```
+
+Script: `desktop/tests/ipc-parity.ts` — parses `src-tauri/src/lib.rs` `tauri::generate_handler![]` block, verifies all 19 expected channels are registered. `drag_start_file` is marked intentional N/A (uses Tauri drag-and-drop API directly). Exits 1 on any missing channel.
+
+Run as a pre-PR check and in CI (macOS workflow, verification step after build).
+
+---
+
 ## Document History
 
 | Version | Date       | Author | Changes                             |
 | ------- | ---------- | ------ | ----------------------------------- |
 | 1.0.0   | 2026-02-03 | Claude | Initial comprehensive test strategy |
+| 1.1.0   | 2026-05-16 | Claude | Added desktop testing section (S12 — Tauri 2 migration: Vitest + Playwright + IPC parity) |
 
 ---
 

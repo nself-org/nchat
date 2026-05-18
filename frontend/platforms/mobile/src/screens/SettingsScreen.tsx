@@ -5,7 +5,7 @@
  * Capacitor WebView.
  */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 /**
  * SettingsScreen — syncs the hash route so the Next.js router shows

@@ -11,11 +11,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@nself-chat/core': path.resolve(__dirname, '../../packages/core/src'),
-      '@nself-chat/api': path.resolve(__dirname, '../../packages/api/src'),
-      '@nself-chat/state': path.resolve(__dirname, '../../packages/state/src'),
-      '@nself-chat/ui': path.resolve(__dirname, '../../packages/ui/src'),
-      '@nself-chat/config': path.resolve(__dirname, '../../packages/config/src'),
+      '@nself-chat/core': path.resolve(__dirname, '../../../packages/core/src'),
+      '@nself-chat/api': path.resolve(__dirname, '../../../packages/api/src'),
+      '@nself-chat/state': path.resolve(__dirname, '../../../packages/state/src'),
+      '@nself-chat/ui': path.resolve(__dirname, '../../../packages/ui/src'),
+      '@nself-chat/config': path.resolve(__dirname, '../../../packages/config/src'),
     },
   },
   build: {

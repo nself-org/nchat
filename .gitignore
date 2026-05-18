@@ -28,6 +28,9 @@ dist/
 /playwright/.auth/
 *.lcov
 
+# Storybook
+storybook-static/
+
 # -----------------------------------------------------------------------------
 # Environment & Secrets (CRITICAL - Never commit these)
 # -----------------------------------------------------------------------------
@@ -264,3 +267,4 @@ READY.md
 .gemini/
 .codeium/
 .claude/
+desktop/src-tauri/target/

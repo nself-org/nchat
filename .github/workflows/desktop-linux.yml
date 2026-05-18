@@ -1,0 +1,102 @@
+name: Desktop — Linux (Tauri 2)
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - 'nchat/desktop/**'
+      - '.github/workflows/desktop-linux.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_INCREMENTAL: 0
+  RUST_BACKTRACE: short
+  # T22 — disable DMA-BUF renderer to prevent Wayland GPU-process crashes in headless CI
+  WEBKIT_DISABLE_DMABUF_RENDERER: "1"
+
+jobs:
+  build:
+    name: Build (x64)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev \
+            libglib2.0-dev
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: nchat/pnpm-lock.yaml
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: nchat/desktop/src-tauri -> target
+          key: linux-x64-${{ hashFiles('nchat/desktop/src-tauri/Cargo.lock') }}
+
+      - name: Install pnpm deps
+        working-directory: nchat
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Tauri (Linux x64)
+        working-directory: nchat/desktop
+        run: pnpm tauri build
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-linux-x64
+          path: |
+            nchat/desktop/src-tauri/target/release/bundle/deb/*.deb
+            nchat/desktop/src-tauri/target/release/bundle/rpm/*.rpm
+            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz
+            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig
+          retention-days: 14
+
+      # T18 — publish updater feed to S3 (tag pushes only)
+      - name: Publish updater feed (S3)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.HETZNER_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.HETZNER_S3_SECRET_KEY }}
+          AWS_DEFAULT_REGION: eu-central-1
+          AWS_ENDPOINT_URL: https://fsn1.your-objectstorage.com
+        run: |
+          for sig in nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig; do
+            [ -f "$sig" ] || continue
+            aws s3 cp "$sig" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
+            aws s3 cp "${sig%.sig}" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
+          done
