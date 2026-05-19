@@ -73,7 +73,8 @@ jobs:
   a11y-e2e:
     name: Accessibility E2E Tests (Playwright + Axe)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 60 min: ~12 min backend start + ~8 min build + ~35 min axe tests + buffer.
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: frontend
@@ -81,6 +82,91 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # ── Backend provisioning ────────────────────────────────────────────────
+      # The @a11y Playwright tests navigate real app pages; those pages call
+      # backend APIs (GraphQL, Auth). Without a running backend the browser
+      # gets ECONNREFUSED and the tests fail with network errors rather than
+      # accessibility violations. Provision the same nself stack that the E2E
+      # Web workflow uses so axe can inspect fully-rendered pages.
+      - name: Prepare backend .env for CI
+        run: |
+          cp backend/.env.dev backend/.env
+          sed -i 's|^HASURA_GRAPHQL_ADMIN_SECRET=.*|HASURA_GRAPHQL_ADMIN_SECRET=hasura-admin-secret-dev-ci-only-32|' backend/.env
+          printf '\n# CI-generated computed vars (replaces nself build .env.computed)\n' >> backend/.env
+          printf 'DATABASE_URL=postgresql://postgres:postgres-dev-password@postgres:5432/nchat\n' >> backend/.env
+          printf 'DOCKER_NETWORK=nchat_network\n' >> backend/.env
+          printf 'HASURA_GRAPHQL_JWT_SECRET={"type":"HS256","key":"nchat-development-secret-key-minimum-32-characters"}\n' >> backend/.env
+        working-directory: .
+
+      - name: Start nself backend stack
+        run: |
+          docker compose -f docker-compose.yml pull --quiet
+          docker compose -f docker-compose.yml up -d
+        working-directory: backend
+
+      - name: Wait for Hasura health
+        run: |
+          echo "Waiting for Hasura at http://localhost:8080/healthz ..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost:8080/healthz > /dev/null 2>&1; then
+              echo "Hasura healthy (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i/24 — waiting 5 s ..."
+            sleep 5
+          done
+          echo "ERROR: Hasura did not become healthy within 120 s" >&2
+          exit 1
+        working-directory: .
+
+      - name: Wait for Auth service health
+        run: |
+          echo "Waiting for Auth at http://localhost:4000/healthz ..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost:4000/healthz > /dev/null 2>&1; then
+              echo "Auth healthy (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i/24 — waiting 5 s ..."
+            sleep 5
+          done
+          echo "ERROR: Auth service did not become healthy within 120 s" >&2
+          exit 1
+        working-directory: .
+
+      - name: Seed E2E test users
+        run: |
+          AUTH_URL="http://localhost:4000"
+          PASSWORD="password123"
+
+          seed_user() {
+            local email="$1"
+            local display="$2"
+            local role="$3"
+            local http_code
+            http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X POST "$AUTH_URL/v1/signup/email-password" \
+              -H "Content-Type: application/json" \
+              -d "{\"email\":\"$email\",\"password\":\"$PASSWORD\",\"options\":{\"displayName\":\"$display\",\"locale\":\"en\",\"metadata\":{\"role\":\"$role\"}}}")
+            if [ "$http_code" = "200" ] || [ "$http_code" = "201" ]; then
+              echo "Created: $email"
+            elif [ "$http_code" = "409" ] || [ "$http_code" = "422" ]; then
+              echo "Already exists (ok): $email"
+            else
+              echo "WARNING: unexpected HTTP $http_code for $email"
+            fi
+          }
+
+          seed_user "owner@nself.org"     "Test Owner"     "owner"
+          seed_user "admin@nself.org"     "Test Admin"     "admin"
+          seed_user "moderator@nself.org" "Test Moderator" "moderator"
+          seed_user "member@nself.org"    "Test Member"    "member"
+          seed_user "guest@nself.org"     "Test Guest"     "guest"
+
+          echo "Seeding complete."
+        working-directory: .
+      # ── End backend provisioning ────────────────────────────────────────────
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -103,15 +189,22 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Build application
-        run: HASURA_ADMIN_SECRET=ci-test-placeholder-not-a-real-secret NEXT_PUBLIC_USE_DEV_AUTH=true NEXT_PUBLIC_ENV=test pnpm build
-        # Satisfy next.config.js build gate: HASURA_ADMIN_SECRET must be set
-        # for production builds. CI uses a non-functional placeholder — the app
-        # never connects to a real Hasura instance during accessibility tests.
+        run: pnpm build
+        env:
+          HASURA_ADMIN_SECRET: 'hasura-admin-secret-dev-ci-only-32'
+          NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
 
       - name: Run Playwright accessibility tests
         run: pnpm --filter @nself-chat/web exec playwright test --grep "@a11y"
         env:
           CI: true
+          NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
+          NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
+          NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
+          NEXT_PUBLIC_STORAGE_URL: 'http://localhost:9000'
+          HASURA_ADMIN_SECRET: 'hasura-admin-secret-dev-ci-only-32'
 
       - name: Upload Playwright report
         if: always()
