@@ -682,7 +682,7 @@ export function Sidebar() {
                             aria-hidden="true"
                           />
                         )}
-                        <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-500">
+                        <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                           {category.name}
                         </span>
                       </button>

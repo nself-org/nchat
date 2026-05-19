@@ -46,10 +46,25 @@ export default function HomePage() {
     }
   }, [config, user, loading, router]);
 
+  // If authenticated, show a stable non-shifting redirect screen immediately
+  // to prevent CLS from the landing page flashing before redirect fires.
+  if (!loading && user) {
+    return (
+      <div
+        className="fixed inset-0 flex items-center justify-center bg-background"
+        role="status"
+        aria-live="polite"
+        aria-label="Redirecting to chat"
+      >
+        <div className="text-muted-foreground">Redirecting...</div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div
-        className="flex min-h-screen items-center justify-center"
+        className="fixed inset-0 flex items-center justify-center bg-background"
         role="status"
         aria-live="polite"
         aria-label="Loading application"
@@ -64,10 +79,10 @@ export default function HomePage() {
     return <LandingPage />;
   }
 
-  // For redirect/chat modes, show loading while redirecting
+  // For redirect/chat modes, show stable redirect screen while redirecting
   return (
     <div
-      className="flex min-h-screen items-center justify-center"
+      className="fixed inset-0 flex items-center justify-center bg-background"
       role="status"
       aria-live="polite"
       aria-label="Redirecting"
