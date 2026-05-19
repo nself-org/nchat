@@ -87,8 +87,13 @@ jobs:
           fi
 
           # Ports / subdomains
-          if matches '^(nginx/|.*docker-compose\.ya?ml$)'; then
-            if ! matches '(\.claude/docs/sport/F10-PORT-REGISTRY\.md|\.claude/docs/sport/F11-SUBDOMAIN-MAP\.md|\.claude/CLAUDE\.md)'; then
+          # Exception: backend/docker-compose.yml is tracked for CI E2E provisioning
+          # (nself start --skip-build needs the file at checkout). It introduces no
+          # new ports; the port map is the nSelf default. See .github/wiki/E2E-Backend-Setup.md.
+          compose_changed=$(grep -cE '^(nginx/|.*docker-compose\.ya?ml$)' /tmp/changed-files.txt || true)
+          compose_backend_only=$(grep -cE '^backend/docker-compose\.yml$' /tmp/changed-files.txt || true)
+          if [ "$compose_changed" -gt 0 ] && [ "$compose_changed" -ne "$compose_backend_only" ]; then
+            if ! matches '(\.claude/docs/sport/F10-PORT-REGISTRY\.md|\.claude/docs/sport/F11-SUBDOMAIN-MAP\.md|\.claude/CLAUDE\.md|\.github/wiki/)'; then
               rows="${rows}- ports/subdomains changed without F10-PORT-REGISTRY.md or F11-SUBDOMAIN-MAP.md update\n"
               missing=1
             fi
