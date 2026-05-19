@@ -222,7 +222,7 @@ export default function ChatLayout({
               {/* Mobile Main Content */}
               <div className="flex flex-1 flex-col overflow-hidden">
                 {/* Skip link target for message input */}
-                <div id="message-input" tabIndex={-1} className="sr-only outline-none" aria-hidden="true" />
+                <div id="message-input" tabIndex={-1} className="sr-only outline-none" />
                 {children}
               </div>
             </>
@@ -253,7 +253,7 @@ export default function ChatLayout({
               <Panel id="main-panel" defaultSize={82} minSize={50} order={2}>
                 <div className="flex h-full flex-col overflow-hidden">
                   {/* Skip link target for message input */}
-                  <div id="message-input" tabIndex={-1} className="sr-only outline-none" aria-hidden="true" />
+                  <div id="message-input" tabIndex={-1} className="sr-only outline-none" />
                   {children}
                 </div>
               </Panel>
