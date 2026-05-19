@@ -271,10 +271,15 @@ export async function middleware(request: NextRequest) {
   // Client-side guards will handle the actual protection
   const isDev = process.env.NODE_ENV === "development";
   const useDevAuth = process.env.NEXT_PUBLIC_USE_DEV_AUTH === "true";
+  // NEXT_PUBLIC_ENV=test is the deliberate CI escape hatch: the E2E workflow
+  // builds with `next build` (NODE_ENV=production) but runs FauxAuth so there
+  // are no cookies for the middleware to inspect. Treat this the same as dev
+  // mode so client-side guards handle protection instead of the middleware.
+  const isE2ETest = process.env.NEXT_PUBLIC_ENV === "test";
 
   // Block /dev/* routes in production
   // These are developer documentation pages that should not be exposed
-  if (isDevOnlyRoute(pathname) && !isDev) {
+  if (isDevOnlyRoute(pathname) && !isDev && !isE2ETest) {
     // Return 404 in production for dev routes
     return NextResponse.rewrite(new URL("/404", request.url));
   }
@@ -298,11 +303,14 @@ export async function middleware(request: NextRequest) {
     return addSecurityHeaders(tenantResponse, isDev);
   }
 
-  if (isDev && useDevAuth) {
-    // In dev mode, let client-side guards handle everything
-    // This allows the auto-login feature to work properly
+  if ((isDev && useDevAuth) || (isE2ETest && useDevAuth)) {
+    // In dev mode or E2E test mode with FauxAuth, let client-side guards handle
+    // everything. FauxAuth stores its session in localStorage (not cookies), so
+    // the middleware cookie-based session check would incorrectly redirect every
+    // request to /login even after a successful FauxAuth sign-in. Client-side
+    // AuthGuard reads localStorage and handles protection correctly.
     const response = NextResponse.next();
-    return addSecurityHeaders(response, isDev);
+    return addSecurityHeaders(response, isDev || isE2ETest);
   }
 
   // Get session
