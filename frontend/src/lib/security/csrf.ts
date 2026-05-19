@@ -251,8 +251,8 @@ export function validateCsrfToken(request: NextRequest): boolean {
     return false;
   }
 
-  // Get token from cookie
-  const cookieToken = request.cookies.get(CSRF_CONFIG.COOKIE_NAME)?.value;
+  // Get token from cookie (cookies may be undefined in some environments)
+  const cookieToken = request.cookies?.get(CSRF_CONFIG.COOKIE_NAME)?.value;
 
   if (!cookieToken) {
     return false;
