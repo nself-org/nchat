@@ -27,7 +27,7 @@ interface PrivacySettings {
   typingIndicators: boolean;
 
   // Profile visibility
-  profileVisibility: "public" | "members" | "private";
+  profileVisibility: "public" | "members" | "friends" | "private";
   showEmail: boolean;
   showBio: boolean;
 
