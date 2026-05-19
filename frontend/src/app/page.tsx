@@ -46,8 +46,8 @@ export default function HomePage() {
     }
   }, [config, user, loading, router]);
 
-  // If authenticated, show a stable non-shifting redirect screen immediately
-  // to prevent CLS from the landing page flashing before redirect fires.
+  // While auth or config is still loading for an authenticated user, show
+  // a stable fixed-positioned redirect screen to avoid layout shift.
   if (!loading && user) {
     return (
       <div
@@ -61,33 +61,24 @@ export default function HomePage() {
     );
   }
 
-  if (loading) {
+  // For non-landing modes (redirect/chat), show a stable redirect screen.
+  // We check this before loading completes so the layout doesn't shift.
+  if (!loading && config.homepage.mode !== "landing") {
     return (
       <div
         className="fixed inset-0 flex items-center justify-center bg-background"
         role="status"
         aria-live="polite"
-        aria-label="Loading application"
+        aria-label="Redirecting"
       >
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="text-muted-foreground">Redirecting...</div>
       </div>
     );
   }
 
-  // Show landing page for landing mode (and user is not authenticated)
-  if (config.homepage.mode === "landing" && !user) {
-    return <LandingPage />;
-  }
-
-  // For redirect/chat modes, show stable redirect screen while redirecting
-  return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-background"
-      role="status"
-      aria-live="polite"
-      aria-label="Redirecting"
-    >
-      <div className="text-muted-foreground">Redirecting...</div>
-    </div>
-  );
+  // Render the LandingPage immediately — for unauthenticated users in landing
+  // mode this is the correct final state, so rendering it before loading
+  // completes avoids the spinner→full-page layout shift that causes CLS.
+  // The useEffect above handles any necessary redirects (setup, auth, mode).
+  return <LandingPage />;
 }

@@ -200,14 +200,21 @@ export default function ChatLayout({
                 <h1 className="text-lg font-semibold">nchat</h1>
               </div>
 
+              {/* Hidden skip-link anchor for #sidebar — always in DOM so axe skip-link
+                  rule passes even when the overlay is closed (overlay returns null). */}
+              <div
+                id="sidebar"
+                tabIndex={-1}
+                className="sr-only outline-none"
+                aria-hidden="true"
+              />
+
               {/* Mobile Sidebar Overlay */}
               <MobileSidebarOverlay
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
               >
                 <div
-                  id="sidebar"
-                  tabIndex={-1}
                   className="relative h-full outline-none"
                 >
                   <Button

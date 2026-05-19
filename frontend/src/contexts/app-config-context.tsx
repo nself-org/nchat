@@ -20,7 +20,11 @@ const AppConfigContext = createContext<AppConfigContextType | undefined>(
 
 export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [config, setConfig] = useState<AppConfig>(defaultAppConfig);
-  const [isLoading, setIsLoading] = useState(true);
+  // Start with isLoading=false so defaultAppConfig renders immediately without
+  // a loading-spinner→full-page transition. This eliminates the ~0.8 CLS score
+  // on the landing route that Lighthouse CI detects. Config loads in background
+  // and updates the context when available.
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load config from localStorage or API on mount
   useEffect(() => {

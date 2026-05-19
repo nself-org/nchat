@@ -72,8 +72,12 @@ test.describe('WCAG 2.1 AA Compliance', () => {
     await page.goto('/chat')
     await page.waitForLoadState('load')
 
+    // color-contrast-enhanced (WCAG AAA 7:1) is excluded: the app targets WCAG 2.1 AA
+    // (4.5:1 for normal text, 3:1 for large text). cat.color includes both AA and AAA
+    // colour rules; disabling the AAA rule keeps the test scoped to our compliance target.
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['cat.color'])
+      .disableRules(['color-contrast-enhanced'])
       .analyze()
 
     expect(accessibilityScanResults.violations).toEqual([])
