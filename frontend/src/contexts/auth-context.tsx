@@ -167,7 +167,11 @@ const createAuthService = () => {
   // allows FauxAuth in production-built binaries during E2E runs (where
   // NODE_ENV=production because `next start` is used but there is no live
   // Nhost backend). authConfig.isE2ETest captures this explicit opt-in.
-  if (authConfig.isProduction && authConfig.useDevAuth && !authConfig.isE2ETest) {
+  if (
+    authConfig.isProduction &&
+    authConfig.useDevAuth &&
+    !authConfig.isE2ETest
+  ) {
     throw new Error("[SECURITY] FATAL: Cannot use dev auth in production");
   }
 
