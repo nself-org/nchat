@@ -10,7 +10,12 @@ export function LandingPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div
+        className="fixed inset-0 flex items-center justify-center bg-background"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading"
+      >
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
