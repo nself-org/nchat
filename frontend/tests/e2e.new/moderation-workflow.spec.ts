@@ -910,10 +910,11 @@ test.describe('Auto-Moderation Settings', () => {
     await page.goto('/admin/moderation')
     await page.waitForLoadState('load')
 
-    // Look for settings button/tab
+    // Look for settings button/tab — use first() to avoid strict mode violation
+    // when multiple Settings links exist (e.g. sidebar + page tabs)
     const settingsLink = page.locator(
       'button:has-text("Settings"), a:has-text("Settings"), [role="tab"]:has-text("Settings")'
-    )
+    ).first()
 
     if (await settingsLink.isVisible()) {
       await settingsLink.click()

@@ -596,7 +596,9 @@ test.describe('Translation Completeness', () => {
     await page.goto('/chat')
     await page.waitForLoadState('load')
 
-    const bodyText = await page.textContent('body')
+    // Use innerText to get only visible rendered text, excluding script/style tags
+    // which contain Next.js RSC payloads with }} characters from JSON syntax
+    const bodyText = await page.evaluate(() => document.body.innerText)
 
     // Should not contain untranslated key indicators
     expect(bodyText).not.toContain('{{')
