@@ -431,7 +431,11 @@ export function isTwoFactorRequired(
  */
 export function verifySecurityConfiguration(): void {
   if (isProduction) {
-    if (authConfig.useDevAuth) {
+    // Exception: NEXT_PUBLIC_ENV=test is the deliberate CI escape hatch that
+    // allows FauxAuth in production-built binaries during E2E runs (where
+    // NODE_ENV=production because `next start` is used but there is no live
+    // Nhost backend). isTestEnv captures this explicit opt-in.
+    if (authConfig.useDevAuth && !isTestEnv) {
       throw new Error(
         "[SECURITY] FATAL: Dev auth is enabled in production. This should never happen. Check auth.config.ts.",
       );
