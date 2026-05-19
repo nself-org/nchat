@@ -459,7 +459,7 @@ jobs:
         # reuseExistingServer: !process.env.CI = false in CI, so Playwright manages
         # the server lifecycle.  NEXT_PUBLIC_USE_DEV_AUTH enables FauxAuthService so
         # the app works without a live Nhost backend.
-        run: pnpm test:e2e --grep @a11y
+        run: pnpm test:e2e --grep @a11y --project=chromium --project=mobile-chrome
         env:
           HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
