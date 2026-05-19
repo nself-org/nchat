@@ -450,12 +450,19 @@ jobs:
           HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
 
       - name: Start server
+        # next.config.js has a BUILD GATE that checks HASURA_ADMIN_SECRET at startup and
+        # throws if absent. The build step already passes a CI placeholder; the start step
+        # must do the same or the server exits before wait-on can connect.
         run: pnpm start &
         env:
           PORT: 3000
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
 
       - name: Wait for server
-        run: npx wait-on http://localhost:3000 --timeout 60000
+        # 60 s was insufficient — Next.js production server can take 60-90 s on ubuntu-latest.
+        # Extend to 120 s to match the accessibility.yml timeout so the job fails fast on a
+        # real server failure rather than always timing out.
+        run: npx wait-on http://localhost:3000 --timeout 120000
 
       - name: Run accessibility tests
         run: pnpm test:e2e --grep @a11y
