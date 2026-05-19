@@ -35,8 +35,10 @@ function ResizeHandle({ className }: { className?: string }) {
         "group",
         className,
       )}
+      aria-label="Drag to resize panels"
+      aria-orientation="vertical"
     >
-      <div className="h-8 w-0.5 rounded-full bg-border opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="h-8 w-0.5 rounded-full bg-border opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
     </PanelResizeHandle>
   );
 }
@@ -138,9 +140,17 @@ export default function ChatLayout({
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
+      <div
+        className="flex h-screen items-center justify-center bg-background"
+        role="status"
+        aria-label="Loading application"
+        aria-live="polite"
+      >
         <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"
+            aria-hidden="true"
+          />
           <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -148,7 +158,16 @@ export default function ChatLayout({
   }
 
   if (!user) {
-    return null;
+    return (
+      <div
+        className="flex h-screen items-center justify-center bg-background"
+        role="status"
+        aria-live="polite"
+        aria-label="Redirecting to sign in"
+      >
+        <p className="text-sm text-muted-foreground">Redirecting to sign in...</p>
+      </div>
+    );
   }
 
   return (
@@ -196,9 +215,9 @@ export default function ChatLayout({
               </MobileSidebarOverlay>
 
               {/* Mobile Main Content */}
-              <main className="flex flex-1 flex-col overflow-hidden">
+              <div className="flex flex-1 flex-col overflow-hidden">
                 {children}
-              </main>
+              </div>
             </>
           ) : (
             /* Desktop: Resizable panels */
@@ -223,9 +242,9 @@ export default function ChatLayout({
 
               {/* Main Content Panel */}
               <Panel id="main" defaultSize={82} minSize={50} order={2}>
-                <main className="flex h-full flex-col overflow-hidden">
+                <div className="flex h-full flex-col overflow-hidden">
                   {children}
-                </main>
+                </div>
               </Panel>
             </PanelGroup>
           )}

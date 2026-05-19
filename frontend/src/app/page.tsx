@@ -48,7 +48,12 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div
+        className="flex min-h-screen items-center justify-center"
+        role="status"
+        aria-live="polite"
+        aria-label="Loading application"
+      >
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
@@ -61,7 +66,12 @@ export default function HomePage() {
 
   // For redirect/chat modes, show loading while redirecting
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div
+      className="flex min-h-screen items-center justify-center"
+      role="status"
+      aria-live="polite"
+      aria-label="Redirecting"
+    >
       <div className="text-muted-foreground">Redirecting...</div>
     </div>
   );

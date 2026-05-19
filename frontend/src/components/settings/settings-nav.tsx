@@ -89,7 +89,7 @@ export function SettingsNav({ variant = "vertical" }: SettingsNavProps) {
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              <item.icon className="h-4 w-4" />
+              <item.icon className="h-4 w-4" aria-hidden="true" />
               {item.title}
             </Link>
           );
@@ -105,7 +105,7 @@ export function SettingsNav({ variant = "vertical" }: SettingsNavProps) {
         href="/chat"
         className="mb-4 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         Back to Chat
       </Link>
 
@@ -126,6 +126,7 @@ export function SettingsNav({ variant = "vertical" }: SettingsNavProps) {
             <div className="flex items-center gap-3">
               <item.icon
                 className={cn("h-5 w-5", !isActive && "text-muted-foreground")}
+                aria-hidden="true"
               />
               <span className="font-medium">{item.title}</span>
             </div>
