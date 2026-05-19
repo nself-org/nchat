@@ -69,8 +69,10 @@ describe("DEFAULT_STUN_SERVERS", () => {
 
   it("all urls are Google STUN servers", () => {
     for (const server of DEFAULT_STUN_SERVERS) {
+      // Anchored to stun: prefix and :port suffix so arbitrary hosts cannot
+      // appear before or after the expected hostname (CodeQL: anchored-regex).
       expect(server.urls as string).toMatch(
-        /stun\.l\.google\.com|stun\d\.l\.google\.com/,
+        /^stun:stun\d*\.l\.google\.com:\d+$/,
       );
     }
   });
