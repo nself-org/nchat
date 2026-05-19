@@ -30,20 +30,26 @@ env:
   NODE_VERSION: '22'
   JAVA_VERSION: '17'
   XCODE_VERSION: '15.2'
+  NSELF_VERSION: '1.1.3'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   # Web E2E Tests (Playwright) — sharded across 3 parallel jobs so the full
-  # suite completes within the GH Actions job limit.  Each shard builds the
-  # app independently and runs its slice of tests; the merge job collects all
-  # blobs and produces a single unified report.
+  # suite completes within the GH Actions job limit.  Each shard:
+  #   1. Provisions the nself backend on the same runner (so Docker containers
+  #      are reachable at localhost — GHA jobs are isolated ephemeral runners,
+  #      so backend setup must live IN the same job, not a separate depends-on job).
+  #   2. Builds the Next.js app.
+  #   3. Runs its slice of Playwright tests.
+  # The merge job collects all blob reports and produces a single HTML report.
   e2e-web:
     name: E2E Web Tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
     runs-on: ubuntu-latest
-    # 60 min: ~8 min build + ~50 min for the shard's test slice with retries.
-    timeout-minutes: 60
+    # 75 min: ~12 min backend start + ~8 min build + ~50 min for the shard's
+    # test slice with retries.
+    timeout-minutes: 75
 
     strategy:
       fail-fast: false
@@ -58,6 +64,101 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # ── Backend provisioning ────────────────────────────────────────────────
+      # Install the nself CLI and start the pre-generated backend/docker-compose.yml
+      # on this runner so the Playwright webServer and tests can reach localhost
+      # services (Hasura :8080, Auth :4000, MinIO :9000).
+      #
+      # --skip-build: uses the committed backend/docker-compose.yml as-is;
+      # skips the license-gated rebuild step — no plugin license key required.
+      # DNS for local.nself.org is not resolvable in CI; nself warns but does
+      # not block because isTerminal() returns false in non-TTY environments.
+      - name: Install nself CLI v${{ env.NSELF_VERSION }}
+        run: |
+          gh release download "v${{ env.NSELF_VERSION }}" \
+            --repo nself-org/cli \
+            --pattern "nself-${{ env.NSELF_VERSION }}-linux-amd64.tar.gz" \
+            --output nself.tar.gz
+          tar -xzf nself.tar.gz
+          chmod +x nself
+          sudo mv nself /usr/local/bin/nself
+          nself version
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Start nself backend stack
+        run: nself start --skip-build --quiet
+        working-directory: backend
+        env:
+          HASURA_GRAPHQL_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev' }}
+
+      - name: Wait for Hasura health
+        run: |
+          echo "Waiting for Hasura at http://localhost:8080/healthz ..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost:8080/healthz > /dev/null 2>&1; then
+              echo "Hasura healthy (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i/24 — waiting 5 s ..."
+            sleep 5
+          done
+          echo "ERROR: Hasura did not become healthy within 120 s" >&2
+          exit 1
+        working-directory: .
+
+      - name: Wait for Auth service health
+        run: |
+          echo "Waiting for Auth at http://localhost:4000/healthz ..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost:4000/healthz > /dev/null 2>&1; then
+              echo "Auth healthy (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i/24 — waiting 5 s ..."
+            sleep 5
+          done
+          echo "ERROR: Auth service did not become healthy within 120 s" >&2
+          exit 1
+        working-directory: .
+
+      - name: Seed E2E test users
+        # Create the five deterministic users the e2e.new specs rely on.
+        # Direct port (4000) — not nginx-proxied domain, which is not resolvable in CI.
+        # 409/already-exists is success so the step is idempotent across re-runs.
+        run: |
+          AUTH_URL="http://localhost:4000"
+          PASSWORD="password123"
+
+          seed_user() {
+            local email="$1"
+            local display="$2"
+            local role="$3"
+            local http_code
+            http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X POST "$AUTH_URL/v1/signup/email-password" \
+              -H "Content-Type: application/json" \
+              -d "{\"email\":\"$email\",\"password\":\"$PASSWORD\",\"options\":{\"displayName\":\"$display\",\"locale\":\"en\",\"metadata\":{\"role\":\"$role\"}}}")
+            if [ "$http_code" = "200" ] || [ "$http_code" = "201" ]; then
+              echo "Created: $email"
+            elif [ "$http_code" = "409" ] || [ "$http_code" = "422" ]; then
+              echo "Already exists (ok): $email"
+            else
+              echo "WARNING: unexpected HTTP $http_code for $email (code $http_code)"
+            fi
+          }
+
+          seed_user "owner@nself.org"     "Test Owner"     "owner"
+          seed_user "admin@nself.org"     "Test Admin"     "admin"
+          seed_user "moderator@nself.org" "Test Moderator" "moderator"
+          seed_user "member@nself.org"    "Test Member"    "member"
+          seed_user "guest@nself.org"     "Test Guest"     "guest"
+
+          echo "Seeding complete."
+        working-directory: .
+      # ── End backend provisioning ────────────────────────────────────────────
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -76,7 +177,8 @@ jobs:
       - name: Build application
         run: pnpm build
         env:
-          HASURA_ADMIN_SECRET: 'dev-secret'
+          # Match the admin secret the running nself backend uses (.env.dev default).
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev' }}
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
           NEXT_PUBLIC_ENV: 'test'
 
@@ -86,6 +188,12 @@ jobs:
           CI: true
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
           NEXT_PUBLIC_ENV: 'test'
+          # Wire the running backend into the Playwright webServer and specs.
+          # nself stack binds: Hasura :8080, Auth :4000, MinIO :9000.
+          NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
+          NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
+          NEXT_PUBLIC_STORAGE_URL: 'http://localhost:9000'
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev' }}
 
       - name: Upload blob report for merge
         if: always()

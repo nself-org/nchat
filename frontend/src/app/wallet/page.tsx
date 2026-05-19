@@ -21,7 +21,7 @@ export default function WalletPage() {
   const { isConnected } = useWallet();
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-8 py-8">
+    <div data-testid="wallet-container" className="container mx-auto max-w-6xl space-y-8 py-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

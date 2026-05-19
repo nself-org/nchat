@@ -912,8 +912,10 @@ test.describe('Wallet Transaction History', () => {
     await page.goto('/wallet')
     await page.waitForLoadState('networkidle')
 
-    // Look for status badge
-    const txStatus = page.locator('[data-testid="tx-status"], text=/confirmed|pending|failed/i')
+    // Look for status badge — use .or() because text= is Playwright syntax, not CSS
+    const txStatus = page
+      .locator('[data-testid="tx-status"]')
+      .or(page.locator('text=/confirmed|pending|failed/i'))
 
     const count = await txStatus.count()
     expect(count).toBeGreaterThanOrEqual(0)
@@ -1181,8 +1183,8 @@ test.describe('Wallet Responsive Design', () => {
     await page.goto('/wallet')
     await page.waitForLoadState('networkidle')
 
-    // Should still show wallet interface
-    const walletSection = page.locator('[data-testid="wallet-container"], [role="main"]')
+    // Should still show wallet interface — page has data-testid="wallet-container"
+    const walletSection = page.locator('[data-testid="wallet-container"]')
     const isVisible = await walletSection.isVisible()
     expect(isVisible).toBe(true)
   })
