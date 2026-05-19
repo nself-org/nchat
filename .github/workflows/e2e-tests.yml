@@ -98,8 +98,13 @@ jobs:
         # We also create a minimal build-state marker because the committed
         # backend/ has a v0.9.8 build artifact (.nself/build-version) and
         # nself start needs the build-state directory to avoid re-running init.
+        #
+        # The HASURA_GRAPHQL_ADMIN_SECRET in .env.dev is the short dev stub
+        # "hasura-admin-secret-dev" (23 chars).  nself v1.1.x requires ≥32 chars.
+        # We replace it with a longer CI-only dev secret (not used in production).
         run: |
           cp backend/.env.dev backend/.env
+          sed -i 's|^HASURA_GRAPHQL_ADMIN_SECRET=.*|HASURA_GRAPHQL_ADMIN_SECRET=hasura-admin-secret-dev-ci-only-32|' backend/.env
           mkdir -p backend/.nself/build-state
           printf 'timestamp=0\n' > backend/.nself/build-state/last-build.state
         working-directory: .
@@ -108,7 +113,7 @@ jobs:
         run: nself start --skip-build --allow-legacy --quiet
         working-directory: backend
         env:
-          HASURA_GRAPHQL_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev' }}
+          HASURA_GRAPHQL_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev-ci-only-32' }}
 
       - name: Wait for Hasura health
         run: |
@@ -193,8 +198,8 @@ jobs:
       - name: Build application
         run: pnpm build
         env:
-          # Match the admin secret the running nself backend uses (.env.dev default).
-          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev' }}
+          # Match the admin secret patched into backend/.env during "Prepare nself project state".
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev-ci-only-32' }}
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
           NEXT_PUBLIC_ENV: 'test'
 
@@ -209,7 +214,7 @@ jobs:
           NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
           NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
           NEXT_PUBLIC_STORAGE_URL: 'http://localhost:9000'
-          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev' }}
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev-ci-only-32' }}
 
       - name: Upload blob report for merge
         if: always()
