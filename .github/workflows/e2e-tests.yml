@@ -78,12 +78,14 @@ jobs:
         env:
           HASURA_ADMIN_SECRET: 'dev-secret'
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
 
       - name: Run Playwright E2E tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
         run: pnpm test:e2e --project=chromium --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
           CI: true
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
 
       - name: Upload blob report for merge
         if: always()
