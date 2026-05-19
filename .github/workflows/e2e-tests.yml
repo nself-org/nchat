@@ -80,9 +80,10 @@ jobs:
             --repo nself-org/cli \
             --pattern "nself-${{ env.NSELF_VERSION }}-linux-amd64.tar.gz" \
             --output nself.tar.gz
+          # Tarball extracts to nself-<version>-linux-amd64/nself (subdirectory)
           tar -xzf nself.tar.gz
-          chmod +x nself
-          sudo mv nself /usr/local/bin/nself
+          sudo mv "nself-${{ env.NSELF_VERSION }}-linux-amd64/nself" /usr/local/bin/nself
+          sudo chmod +x /usr/local/bin/nself
           nself version
         working-directory: .
         env:
