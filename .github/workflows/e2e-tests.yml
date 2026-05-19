@@ -102,9 +102,26 @@ jobs:
         # The HASURA_GRAPHQL_ADMIN_SECRET in .env.dev is the short dev stub
         # "hasura-admin-secret-dev" (23 chars).  nself v1.1.x requires ≥32 chars.
         # We replace it with a longer CI-only dev secret (not used in production).
+        #
+        # COMPUTED VARS: `nself build` normally generates `.env.computed` containing
+        # DATABASE_URL and DOCKER_NETWORK (via buildEnvComputed in orchestrator.go).
+        # When using --skip-build, that file is never created.  docker compose
+        # auto-loads only `.env` from the working directory — NOT `.env.computed`.
+        # We append the computed values directly to `.env` so docker compose can
+        # resolve ${DOCKER_NETWORK} and ${DATABASE_URL} in docker-compose.yml.
+        #
+        # Values are derived from .env.dev (PROJECT_NAME=nchat, POSTGRES_* defaults):
+        #   DOCKER_NETWORK = PROJECT_NAME + "_network"  (orchestrator.go:buildEnvComputed)
+        #   DATABASE_URL   = postgresql://user:pass@host:5432/db  (config/defaults.go:DatabaseURL)
+        #   HASURA_GRAPHQL_JWT_SECRET = JSON object required by Hasura JWT config
         run: |
           cp backend/.env.dev backend/.env
           sed -i 's|^HASURA_GRAPHQL_ADMIN_SECRET=.*|HASURA_GRAPHQL_ADMIN_SECRET=hasura-admin-secret-dev-ci-only-32|' backend/.env
+          # Append .env.computed variables that nself build normally generates
+          printf '\n# CI-generated computed vars (replaces nself build .env.computed)\n' >> backend/.env
+          printf 'DATABASE_URL=postgresql://postgres:postgres-dev-password@postgres:5432/nchat\n' >> backend/.env
+          printf 'DOCKER_NETWORK=nchat_network\n' >> backend/.env
+          printf 'HASURA_GRAPHQL_JWT_SECRET={"type":"HS256","key":"nchat-development-secret-key-minimum-32-characters"}\n' >> backend/.env
           mkdir -p backend/.nself/build-state
           printf 'timestamp=0\n' > backend/.nself/build-state/last-build.state
         working-directory: .
