@@ -221,6 +221,15 @@ export function validateCsrfToken(request: NextRequest): boolean {
     return true;
   }
 
+  // Skip in E2E test mode (NEXT_PUBLIC_ENV=test is the CI escape hatch set by
+  // the E2E workflow). FauxAuth stores its session in localStorage rather than
+  // cookies, so the normal double-submit cookie flow never completes in CI.
+  // This bypass is intentionally narrowed to the test environment variable so
+  // it cannot be triggered in production or staging builds.
+  if (process.env.NEXT_PUBLIC_ENV === "test") {
+    return true;
+  }
+
   // Skip in development mode (optional)
   if (
     process.env.NODE_ENV === "development" &&
