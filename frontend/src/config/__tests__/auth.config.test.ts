@@ -118,6 +118,9 @@ describe("Auth Configuration", () => {
     it("should not enable dev auth in production", () => {
       process.env.NODE_ENV = "production";
       process.env.NEXT_PUBLIC_USE_DEV_AUTH = "true";
+      // Ensure the E2E test escape hatch is not active — this tests
+      // the non-E2E production case where dev auth must be disabled.
+      delete process.env.NEXT_PUBLIC_ENV;
 
       jest.resetModules();
       const { authConfig } = require("../auth.config");
