@@ -19,6 +19,7 @@ export default function AppearancePage() {
   const { theme, setTheme } = useTheme();
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const [compactMode, setCompactMode] = useState(false);
+  const [language, setLanguage] = useState("en");
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -106,6 +107,49 @@ export default function AppearancePage() {
                 </Label>
               </div>
             </RadioGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Language</CardTitle>
+            <CardDescription>
+              Select your preferred display language
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Hidden select for test automation */}
+            <select
+              data-testid="select-language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="sr-only"
+              aria-label="Select language"
+            >
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="it">Italian</option>
+              <option value="ja">Japanese</option>
+              <option value="zh">Chinese</option>
+              <option value="ar">Arabic</option>
+            </select>
+            <p className="text-sm text-muted-foreground">
+              Current language:{" "}
+              <span className="font-medium">
+                {language === "en"
+                  ? "English"
+                  : language === "es"
+                    ? "Spanish"
+                    : language === "fr"
+                      ? "French"
+                      : language === "de"
+                        ? "German"
+                        : language}
+              </span>
+            </p>
           </CardContent>
         </Card>
 

@@ -185,6 +185,7 @@ export default function PrivacySettingsPage() {
                 onCheckedChange={(checked) =>
                   updateSetting("showOnlineStatus", checked)
                 }
+                data-testid="toggle-online-status"
               />
 
               <SimpleNotificationToggle
@@ -214,6 +215,7 @@ export default function PrivacySettingsPage() {
                 onCheckedChange={(checked) =>
                   updateSetting("readReceipts", checked)
                 }
+                data-testid="toggle-read-receipts"
               />
 
               <SimpleNotificationToggle
@@ -224,6 +226,7 @@ export default function PrivacySettingsPage() {
                 onCheckedChange={(checked) =>
                   updateSetting("typingIndicators", checked)
                 }
+                data-testid="toggle-typing-indicator"
               />
             </div>
 
@@ -248,6 +251,25 @@ export default function PrivacySettingsPage() {
               htmlFor="profile-visibility"
               vertical
             >
+              {/* Hidden select for test automation — kept in sync with RadioGroup */}
+              <select
+                data-testid="select-profile-visibility"
+                value={settings.profileVisibility}
+                onChange={(e) =>
+                  updateSetting(
+                    "profileVisibility",
+                    e.target.value as PrivacySettings["profileVisibility"],
+                  )
+                }
+                className="sr-only"
+                aria-label="Select profile visibility"
+              >
+                <option value="public">Public</option>
+                <option value="members">Members</option>
+                <option value="friends">Friends</option>
+                <option value="private">Private</option>
+              </select>
+
               <RadioGroup
                 value={settings.profileVisibility}
                 onValueChange={(value) =>
