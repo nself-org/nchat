@@ -165,7 +165,7 @@ export default defineConfig({
   // fires first.  A fixed 40-char test-only value is used when CSRF_SECRET is not
   // set in the caller's environment.
   webServer: {
-    command: `HASURA_ADMIN_SECRET=${process.env.HASURA_ADMIN_SECRET || 'ci-test-placeholder-not-a-real-secret'} NEXT_PUBLIC_ENV=${process.env.NEXT_PUBLIC_ENV || ''} NEXT_PUBLIC_USE_DEV_AUTH=${process.env.NEXT_PUBLIC_USE_DEV_AUTH || ''} CSRF_SECRET=${process.env.CSRF_SECRET || 'playwright-e2e-test-only-csrf-secret-value'} next start`,
+    command: `HASURA_ADMIN_SECRET=${process.env.HASURA_ADMIN_SECRET || 'ci-test-placeholder-not-a-real-secret'} NEXT_PUBLIC_ENV=${process.env.NEXT_PUBLIC_ENV || ''} NEXT_PUBLIC_USE_DEV_AUTH=${process.env.NEXT_PUBLIC_USE_DEV_AUTH || ''} CSRF_SECRET=${process.env.CSRF_SECRET || 'playwright-e2e-test-only-csrf-secret-value'} NEXT_PUBLIC_GRAPHQL_URL=${process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'} NEXT_PUBLIC_AUTH_URL=${process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:4000'} NEXT_PUBLIC_STORAGE_URL=${process.env.NEXT_PUBLIC_STORAGE_URL || 'http://localhost:9000'} next start`,
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     // 5 minutes: production server startup is slower than dev on first boot.

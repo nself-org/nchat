@@ -196,10 +196,19 @@ jobs:
       - name: Build application
         run: pnpm build
         env:
-          # Match the admin secret patched into backend/.env during "Prepare nself project state".
-          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev-ci-only-32' }}
+          # Use the same CI-only admin secret that is patched into backend/.env above.
+          # Do NOT use secrets.HASURA_ADMIN_SECRET here: that secret may differ from
+          # the value injected into the Hasura container, causing 'invalid admin secret'
+          # errors when the webServer's admin client connects to the running Hasura.
+          HASURA_ADMIN_SECRET: 'hasura-admin-secret-dev-ci-only-32'
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
           NEXT_PUBLIC_ENV: 'test'
+          # Bake the Hasura URL at build time so NEXT_PUBLIC_GRAPHQL_URL is available
+          # on both client and server bundles.  Without this the admin-client falls back
+          # to an incorrect default and the webServer fails to reach Hasura.
+          NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
+          NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
+          NEXT_PUBLIC_STORAGE_URL: 'http://localhost:9000'
 
       - name: Run Playwright E2E tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
         run: pnpm test:e2e --project=chromium --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
@@ -212,7 +221,8 @@ jobs:
           NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
           NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
           NEXT_PUBLIC_STORAGE_URL: 'http://localhost:9000'
-          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev-ci-only-32' }}
+          # Same CI-only secret — must match HASURA_GRAPHQL_ADMIN_SECRET in backend/.env.
+          HASURA_ADMIN_SECRET: 'hasura-admin-secret-dev-ci-only-32'
 
       - name: Upload blob report for merge
         if: always()
