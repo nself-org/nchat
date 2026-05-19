@@ -96,7 +96,7 @@ export async function login(page: any, user: keyof typeof TEST_USERS) {
   const userData = TEST_USERS[user]
 
   await page.goto('/login')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   // Check if already logged in
   const isOnChat = page.url().includes('/chat')
@@ -124,7 +124,7 @@ export async function login(page: any, user: keyof typeof TEST_USERS) {
  */
 export async function logout(page: any) {
   await page.goto('/chat')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   const logoutButton = page.locator(
     'button:has-text("Logout"), button:has-text("Sign out"), [data-testid="logout"]'
@@ -146,12 +146,12 @@ export async function logout(page: any) {
  */
 export async function navigateToChannel(page: any, channelName: string) {
   await page.goto('/chat')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   const channelLink = page.locator(`a[href*="/chat/${channelName}"]`)
   if (await channelLink.isVisible()) {
     await channelLink.click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   }
 }
 
@@ -160,12 +160,12 @@ export async function navigateToChannel(page: any, channelName: string) {
  */
 export async function navigateToDM(page: any, userName: string) {
   await page.goto('/chat')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   const dmLink = page.locator(`a[href*="/chat/dm/"]:has-text("${userName}")`)
   if (await dmLink.isVisible()) {
     await dmLink.click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   }
 }
 

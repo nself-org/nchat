@@ -10,7 +10,7 @@ test.describe('Channel Management', () => {
   test.beforeEach(async ({ page }) => {
     // Login
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -23,7 +23,7 @@ test.describe('Channel Management', () => {
 
   test('should display channel list', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for channel list
     const channelList = page.locator('[data-testid="channel-list"], .channel-list, aside')
@@ -32,7 +32,7 @@ test.describe('Channel Management', () => {
 
   test('should create a new public channel', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Find create channel button
     const createButton = page.locator(
@@ -67,7 +67,7 @@ test.describe('Channel Management', () => {
 
   test('should create a private channel', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const createButton = page.locator('button:has-text("Create"), [data-testid="create-channel"]')
 
@@ -96,7 +96,7 @@ test.describe('Channel Management', () => {
 
   test('should switch between channels', async ({ page }) => {
     await page.goto('/chat/general')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Find another channel
     const randomChannel = page.locator('a[href*="/chat/"]:has-text("random")')
@@ -108,7 +108,7 @@ test.describe('Channel Management', () => {
 
   test('should show channel settings', async ({ page }) => {
     await page.goto('/chat/general')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Find settings/info button
     const settingsButton = page.locator(
@@ -128,7 +128,7 @@ test.describe('Channel Management', () => {
 
   test('should leave a channel', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Find leave button in channel settings
     const channelLink = page.locator('a[href*="/chat/"]:not([href*="general"])').first()
@@ -153,7 +153,7 @@ test.describe('Channel Management', () => {
 
   test('should search for channels', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const searchInput = page.locator(
       'input[placeholder*="Search"], input[placeholder*="channel"], [data-testid="channel-search"]'
@@ -170,7 +170,7 @@ test.describe('Channel Management', () => {
 
   test('should display channel member count', async ({ page }) => {
     await page.goto('/chat/general')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for member count indicator
     const memberCount = page.locator(
@@ -184,7 +184,7 @@ test.describe('Channel Management', () => {
 
   test('should pin a channel', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const channelLink = page.locator('a[href*="/chat/"]').first()
     if (await channelLink.isVisible()) {

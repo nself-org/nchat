@@ -16,7 +16,7 @@ export class BasePage {
 
   async goto(path: string) {
     await this.page.goto(path)
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async waitForElement(selector: string, options?: { timeout?: number }) {
@@ -416,32 +416,32 @@ export class SettingsPage extends BasePage {
 
   async navigateToProfile() {
     await this.profileTab.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async navigateToAccount() {
     await this.accountTab.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async navigateToNotifications() {
     await this.notificationsTab.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async navigateToPrivacy() {
     await this.privacyTab.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async navigateToAppearance() {
     await this.appearanceTab.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async navigateToSecurity() {
     await this.securityTab.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async updateProfile(data: { displayName?: string; username?: string; bio?: string }) {

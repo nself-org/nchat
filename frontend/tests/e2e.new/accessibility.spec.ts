@@ -27,7 +27,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
     page,
   }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -40,7 +40,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
     page,
   }) => {
     await page.goto("/login");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -53,7 +53,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
     page,
   }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -67,7 +67,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
     page,
   }) => {
     await page.goto("/settings");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])
@@ -78,7 +78,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
 
   test("should meet color contrast requirements @a11y", async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // cat.color includes color-contrast (WCAG AA, 4.5:1) and
     // color-contrast-enhanced (WCAG AAA, 7:1). This suite targets WCAG 2.1 AA
@@ -94,7 +94,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
 
   test("should have proper keyboard accessibility @a11y", async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // cat.keyboard includes the skip-link rule ("skip-link target should exist and
     // be focusable"). In CI this test runs without authentication, so /chat redirects
@@ -113,7 +113,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
 
   test("should have proper ARIA attributes @a11y", async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["cat.aria"])
@@ -124,7 +124,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
 
   test("should have proper semantic HTML @a11y", async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(["best-practice"])
@@ -146,7 +146,7 @@ test.describe("WCAG 2.1 AA Compliance", () => {
 test.describe("Tab Navigation", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
   });
 
   test("should navigate between focusable elements with Tab", async ({
@@ -280,7 +280,7 @@ test.describe("Tab Navigation", () => {
 test.describe("Screen Reader Compatibility", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
   });
 
   test("should have aria-label for icon buttons", async ({ page }) => {
@@ -399,7 +399,7 @@ test.describe("Screen Reader Compatibility", () => {
 test.describe("Keyboard Shortcuts", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
   });
 
   test("should focus message input with Ctrl+K or Cmd+K", async ({ page }) => {
@@ -458,7 +458,7 @@ test.describe("Keyboard Shortcuts", () => {
     for (const shortcut of shortcuts) {
       // Reload to reset state
       await page.reload();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
       await page.waitForTimeout(100);
 
       await page.keyboard.press(shortcut).catch(() => {
@@ -569,7 +569,7 @@ test.describe("Keyboard Shortcuts", () => {
 test.describe("Focus Management", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
   });
 
   test("should set focus on interactive elements", async ({ page }) => {
@@ -680,7 +680,7 @@ test.describe("Focus Management", () => {
 test.describe("Skip Links", () => {
   test("should have skip link in header", async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Look for skip link
     const skipLink = page.locator(
@@ -694,7 +694,7 @@ test.describe("Skip Links", () => {
 
   test("should activate skip link with Tab", async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Tab to first element
     await page.keyboard.press("Tab");
@@ -714,7 +714,7 @@ test.describe("Skip Links", () => {
 
   test("should skip to main content when activated", async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Look for skip link
     const skipLink = page.locator('a[href*="#"], .skip-link');
@@ -751,7 +751,7 @@ test.describe("Skip Links", () => {
 test.describe("Color Contrast", () => {
   test("should meet WCAG AA standards for text contrast", async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Use axe or manual check
     const contrastIssues = await page.evaluate(() => {
@@ -828,7 +828,7 @@ test.describe("Color Contrast", () => {
 test.describe("Form Validation Accessibility", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
   });
 
   test("should announce required fields", async ({ page }) => {
@@ -937,7 +937,7 @@ test.describe("Form Validation Accessibility", () => {
 test.describe("Modal Focus Trapping", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
   });
 
   test("should trap focus within modal", async ({ page }) => {
@@ -1053,7 +1053,7 @@ test.describe("Modal Focus Trapping", () => {
 test.describe("ARIA Attributes", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chat");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
   });
 
   test("should have aria-expanded on collapsible elements", async ({

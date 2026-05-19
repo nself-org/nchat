@@ -252,7 +252,7 @@ test.describe('Notification Settings', () => {
 
     // Reload page
     await authenticatedPage.reload()
-    await authenticatedPage.waitForLoadState('networkidle')
+    await authenticatedPage.waitForLoadState('load')
 
     // Should still be enabled
     await expect(settingsPage.pushNotificationsToggle).toBeChecked()
@@ -332,7 +332,7 @@ test.describe('Privacy Settings', () => {
 
     // Reload page
     await authenticatedPage.reload()
-    await authenticatedPage.waitForLoadState('networkidle')
+    await authenticatedPage.waitForLoadState('load')
 
     // Should still be disabled
     await expect(settingsPage.onlineStatusToggle).not.toBeChecked()
@@ -408,7 +408,7 @@ test.describe('Appearance Settings', () => {
 
     // Reload page
     await authenticatedPage.reload()
-    await authenticatedPage.waitForLoadState('networkidle')
+    await authenticatedPage.waitForLoadState('load')
 
     // Dark theme should still be applied
     const htmlClass = await authenticatedPage.locator('html').getAttribute('class')

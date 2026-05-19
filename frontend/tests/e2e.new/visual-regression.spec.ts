@@ -10,7 +10,7 @@ test.describe('Visual Regression Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Login for authenticated pages
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"]')
     if (await emailInput.isVisible()) {
@@ -27,7 +27,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('landing page snapshot', async ({ page }) => {
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Skip when no baseline exists (first-run in CI without --update-snapshots)
     await expect(page).toHaveScreenshot('landing-page.png', {
@@ -38,7 +38,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('login page snapshot', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     await expect(page).toHaveScreenshot('login-page.png', {
       fullPage: true,
@@ -48,7 +48,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('chat page snapshot', async ({ page }) => {
     await page.goto('/chat/general')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
     await page.waitForTimeout(1000) // Wait for any animations
 
     await expect(page).toHaveScreenshot('chat-page.png', {
@@ -59,7 +59,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('settings page snapshot', async ({ page }) => {
     await page.goto('/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     await expect(page).toHaveScreenshot('settings-page.png', {
       fullPage: true,
@@ -69,7 +69,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('admin page snapshot', async ({ page }) => {
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     await expect(page).toHaveScreenshot('admin-page.png', {
       fullPage: true,
@@ -83,7 +83,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('sidebar snapshot', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sidebar = page.locator('aside, [data-testid="sidebar"]').first()
     if (await sidebar.isVisible()) {
@@ -95,7 +95,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('message input snapshot', async ({ page }) => {
     await page.goto('/chat/general')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const messageInput = page.locator('[data-testid="message-input"], .message-input').first()
     if (await messageInput.isVisible()) {
@@ -107,7 +107,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('user menu snapshot', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const userMenu = page.locator('[data-testid="user-menu"], .user-menu').first()
     if (await userMenu.isVisible()) {
@@ -130,7 +130,7 @@ test.describe('Visual Regression Tests', () => {
   test('mobile chat page', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/chat/general')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     await expect(page).toHaveScreenshot('mobile-chat-page.png', {
       fullPage: true,
@@ -141,7 +141,7 @@ test.describe('Visual Regression Tests', () => {
   test('tablet chat page', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 })
     await page.goto('/chat/general')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     await expect(page).toHaveScreenshot('tablet-chat-page.png', {
       fullPage: true,
@@ -155,7 +155,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('dark mode snapshot', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Toggle dark mode if available
     const themeToggle = page.locator('[data-testid="theme-toggle"], button[aria-label*="theme"]')
@@ -176,7 +176,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('modal open snapshot', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Open create channel modal
     const createButton = page.locator('button:has-text("Create"), [data-testid="create-channel"]')
@@ -213,7 +213,7 @@ test.describe('Visual Regression Tests', () => {
 
   test('empty state snapshot', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emptyState = page.locator('[data-testid="empty-state"], .empty-state').first()
     if (await emptyState.isVisible()) {

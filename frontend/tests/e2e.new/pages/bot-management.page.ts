@@ -31,7 +31,7 @@ export class BotManagementPage {
 
   async goto() {
     await this.page.goto('/admin/bots/manage')
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async createBot(name: string) {
@@ -43,7 +43,7 @@ export class BotManagementPage {
 
     const submitButton = this.page.locator('button[type="submit"], button:has-text("Create")')
     await submitButton.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async createBotFromTemplate(name: string, template: string) {
@@ -64,13 +64,13 @@ export class BotManagementPage {
     // Submit
     const submitButton = this.page.locator('button[type="submit"], button:has-text("Create")')
     await submitButton.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async selectBot(botName: string) {
     const bot = this.page.locator(`[data-testid="bot-item"]:has-text("${botName}")`)
     await bot.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async editBotCode(code: string) {
@@ -122,7 +122,7 @@ export class BotManagementPage {
       'button:has-text("Analytics"), [data-testid="analytics-tab"]'
     )
     await analyticsTab.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async getAnalyticMetric(metric: 'calls' | 'errors' | 'responseTime'): Promise<string> {

@@ -49,7 +49,7 @@ const SUPPORTED_CHAINS = [
 test.beforeEach(async ({ page }) => {
   // Navigate to chat or wallet page
   await page.goto('/chat')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   // Open wallet or settings section
   const walletButton = page.locator(
@@ -58,7 +58,7 @@ test.beforeEach(async ({ page }) => {
 
   if (await walletButton.first().isVisible()) {
     await walletButton.first().click()
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   }
 })
 
@@ -70,7 +70,7 @@ test.describe('MetaMask Wallet Connection', () => {
   test('should display MetaMask connection button', async ({ page }) => {
     // Navigate to wallet page
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for MetaMask button
     const metamaskButton = page.locator(
@@ -83,7 +83,7 @@ test.describe('MetaMask Wallet Connection', () => {
 
   test('should show MetaMask provider not installed message', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // If MetaMask is not installed, should show appropriate message
     const metamaskButton = page
@@ -107,7 +107,7 @@ test.describe('MetaMask Wallet Connection', () => {
     // Note: This test may not fully work without actual MetaMask extension
     // But we test the UI behavior
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const metamaskButton = page
       .locator(
@@ -127,7 +127,7 @@ test.describe('MetaMask Wallet Connection', () => {
 
   test('should display loading state during connection', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const metamaskButton = page
       .locator('button:has-text("MetaMask"), [data-testid="connect-metamask"]')
@@ -146,7 +146,7 @@ test.describe('MetaMask Wallet Connection', () => {
   test('should show connected wallet address after successful connection', async ({ page }) => {
     // Assuming wallet is already connected
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for connected address display
     const addressDisplay = page.locator(
@@ -160,7 +160,7 @@ test.describe('MetaMask Wallet Connection', () => {
 
   test('should display connection error if user rejects', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // User rejection would be handled by MetaMask UI
     // Test that error message could appear
@@ -179,7 +179,7 @@ test.describe('MetaMask Wallet Connection', () => {
 test.describe('WalletConnect Connection', () => {
   test('should display WalletConnect button', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for WalletConnect button
     const walletConnectButton = page.locator(
@@ -192,7 +192,7 @@ test.describe('WalletConnect Connection', () => {
 
   test('should display WalletConnect QR code modal', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const walletConnectButton = page
       .locator('button:has-text("WalletConnect"), [data-testid="connect-walletconnect"]')
@@ -212,7 +212,7 @@ test.describe('WalletConnect Connection', () => {
 
   test('should display URI copy option for WalletConnect', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const walletConnectButton = page
       .locator('button:has-text("WalletConnect"), [data-testid="connect-walletconnect"]')
@@ -234,7 +234,7 @@ test.describe('WalletConnect Connection', () => {
 
   test('should show supported wallets for WalletConnect', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const walletConnectButton = page
       .locator('button:has-text("WalletConnect"), [data-testid="connect-walletconnect"]')
@@ -256,7 +256,7 @@ test.describe('WalletConnect Connection', () => {
 
   test('should allow canceling WalletConnect modal', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const walletConnectButton = page
       .locator('button:has-text("WalletConnect"), [data-testid="connect-walletconnect"]')
@@ -294,7 +294,7 @@ test.describe('Wallet Balance Viewing', () => {
   test('should display wallet balance', async ({ page }) => {
     // Assuming wallet is connected
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for balance display
     const balanceDisplay = page.locator(
@@ -308,7 +308,7 @@ test.describe('Wallet Balance Viewing', () => {
 
   test('should display balance in native currency', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for ETH, MATIC, etc.
     const nativeCurrency = page.locator('text=/ETH|MATIC|BNB|OPT|ARB/i')
@@ -320,7 +320,7 @@ test.describe('Wallet Balance Viewing', () => {
 
   test('should display balance in USD equivalent', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for USD value
     const usdBalance = page.locator('text=/\\$[0-9,]+\\.\\d{2}|USD/i')
@@ -332,7 +332,7 @@ test.describe('Wallet Balance Viewing', () => {
 
   test('should refresh balance on demand', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for refresh button
     const refreshButton = page.locator(
@@ -350,7 +350,7 @@ test.describe('Wallet Balance Viewing', () => {
 
   test('should show loading state when fetching balance', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const refreshButton = page
       .locator('button[aria-label*="refresh"], [data-testid="refresh-balance"]')
@@ -368,7 +368,7 @@ test.describe('Wallet Balance Viewing', () => {
 
   test('should display token balances', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for token list
     const tokenList = page.locator(
@@ -387,7 +387,7 @@ test.describe('Wallet Balance Viewing', () => {
 test.describe('Send Crypto Payment', () => {
   test('should display send button', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for send button
     const sendButton = page.locator(
@@ -400,7 +400,7 @@ test.describe('Send Crypto Payment', () => {
 
   test('should open send modal on button click', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -417,7 +417,7 @@ test.describe('Send Crypto Payment', () => {
 
   test('should have recipient address input', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -437,7 +437,7 @@ test.describe('Send Crypto Payment', () => {
 
   test('should have amount input field', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -457,7 +457,7 @@ test.describe('Send Crypto Payment', () => {
 
   test('should have token selector for send', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -477,7 +477,7 @@ test.describe('Send Crypto Payment', () => {
 
   test('should validate recipient address', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -508,7 +508,7 @@ test.describe('Send Crypto Payment', () => {
 
   test('should show estimated gas fees', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -526,7 +526,7 @@ test.describe('Send Crypto Payment', () => {
 
   test('should show total amount including gas', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -544,7 +544,7 @@ test.describe('Send Crypto Payment', () => {
 
   test('should have confirm send button', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -570,7 +570,7 @@ test.describe('Send Crypto Payment', () => {
 test.describe('Receive Crypto Payment', () => {
   test('should display receive button', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for receive button
     const receiveButton = page.locator(
@@ -583,7 +583,7 @@ test.describe('Receive Crypto Payment', () => {
 
   test('should display wallet address for receiving', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const receiveButton = page
       .locator('button:has-text("Receive"), [data-testid="receive-button"]')
@@ -605,7 +605,7 @@ test.describe('Receive Crypto Payment', () => {
 
   test('should display QR code for receiving', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const receiveButton = page
       .locator('button:has-text("Receive"), [data-testid="receive-button"]')
@@ -625,7 +625,7 @@ test.describe('Receive Crypto Payment', () => {
 
   test('should allow copying address for receiving', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const receiveButton = page
       .locator('button:has-text("Receive"), [data-testid="receive-button"]')
@@ -655,7 +655,7 @@ test.describe('Receive Crypto Payment', () => {
 
   test('should show payment request link', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const receiveButton = page
       .locator('button:has-text("Receive"), [data-testid="receive-button"]')
@@ -684,7 +684,7 @@ test.describe('Wallet Disconnection', () => {
   test('should display disconnect button', async ({ page }) => {
     // Assuming wallet is connected
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for disconnect button
     const disconnectButton = page.locator(
@@ -697,7 +697,7 @@ test.describe('Wallet Disconnection', () => {
 
   test('should disconnect wallet on button click', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const disconnectButton = page
       .locator('button:has-text("Disconnect"), [data-testid="disconnect-button"]')
@@ -714,7 +714,7 @@ test.describe('Wallet Disconnection', () => {
 
   test('should show confirmation before disconnecting', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const disconnectButton = page
       .locator('button:has-text("Disconnect"), [data-testid="disconnect-button"]')
@@ -734,7 +734,7 @@ test.describe('Wallet Disconnection', () => {
 
   test('should show connection prompt after disconnecting', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const disconnectButton = page
       .locator('button:has-text("Disconnect"), [data-testid="disconnect-button"]')
@@ -763,7 +763,7 @@ test.describe('Switch Wallet Accounts', () => {
   test('should display account switcher', async ({ page }) => {
     // Assuming wallet is connected
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for account selector
     const accountSwitcher = page.locator(
@@ -776,7 +776,7 @@ test.describe('Switch Wallet Accounts', () => {
 
   test('should show available accounts', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for account list
     const accountSwitcher = page
@@ -799,7 +799,7 @@ test.describe('Switch Wallet Accounts', () => {
 
   test('should switch to different account', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accountSwitcher = page
       .locator('[data-testid="account-switcher"], button:has-text("0x")')
@@ -824,7 +824,7 @@ test.describe('Switch Wallet Accounts', () => {
 
   test('should update balance when switching accounts', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accountSwitcher = page
       .locator('[data-testid="account-switcher"], button:has-text("0x")')
@@ -862,7 +862,7 @@ test.describe('Switch Wallet Accounts', () => {
 test.describe('Wallet Transaction History', () => {
   test('should display transaction history section', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for history section
     const historySection = page.locator(
@@ -875,7 +875,7 @@ test.describe('Wallet Transaction History', () => {
 
   test('should display transaction items', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for transaction items
     const transactions = page.locator(
@@ -888,7 +888,7 @@ test.describe('Wallet Transaction History', () => {
 
   test('should show transaction type (send/receive)', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for tx type indicator
     const txType = page.locator('[data-testid="tx-type"], text=/sent|received|incoming|outgoing/i')
@@ -899,7 +899,7 @@ test.describe('Wallet Transaction History', () => {
 
   test('should show transaction amount', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for amount display
     const txAmount = page.locator('[data-testid="tx-amount"], text=/\\d+\\.\\d+ (ETH|MATIC|USD)/i')
@@ -910,7 +910,7 @@ test.describe('Wallet Transaction History', () => {
 
   test('should show transaction status', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for status badge — use .or() because text= is Playwright syntax, not CSS
     const txStatus = page
@@ -923,7 +923,7 @@ test.describe('Wallet Transaction History', () => {
 
   test('should show transaction timestamp', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for timestamp
     const txTime = page.locator(
@@ -936,7 +936,7 @@ test.describe('Wallet Transaction History', () => {
 
   test('should allow opening transaction details', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Click on transaction item
     const transaction = page.locator('[data-testid="transaction-item"], .transaction-item').first()
@@ -973,7 +973,7 @@ test.describe('Wallet Transaction History', () => {
 
   test('should filter transactions', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for filter
     const filterButton = page.locator(
@@ -1006,7 +1006,7 @@ test.describe('Wallet Transaction History', () => {
 test.describe('Multi-Chain Support', () => {
   test('should display network switcher', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for chain selector
     const chainSwitcher = page.locator(
@@ -1019,7 +1019,7 @@ test.describe('Multi-Chain Support', () => {
 
   test('should show available chains', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const chainSwitcher = page
       .locator('[data-testid="chain-switcher"], button:has-text("Ethereum"), [role="combobox"]')
@@ -1041,7 +1041,7 @@ test.describe('Multi-Chain Support', () => {
 
   test('should switch to Ethereum mainnet', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const chainSwitcher = page
       .locator('[data-testid="chain-switcher"], button:has-text("Ethereum")')
@@ -1066,7 +1066,7 @@ test.describe('Multi-Chain Support', () => {
 
   test('should switch to Polygon chain', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const chainSwitcher = page
       .locator('[data-testid="chain-switcher"], button:has-text("Polygon"), [role="combobox"]')
@@ -1091,7 +1091,7 @@ test.describe('Multi-Chain Support', () => {
 
   test('should switch to Sepolia testnet', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const chainSwitcher = page.locator('[data-testid="chain-switcher"], [role="combobox"]').first()
 
@@ -1114,7 +1114,7 @@ test.describe('Multi-Chain Support', () => {
 
   test('should update balance for different chains', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Get initial balance
     const initialBalance = await page.locator('[data-testid="wallet-balance"]').textContent()
@@ -1141,7 +1141,7 @@ test.describe('Multi-Chain Support', () => {
 
   test('should show chain-specific gas prices', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const sendButton = page.locator('button:has-text("Send"), [data-testid="send-button"]').first()
 
@@ -1159,7 +1159,7 @@ test.describe('Multi-Chain Support', () => {
 
   test('should display all supported chains information', async ({ page }) => {
     await page.goto('/wallet/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for chains list
     const chainsList = page.locator('[data-testid="supported-chains"], section:has-text("Chain")')
@@ -1181,7 +1181,7 @@ test.describe('Wallet Responsive Design', () => {
 
   test('should display wallet on mobile', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Should still show wallet interface — page has data-testid="wallet-container"
     const walletSection = page.locator('[data-testid="wallet-container"]')
@@ -1191,7 +1191,7 @@ test.describe('Wallet Responsive Design', () => {
 
   test('should show mobile-friendly button layout', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Buttons should be stacked
     const buttons = page.locator('button:has-text("Send"), button:has-text("Receive")')
@@ -1201,7 +1201,7 @@ test.describe('Wallet Responsive Design', () => {
 
   test('should stack account switcher vertically', async ({ page }) => {
     await page.goto('/wallet')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accountSwitcher = page.locator('[data-testid="account-switcher"]')
     const isVisible = await accountSwitcher.isVisible().catch(() => false)

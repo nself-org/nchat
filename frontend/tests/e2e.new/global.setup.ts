@@ -53,8 +53,12 @@ async function globalSetup(config: FullConfig) {
     // Navigate to the app
     await page.goto(baseURL || "http://localhost:3000");
 
-    // Wait for the app to be ready
-    await page.waitForLoadState("networkidle");
+    // Wait for the app to be ready.
+    // "load" waits for the load event (all resources fetched) rather than
+    // "networkidle" (no requests for 500 ms).  A real-time chat app maintains
+    // persistent WebSocket / SSE connections that prevent networkidle from ever
+    // being reached, causing a 30 s timeout in every CI shard.
+    await page.waitForLoadState("load");
 
     // In dev mode, the app auto-logs in as owner.
     // FauxAuthService stores its session under 'nchat-dev-session';
@@ -70,7 +74,7 @@ async function globalSetup(config: FullConfig) {
     if (!isLoggedIn) {
       // Navigate to login page
       await page.goto(`${baseURL}/login`);
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
 
       // Fill in credentials for owner
       const emailInput = page.locator(

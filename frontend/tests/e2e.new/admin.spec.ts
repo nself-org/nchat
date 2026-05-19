@@ -69,7 +69,7 @@ test.describe('Admin Access Control', () => {
   test('should allow owner access to admin dashboard', async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -85,7 +85,7 @@ test.describe('Admin Access Control', () => {
 
     // Navigate to admin
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Should be on admin page
     const currentUrl = page.url()
@@ -95,7 +95,7 @@ test.describe('Admin Access Control', () => {
   test('should allow admin access to admin dashboard', async ({ page }) => {
     // Login as admin
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -111,7 +111,7 @@ test.describe('Admin Access Control', () => {
 
     // Navigate to admin
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Should be on admin page
     const currentUrl = page.url()
@@ -121,7 +121,7 @@ test.describe('Admin Access Control', () => {
   test('should restrict member access to admin dashboard', async ({ page }) => {
     // Login as member
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -153,7 +153,7 @@ test.describe('Admin Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -169,7 +169,7 @@ test.describe('Admin Dashboard', () => {
 
     // Navigate to admin dashboard
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display admin dashboard with header', async ({ page }) => {
@@ -227,7 +227,7 @@ test.describe('User Management', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -243,7 +243,7 @@ test.describe('User Management', () => {
 
     // Navigate to users page
     await page.goto('/admin/users')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display users page', async ({ page }) => {
@@ -341,7 +341,7 @@ test.describe('User Management', () => {
     if ((await userItems.count()) > 0) {
       // Click first user
       await userItems.first().click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Should navigate to user detail page
       const currentUrl = page.url()
@@ -420,7 +420,7 @@ test.describe('Channel Management', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -436,7 +436,7 @@ test.describe('Channel Management', () => {
 
     // Navigate to channels page
     await page.goto('/admin/channels')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display channels page', async ({ page }) => {
@@ -528,7 +528,7 @@ test.describe('Channel Management', () => {
     if ((await channelItems.count()) > 0) {
       // Click channel
       await channelItems.first().click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Should navigate to channel detail
       const currentUrl = page.url()
@@ -541,7 +541,7 @@ test.describe('Channel Management', () => {
 
     if ((await channelItems.count()) > 0) {
       await channelItems.first().click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Look for members section
       const membersSection = page.locator(
@@ -558,7 +558,7 @@ test.describe('Channel Management', () => {
 
     if ((await channelItems.count()) > 0) {
       await channelItems.first().click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Look for permissions section
       const permissionsSection = page.locator(
@@ -579,7 +579,7 @@ test.describe('Analytics & Statistics', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -595,7 +595,7 @@ test.describe('Analytics & Statistics', () => {
 
     // Navigate to analytics
     await page.goto('/admin/analytics')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display analytics page', async ({ page }) => {
@@ -672,7 +672,7 @@ test.describe('Audit Logs', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -688,7 +688,7 @@ test.describe('Audit Logs', () => {
 
     // Navigate to audit logs
     await page.goto('/admin/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display audit logs page', async ({ page }) => {
@@ -802,7 +802,7 @@ test.describe('System Settings', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -818,7 +818,7 @@ test.describe('System Settings', () => {
 
     // Navigate to settings
     await page.goto('/admin/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display settings page', async ({ page }) => {
@@ -904,7 +904,7 @@ test.describe('Moderation', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -920,7 +920,7 @@ test.describe('Moderation', () => {
 
     // Navigate to moderation
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display moderation page', async ({ page }) => {

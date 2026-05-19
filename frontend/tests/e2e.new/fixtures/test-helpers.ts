@@ -315,6 +315,10 @@ export function createTestData(
 /**
  * Wait for network idle (all pending requests complete)
  *
+ * Uses "load" rather than "networkidle" because the chat app maintains
+ * persistent WebSocket / SSE connections that prevent networkidle from ever
+ * being satisfied, causing timeouts on every shard in CI.
+ *
  * @example
  * await waitForNetworkIdle(page, { timeout: 5000 })
  */
@@ -325,22 +329,9 @@ export async function waitForNetworkIdle(
     idleTime?: number
   } = {}
 ): Promise<void> {
-  const { timeout = 30000, idleTime = 500 } = options
+  const { timeout = 30000 } = options
 
-  await page.waitForLoadState('networkidle', { timeout })
-
-  // Extra safety: wait for no new requests for idleTime
-  let lastRequestTime = Date.now()
-  const checkIdle = () => Date.now() - lastRequestTime > idleTime
-
-  page.on('request', () => {
-    lastRequestTime = Date.now()
-  })
-
-  await waitForCondition(checkIdle, {
-    timeout,
-    description: 'network idle',
-  })
+  await page.waitForLoadState('load', { timeout })
 }
 
 /**

@@ -25,7 +25,7 @@ export class ModerationPage {
 
   async goto() {
     await this.page.goto('/admin/moderation')
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async getQueueItems() {
@@ -68,7 +68,7 @@ export class ModerationPage {
 
   async toggleAutoModeration(enabled: boolean) {
     await this.page.goto('/admin/moderation/settings')
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
 
     const toggle = this.page.locator(
       '[data-testid="auto-moderation-toggle"], input[type="checkbox"][name*="auto"]'
@@ -83,7 +83,7 @@ export class ModerationPage {
 
   async setContentThreshold(type: 'spam' | 'toxicity', value: number) {
     await this.page.goto('/admin/moderation/settings')
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
 
     const slider = this.page.locator(`[data-testid="${type}-threshold"], input[name*="${type}"]`)
     await slider.fill(value.toString())

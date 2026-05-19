@@ -42,7 +42,7 @@ const TEST_USERS = {
 test.beforeEach(async ({ page }) => {
   // Navigate to chat and ensure logged in
   await page.goto('/chat')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   // Wait for chat interface to be ready
   await page

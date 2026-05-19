@@ -51,7 +51,7 @@ test.describe('Login Flow', () => {
 
   test('should display login page with form elements', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Check for login form elements
     const emailInput = page.locator('input[type="email"], input[name="email"]')
@@ -65,7 +65,7 @@ test.describe('Login Flow', () => {
 
   test('should show validation errors for empty form submission', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Submit empty form
     const submitButton = page.locator('button[type="submit"]')
@@ -79,7 +79,7 @@ test.describe('Login Flow', () => {
 
   test('should show error message for invalid credentials', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Fill in invalid credentials
     const emailInput = page.locator('input[type="email"], input[name="email"]')
@@ -102,7 +102,7 @@ test.describe('Login Flow', () => {
 
   test('should successfully login with valid credentials', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Fill in valid credentials
     const emailInput = page.locator('input[type="email"], input[name="email"]')
@@ -149,7 +149,7 @@ test.describe('Login Flow', () => {
 
   test('should toggle password visibility', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const passwordInput = page.locator('input[name="password"], input[type="password"]')
     const toggleButton = page.locator('[aria-label*="password"], [data-testid="toggle-password"]')
@@ -176,7 +176,7 @@ test.describe('Logout Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Login first
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Check if already logged in (dev mode auto-login)
     const isOnChat = page.url().includes('/chat')
@@ -198,7 +198,7 @@ test.describe('Logout Flow', () => {
   test('should logout when clicking logout button', async ({ page }) => {
     // Navigate to a page with logout option
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Find and click logout button (could be in menu or settings)
     const userMenu = page.locator('[data-testid="user-menu"], [aria-label*="user"], .user-avatar')
@@ -215,7 +215,7 @@ test.describe('Logout Flow', () => {
     // Try settings page
     if (await settingsLink.isVisible()) {
       await settingsLink.click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
     }
 
     // Find logout button
@@ -229,7 +229,7 @@ test.describe('Logout Flow', () => {
 
   test('should clear auth tokens on logout', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Get initial auth state
     const initialToken = await page.evaluate(() => {
@@ -331,7 +331,7 @@ test.describe('Session Persistence', () => {
   test('should maintain login state on page refresh', async ({ page }) => {
     // Login
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -347,7 +347,7 @@ test.describe('Session Persistence', () => {
 
     // Refresh the page
     await page.reload()
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Should still be on protected page
     const currentUrl = page.url()
@@ -357,11 +357,11 @@ test.describe('Session Persistence', () => {
   test('should maintain login state across different pages', async ({ page }) => {
     // Navigate to chat
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Navigate to settings
     await page.goto('/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Should still be accessible
     const currentUrl = page.url()
@@ -377,7 +377,7 @@ test.describe('Role-Based Access', () => {
   test('should restrict admin routes based on role', async ({ page }) => {
     // Login as regular member
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -413,7 +413,7 @@ test.describe('Role-Based Access', () => {
   test('should allow owner access to admin routes', async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -429,7 +429,7 @@ test.describe('Role-Based Access', () => {
 
     // Try to access admin page
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Owner should have access
     const currentUrl = page.url()
@@ -444,7 +444,7 @@ test.describe('Role-Based Access', () => {
 test.describe('Authentication UI', () => {
   test('should display user info when logged in', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for user avatar or name display
     const userAvatar = page.locator('[data-testid="user-avatar"], .avatar, [alt*="avatar"]')
@@ -458,14 +458,14 @@ test.describe('Authentication UI', () => {
 
   test('should have signup link on login page', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for signup/register link
     const signupLink = page.locator('a[href*="signup"], a[href*="register"], a:has-text("Sign up")')
 
     if (await signupLink.isVisible()) {
       await signupLink.click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       const currentUrl = page.url()
       expect(currentUrl.includes('/signup') || currentUrl.includes('/register')).toBe(true)
@@ -474,7 +474,7 @@ test.describe('Authentication UI', () => {
 
   test('should have forgot password link on login page', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for forgot password link
     const forgotLink = page.locator(
@@ -494,7 +494,7 @@ test.describe('Authentication UI', () => {
 test.describe('Authentication Error Handling', () => {
   test('should handle network errors gracefully', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Simulate offline
     await page.context().setOffline(true)
@@ -521,7 +521,7 @@ test.describe('Authentication Error Handling', () => {
 
   test('should show loading state during authentication', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     const passwordInput = page.locator('input[type="password"], input[name="password"]')

@@ -40,7 +40,7 @@ const TEST_USERS = {
 test.beforeEach(async ({ page }) => {
   // Login as owner/admin for bot management
   await page.goto('/login')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   const emailInput = page.locator('input[type="email"], input[name="email"]')
   if (await emailInput.isVisible()) {
@@ -63,7 +63,7 @@ test.describe('Bot Manager Navigation', () => {
   test('should navigate to bot manager from admin menu', async ({ page }) => {
     // Navigate to admin section
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Take screenshot
     await page.screenshot({ path: 'test-results/admin-dashboard.png', fullPage: true })
@@ -75,7 +75,7 @@ test.describe('Bot Manager Navigation', () => {
 
     if (await botManagerLink.isVisible()) {
       await botManagerLink.click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Should be on bots page
       const currentUrl = page.url()
@@ -85,7 +85,7 @@ test.describe('Bot Manager Navigation', () => {
 
   test('should display bot manager page', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Take screenshot
     await page.screenshot({ path: 'test-results/bot-manager.png', fullPage: true })
@@ -99,7 +99,7 @@ test.describe('Bot Manager Navigation', () => {
 
   test('should display bot list/grid', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for bot list container
     const botList = page.locator(
@@ -112,7 +112,7 @@ test.describe('Bot Manager Navigation', () => {
 
   test('should display create bot button prominently', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for create button
     const createButton = page.locator(
@@ -131,7 +131,7 @@ test.describe('Bot Manager Navigation', () => {
 test.describe('Bot Templates', () => {
   test('should display bot template gallery', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const createButton = page.locator('[data-testid="create-bot"], button:has-text("Create Bot")')
 
@@ -154,7 +154,7 @@ test.describe('Bot Templates', () => {
 
   test('should display template categories', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const createButton = page.locator('[data-testid="create-bot"]')
 
@@ -174,7 +174,7 @@ test.describe('Bot Templates', () => {
 
   test('should show template preview cards', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const createButton = page.locator('[data-testid="create-bot"]')
 
@@ -194,7 +194,7 @@ test.describe('Bot Templates', () => {
 
   test('should display template details on hover/click', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const createButton = page.locator('[data-testid="create-bot"]')
 
@@ -221,7 +221,7 @@ test.describe('Bot Templates', () => {
 
   test('should create bot from template', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const createButton = page.locator('[data-testid="create-bot"]')
 
@@ -265,7 +265,7 @@ test.describe('Bot Templates', () => {
 
   test('should display template code preview', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const createButton = page.locator('[data-testid="create-bot"]')
 
@@ -296,7 +296,7 @@ test.describe('Bot Templates', () => {
 test.describe('Bot Code Editor', () => {
   test('should display code editor for bot', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for existing bot to edit
     const botItems = page.locator('[data-testid="bot-item"], .bot-card')
@@ -320,7 +320,7 @@ test.describe('Bot Code Editor', () => {
 
   test('should support syntax highlighting', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -340,7 +340,7 @@ test.describe('Bot Code Editor', () => {
 
   test('should support code editing', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -363,7 +363,7 @@ test.describe('Bot Code Editor', () => {
 
   test('should display save button', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -383,7 +383,7 @@ test.describe('Bot Code Editor', () => {
 
   test('should show unsaved changes indicator', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -411,7 +411,7 @@ test.describe('Bot Code Editor', () => {
 
   test('should provide code autocomplete/IntelliSense', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -439,7 +439,7 @@ test.describe('Bot Code Editor', () => {
 
   test('should display code validation errors', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -465,7 +465,7 @@ test.describe('Bot Code Editor', () => {
 test.describe('Bot Sandbox Testing', () => {
   test('should display test bot button', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -485,7 +485,7 @@ test.describe('Bot Sandbox Testing', () => {
 
   test('should open sandbox testing panel', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -515,7 +515,7 @@ test.describe('Bot Sandbox Testing', () => {
 
   test('should display test input field', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -542,7 +542,7 @@ test.describe('Bot Sandbox Testing', () => {
 
   test('should run bot in sandbox', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -591,7 +591,7 @@ test.describe('Bot Sandbox Testing', () => {
 
   test('should display test execution logs', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -618,7 +618,7 @@ test.describe('Bot Sandbox Testing', () => {
 
   test('should show test execution time', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -658,7 +658,7 @@ test.describe('Bot Sandbox Testing', () => {
 test.describe('Bot Deployment', () => {
   test('should display deploy button', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -678,7 +678,7 @@ test.describe('Bot Deployment', () => {
 
   test('should show deployment confirmation dialog', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -703,7 +703,7 @@ test.describe('Bot Deployment', () => {
 
   test('should deploy bot successfully', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -738,7 +738,7 @@ test.describe('Bot Deployment', () => {
 
   test('should show bot status as deployed/active', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -753,7 +753,7 @@ test.describe('Bot Deployment', () => {
 
   test('should support undeploying bot', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -779,7 +779,7 @@ test.describe('Bot Deployment', () => {
 test.describe('Bot Analytics', () => {
   test('should display analytics tab/button', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -799,7 +799,7 @@ test.describe('Bot Analytics', () => {
 
   test('should display bot usage metrics', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -831,7 +831,7 @@ test.describe('Bot Analytics', () => {
 
   test('should display usage chart/graph', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -856,7 +856,7 @@ test.describe('Bot Analytics', () => {
 
   test('should show bot error rate', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -883,7 +883,7 @@ test.describe('Bot Analytics', () => {
 
   test('should display bot activity log', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -908,7 +908,7 @@ test.describe('Bot Analytics', () => {
 
   test('should allow filtering analytics by date range', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -941,7 +941,7 @@ test.describe('Bot Analytics', () => {
 test.describe('Bot Configuration', () => {
   test('should display bot settings panel', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -961,7 +961,7 @@ test.describe('Bot Configuration', () => {
 
   test('should allow editing bot name and description', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -994,7 +994,7 @@ test.describe('Bot Configuration', () => {
 
   test('should display bot trigger configuration', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -1021,7 +1021,7 @@ test.describe('Bot Configuration', () => {
 
   test('should display bot permissions configuration', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -1048,7 +1048,7 @@ test.describe('Bot Configuration', () => {
 
   test('should save bot configuration', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -1087,7 +1087,7 @@ test.describe('Bot Configuration', () => {
 test.describe('Bot Deletion', () => {
   test('should display delete bot button', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -1107,7 +1107,7 @@ test.describe('Bot Deletion', () => {
 
   test('should show confirmation before deleting bot', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 
@@ -1138,7 +1138,7 @@ test.describe('Bot Deletion', () => {
 
   test('should require typing bot name to confirm deletion', async ({ page }) => {
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const botItems = page.locator('[data-testid="bot-item"]')
 

@@ -18,7 +18,7 @@ import { test, expect } from '@playwright/test'
 test.beforeEach(async ({ page }) => {
   // Navigate to chat and ensure logged in
   await page.goto('/chat')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   // In dev mode, should auto-login
   // Wait for chat interface to be ready
@@ -180,7 +180,7 @@ test.describe('Channel Navigation', () => {
     if (count > 0) {
       // Click first channel
       await channels.first().click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // URL should reflect channel or content should change
       const url = page.url()
@@ -703,7 +703,7 @@ test.describe('Mobile Responsiveness', () => {
 
   test('should show mobile layout on small screens', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Mobile might hide sidebar or show hamburger menu
     const hamburger = page.locator(
@@ -720,7 +720,7 @@ test.describe('Mobile Responsiveness', () => {
 
   test('should toggle sidebar on mobile', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const hamburger = page.locator(
       '[data-testid="mobile-menu"], button[aria-label*="menu"], .hamburger'

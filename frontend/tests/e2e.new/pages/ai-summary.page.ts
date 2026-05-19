@@ -59,7 +59,7 @@ export class AISummaryPage {
   async generateChannelDigest(channel: string, timeRange: '24h' | '7d' | '30d' = '24h') {
     // Navigate to channel
     await this.page.goto(`/chat/${channel}`)
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
 
     // Open digest panel
     const digestButton = this.page.locator(
