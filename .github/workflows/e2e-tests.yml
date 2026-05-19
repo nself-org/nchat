@@ -89,8 +89,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Prepare nself project state
+        # The committed backend/ has a v0.9.8 build artifact (.nself/build-version).
+        # nself start needs (a) a build-state marker to recognise the directory as an
+        # initialised project, and (b) --allow-legacy to skip the v0.9 artifact check.
+        # We create a minimal state file here so the CLI finds the project without
+        # requiring nself init (which would overwrite committed config).
+        run: |
+          mkdir -p backend/.nself/build-state
+          printf 'timestamp=0\n' > backend/.nself/build-state/last-build.state
+        working-directory: .
+
       - name: Start nself backend stack
-        run: nself start --skip-build --quiet
+        run: nself start --skip-build --allow-legacy --quiet
         working-directory: backend
         env:
           HASURA_GRAPHQL_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev' }}
