@@ -56,10 +56,15 @@ async function globalSetup(config: FullConfig) {
     // Wait for the app to be ready
     await page.waitForLoadState('networkidle')
 
-    // In dev mode, the app auto-logs in as owner
-    // Check if we're already logged in
+    // In dev mode, the app auto-logs in as owner.
+    // FauxAuthService stores its session under 'nchat-dev-session';
+    // NhostAuthService uses 'nchat-auth-token'. Check both so this works
+    // regardless of which auth backend is active.
     const isLoggedIn = await page.evaluate(() => {
-      return localStorage.getItem('nchat-auth-token') !== null
+      return (
+        localStorage.getItem('nchat-auth-token') !== null ||
+        localStorage.getItem('nchat-dev-session') !== null
+      )
     })
 
     if (!isLoggedIn) {
