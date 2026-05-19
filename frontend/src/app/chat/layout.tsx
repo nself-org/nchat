@@ -169,8 +169,9 @@ export default function ChatLayout({
                   size="icon"
                   onClick={() => setSidebarOpen(true)}
                   className="mr-2"
+                  aria-label="Open sidebar"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-5 w-5" aria-hidden="true" />
                 </Button>
                 <h1 className="text-lg font-semibold">nchat</h1>
               </div>
@@ -186,8 +187,9 @@ export default function ChatLayout({
                     size="icon"
                     onClick={() => setSidebarOpen(false)}
                     className="absolute right-2 top-4 z-10"
+                    aria-label="Close sidebar"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-5 w-5" aria-hidden="true" />
                   </Button>
                   <Sidebar />
                 </div>

@@ -85,7 +85,7 @@ function QuickAction({
   }
 
   return (
-    <button onClick={onClick} className="w-full text-left">
+    <button onClick={onClick} className="w-full text-left" aria-label={title}>
       {content}
     </button>
   );
