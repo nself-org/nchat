@@ -150,13 +150,22 @@ export default defineConfig({
   // pages with no per-route compilation delay.  This eliminates the
   // on-demand compilation timeouts that occurred with `pnpm dev`.
   //
-  // HASURA_ADMIN_SECRET and NEXT_PUBLIC_ENV are read from the process env
-  // rather than hardcoded so the webServer process inherits the values set
-  // by the CI workflow step (or the developer's local shell).  In E2E test
-  // mode (NEXT_PUBLIC_ENV=test) the server-side CSRF bypass is activated;
-  // the server must receive this var at runtime, not only at build time.
+  // HASURA_ADMIN_SECRET, NEXT_PUBLIC_ENV, and CSRF_SECRET are read from the
+  // process env rather than hardcoded so the webServer process inherits the
+  // values set by the CI workflow step (or the developer's local shell).
+  //
+  // CSRF_SECRET is required at runtime by getCsrfSecret() when NODE_ENV=production
+  // (which next start always sets).  Without it the server throws "FATAL: CSRF_SECRET
+  // environment variable must be set in production" on the first state-changing
+  // request, crashing the app before global.setup.ts can complete.
+  //
+  // In E2E test mode (NEXT_PUBLIC_ENV=test) server-side CSRF validation is bypassed
+  // by validateCsrfToken(), but getCsrfSecret() is still called by setCsrfToken()
+  // when decorating responses — so the secret must be present or the eager throw
+  // fires first.  A fixed 40-char test-only value is used when CSRF_SECRET is not
+  // set in the caller's environment.
   webServer: {
-    command: `HASURA_ADMIN_SECRET=${process.env.HASURA_ADMIN_SECRET || 'ci-test-placeholder-not-a-real-secret'} NEXT_PUBLIC_ENV=${process.env.NEXT_PUBLIC_ENV || ''} NEXT_PUBLIC_USE_DEV_AUTH=${process.env.NEXT_PUBLIC_USE_DEV_AUTH || ''} next start`,
+    command: `HASURA_ADMIN_SECRET=${process.env.HASURA_ADMIN_SECRET || 'ci-test-placeholder-not-a-real-secret'} NEXT_PUBLIC_ENV=${process.env.NEXT_PUBLIC_ENV || ''} NEXT_PUBLIC_USE_DEV_AUTH=${process.env.NEXT_PUBLIC_USE_DEV_AUTH || ''} CSRF_SECRET=${process.env.CSRF_SECRET || 'playwright-e2e-test-only-csrf-secret-value'} next start`,
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     // 5 minutes: production server startup is slower than dev on first boot.

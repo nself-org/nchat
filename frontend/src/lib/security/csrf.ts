@@ -32,8 +32,14 @@ function getCsrfSecret(): string {
 
   const csrfSecret = process.env.CSRF_SECRET;
 
-  // Production validation
-  if (process.env.NODE_ENV === "production") {
+  // Production validation — skip when running under E2E test mode so that
+  // `next start` (which sets NODE_ENV=production) does not crash when
+  // CSRF_SECRET is absent.  validateCsrfToken() already bypasses the
+  // double-submit check in test mode; this guard prevents the eager throw
+  // from getCsrfSecret() on response decoration (setCsrfToken).
+  const isTestMode = process.env.NEXT_PUBLIC_ENV === "test";
+
+  if (process.env.NODE_ENV === "production" && !isTestMode) {
     if (!csrfSecret) {
       throw new Error(
         "FATAL: CSRF_SECRET environment variable must be set in production",
