@@ -90,12 +90,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Prepare nself project state
-        # The committed backend/ has a v0.9.8 build artifact (.nself/build-version).
-        # nself start needs (a) a build-state marker to recognise the directory as an
-        # initialised project, and (b) --allow-legacy to skip the v0.9 artifact check.
-        # We create a minimal state file here so the CLI finds the project without
-        # requiring nself init (which would overwrite committed config).
+        # The nself CLI's FindNSelfRoot() detects a project directory by the
+        # presence of a bare `.env` file (not `.env.dev`).  In CI the bare `.env`
+        # is not tracked (it is generated locally by nself build from the cascade).
+        # We copy `.env.dev` as the baseline `.env` so the project is detected.
+        #
+        # We also create a minimal build-state marker because the committed
+        # backend/ has a v0.9.8 build artifact (.nself/build-version) and
+        # nself start needs the build-state directory to avoid re-running init.
         run: |
+          cp backend/.env.dev backend/.env
           mkdir -p backend/.nself/build-state
           printf 'timestamp=0\n' > backend/.nself/build-state/last-build.state
         working-directory: .
