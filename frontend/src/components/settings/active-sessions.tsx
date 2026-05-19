@@ -145,7 +145,7 @@ export function ActiveSessions() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="active-sessions">
       {/* Dev Mode Notice */}
       {isDevMode && (
         <Alert>
@@ -270,6 +270,7 @@ function SessionCard({
         "flex items-start gap-4 rounded-lg border p-4",
         isCurrent && "bg-primary/5 border-primary/20",
       )}
+      data-testid={isCurrent ? "current-session" : "session-item"}
     >
       {/* Device Icon */}
       <div
@@ -332,6 +333,7 @@ function SessionCard({
               size="sm"
               className="hover:bg-destructive/10 text-destructive hover:text-destructive"
               disabled={isRevoking}
+              data-testid="terminate-session"
             >
               <LogOut className="h-4 w-4" />
             </Button>

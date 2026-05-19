@@ -203,6 +203,7 @@ export function TwoFactorSetup() {
         {/* Disable Button */}
         <div className="flex justify-end">
           <Button
+            data-testid="toggle-two-factor"
             variant="destructive"
             onClick={() => setShowDisableDialog(true)}
           >
@@ -383,7 +384,11 @@ export function TwoFactorSetup() {
             </ol>
           </div>
 
-          <Button onClick={handleStartSetup} disabled={isSettingUp2FA}>
+          <Button
+            data-testid="toggle-two-factor"
+            onClick={handleStartSetup}
+            disabled={isSettingUp2FA}
+          >
             {isSettingUp2FA ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
