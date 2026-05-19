@@ -294,7 +294,11 @@ function ModalProvider({ children }: { children: ReactNode }) {
 
 function SkipLinks() {
   return (
-    <div className="skip-links">
+    // nav landmark is required so axe-core's `region` rule does not flag these
+    // skip links as page content outside a landmark region. All skip links must
+    // be inside a sectioning element (<main>, <nav>, <header>, etc.) — a plain
+    // <div> is not a landmark and causes a WCAG 2.1 SC 1.3.6 violation.
+    <nav aria-label="Skip navigation" className="skip-links">
       <a
         href="#main-content"
         className="focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:outline-none focus:ring-2 focus:ring-ring"
@@ -313,7 +317,7 @@ function SkipLinks() {
       >
         Skip to message input
       </a>
-    </div>
+    </nav>
   );
 }
 
