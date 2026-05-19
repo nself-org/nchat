@@ -150,10 +150,13 @@ export default defineConfig({
   // pages with no per-route compilation delay.  This eliminates the
   // on-demand compilation timeouts that occurred with `pnpm dev`.
   //
-  // HASURA_ADMIN_SECRET satisfies next.config.js start-up gate in CI.
-  // NEXT_PUBLIC_USE_DEV_AUTH is set by the workflow env, not here.
+  // HASURA_ADMIN_SECRET and NEXT_PUBLIC_ENV are read from the process env
+  // rather than hardcoded so the webServer process inherits the values set
+  // by the CI workflow step (or the developer's local shell).  In E2E test
+  // mode (NEXT_PUBLIC_ENV=test) the server-side CSRF bypass is activated;
+  // the server must receive this var at runtime, not only at build time.
   webServer: {
-    command: 'HASURA_ADMIN_SECRET=ci-test-placeholder-not-a-real-secret next start',
+    command: `HASURA_ADMIN_SECRET=${process.env.HASURA_ADMIN_SECRET || 'ci-test-placeholder-not-a-real-secret'} NEXT_PUBLIC_ENV=${process.env.NEXT_PUBLIC_ENV || ''} NEXT_PUBLIC_USE_DEV_AUTH=${process.env.NEXT_PUBLIC_USE_DEV_AUTH || ''} next start`,
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     // 5 minutes: production server startup is slower than dev on first boot.
