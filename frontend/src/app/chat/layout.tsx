@@ -205,7 +205,11 @@ export default function ChatLayout({
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
               >
-                <div id="sidebar" tabIndex={-1} className="relative h-full outline-none">
+                <div
+                  id="sidebar"
+                  tabIndex={-1}
+                  className="relative h-full outline-none"
+                >
                   <Button
                     variant="ghost"
                     size="icon"
@@ -222,7 +226,11 @@ export default function ChatLayout({
               {/* Mobile Main Content */}
               <div className="flex flex-1 flex-col overflow-hidden">
                 {/* Skip link target for message input */}
-                <div id="message-input" tabIndex={-1} className="sr-only outline-none" />
+                <div
+                  id="message-input"
+                  tabIndex={-1}
+                  className="sr-only outline-none"
+                />
                 {children}
               </div>
             </>
@@ -253,7 +261,11 @@ export default function ChatLayout({
               <Panel id="main-panel" defaultSize={82} minSize={50} order={2}>
                 <div className="flex h-full flex-col overflow-hidden">
                   {/* Skip link target for message input */}
-                  <div id="message-input" tabIndex={-1} className="sr-only outline-none" />
+                  <div
+                    id="message-input"
+                    tabIndex={-1}
+                    className="sr-only outline-none"
+                  />
                   {children}
                 </div>
               </Panel>
