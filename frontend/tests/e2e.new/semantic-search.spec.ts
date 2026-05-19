@@ -185,7 +185,7 @@ test.describe('Natural Language Query Input', () => {
 
       // Look for AI processing indicator
       const aiIndicator = page.locator(
-        '[data-testid="ai-processing"], .processing, .spinner, text=/analyzing|processing/i'
+        '[data-testid="ai-processing"], .processing, .spinner'
       )
 
       const isVisible = await aiIndicator.isVisible().catch(() => false)
@@ -366,7 +366,7 @@ test.describe('Search Filters', () => {
       await page.waitForTimeout(300)
 
       // Look for filter count badge
-      const filterCount = page.locator('[data-testid="filter-count"], .badge, text=/\\d+ filter/i')
+      const filterCount = page.locator('[data-testid="filter-count"], .badge')
 
       const hasCount = await filterCount.isVisible().catch(() => false)
       expect(typeof hasCount).toBe('boolean')
@@ -416,7 +416,7 @@ test.describe('Search Results Display', () => {
 
       // Look for result count
       const resultCount = page.locator(
-        '[data-testid="result-count"], text=/\\d+ result/i, .result-count'
+        '[data-testid="result-count"], .result-count'
       )
 
       const isVisible = await resultCount.isVisible().catch(() => false)
@@ -437,7 +437,7 @@ test.describe('Search Results Display', () => {
 
       // Look for relevance scores
       const relevanceScore = page.locator(
-        '[data-testid="relevance-score"], .score, text=/\\d+%/, text=/relevance/i'
+        '[data-testid="relevance-score"], .score'
       )
 
       const count = await relevanceScore.count()
@@ -535,7 +535,7 @@ test.describe('Search Results Display', () => {
 
       // Look for section headers (Messages, Channels, Users)
       const sectionHeaders = page.locator(
-        'h2, h3, [data-testid="result-section"], text=/^Messages$|^Channels$|^People$/i'
+        'h2, h3, [data-testid="result-section"]'
       )
 
       const count = await sectionHeaders.count()
@@ -560,7 +560,7 @@ test.describe('Search Results Display', () => {
 
       // Look for no results message
       const noResults = page.locator(
-        '[data-testid="no-results"], text=/no results|not found|no matches/i'
+        '[data-testid="no-results"]'
       )
 
       const isVisible = await noResults.isVisible().catch(() => false)
@@ -773,7 +773,7 @@ test.describe('Saved Searches', () => {
 
     // Look for saved searches section
     const savedSearchesSection = page.locator(
-      '[data-testid="saved-searches"], text=/saved searches/i, button:has-text("Saved")'
+      '[data-testid="saved-searches"], button:has-text("Saved")'
     )
 
     const isVisible = await savedSearchesSection.isVisible().catch(() => false)
@@ -842,7 +842,7 @@ test.describe('Search History', () => {
     await page.waitForTimeout(300)
 
     // Look for recent searches section
-    const recentSection = page.locator('[data-testid="recent-searches"], text=/recent/i')
+    const recentSection = page.locator('[data-testid="recent-searches"]')
 
     const isVisible = await recentSection.isVisible().catch(() => false)
     expect(typeof isVisible).toBe('boolean')
@@ -982,7 +982,7 @@ test.describe('Advanced Search Features', () => {
 
     // Look for search tips
     const searchTips = page.locator(
-      '[data-testid="search-tips"], text=/try searching|examples|tips/i'
+      '[data-testid="search-tips"]'
     )
 
     const isVisible = await searchTips.isVisible().catch(() => false)
@@ -1014,7 +1014,7 @@ test.describe('Search Error Handling', () => {
 
       // Look for error message
       const errorMessage = page.locator(
-        '[data-testid="search-error"], text=/error|failed|unable/i, [role="alert"]'
+        '[data-testid="search-error"], [role="alert"]'
       )
 
       const hasError = await errorMessage.isVisible().catch(() => false)

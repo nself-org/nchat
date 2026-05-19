@@ -7,106 +7,93 @@
  * - Environment validation
  */
 
-import { chromium, FullConfig } from "@playwright/test";
+import { chromium, FullConfig } from '@playwright/test'
 
 // Storage state file path
-export const STORAGE_STATE = "playwright/.auth/user.json";
+export const STORAGE_STATE = 'playwright/.auth/user.json'
 
 // Test user credentials (dev mode)
 export const TEST_USERS = {
   owner: {
-    email: "owner@nself.org",
-    password: "password123",
-    role: "owner",
+    email: 'owner@nself.org',
+    password: 'password123',
+    role: 'owner',
   },
   admin: {
-    email: "admin@nself.org",
-    password: "password123",
-    role: "admin",
+    email: 'admin@nself.org',
+    password: 'password123',
+    role: 'admin',
   },
   moderator: {
-    email: "moderator@nself.org",
-    password: "password123",
-    role: "moderator",
+    email: 'moderator@nself.org',
+    password: 'password123',
+    role: 'moderator',
   },
   member: {
-    email: "member@nself.org",
-    password: "password123",
-    role: "member",
+    email: 'member@nself.org',
+    password: 'password123',
+    role: 'member',
   },
   guest: {
-    email: "guest@nself.org",
-    password: "password123",
-    role: "guest",
+    email: 'guest@nself.org',
+    password: 'password123',
+    role: 'guest',
   },
-} as const;
+} as const
 
 async function globalSetup(config: FullConfig) {
-  const { baseURL } = config.projects[0].use;
+  const { baseURL } = config.projects[0].use
 
   // Launch browser for setup
-  const browser = await chromium.launch();
-  const context = await browser.newContext();
-  const page = await context.newPage();
+  const browser = await chromium.launch()
+  const context = await browser.newContext()
+  const page = await context.newPage()
 
   try {
     // Navigate to the app
-    await page.goto(baseURL || "http://localhost:3000");
+    await page.goto(baseURL || 'http://localhost:3000')
 
-    // Wait for the app to be ready.
-    // "load" waits for the load event (all resources fetched) rather than
-    // "networkidle" (no requests for 500 ms).  A real-time chat app maintains
-    // persistent WebSocket / SSE connections that prevent networkidle from ever
-    // being reached, causing a 30 s timeout in every CI shard.
-    await page.waitForLoadState("load");
+    // Wait for the app to be ready
+    await page.waitForLoadState('load')
 
-    // In dev mode, the app auto-logs in as owner.
-    // FauxAuthService stores its session under 'nchat-dev-session';
-    // NhostAuthService uses 'nchat-auth-token'. Check both so this works
-    // regardless of which auth backend is active.
+    // In dev mode, the app auto-logs in as owner
+    // Check if we're already logged in
     const isLoggedIn = await page.evaluate(() => {
-      return (
-        localStorage.getItem("nchat-auth-token") !== null ||
-        localStorage.getItem("nchat-dev-session") !== null
-      );
-    });
+      return localStorage.getItem('nchat-auth-token') !== null
+    })
 
     if (!isLoggedIn) {
       // Navigate to login page
-      await page.goto(`${baseURL}/login`);
-      await page.waitForLoadState("load");
+      await page.goto(`${baseURL}/login`)
+      await page.waitForLoadState('load')
 
       // Fill in credentials for owner
-      const emailInput = page.locator(
-        'input[type="email"], input[name="email"]',
-      );
-      const passwordInput = page.locator(
-        'input[type="password"], input[name="password"]',
-      );
-      const submitButton = page.locator('button[type="submit"]');
+      const emailInput = page.locator('input[type="email"], input[name="email"]')
+      const passwordInput = page.locator('input[type="password"], input[name="password"]')
+      const submitButton = page.locator('button[type="submit"]')
 
       if (await emailInput.isVisible()) {
-        await emailInput.fill(TEST_USERS.owner.email);
-        await passwordInput.fill(TEST_USERS.owner.password);
-        await submitButton.click();
+        await emailInput.fill(TEST_USERS.owner.email)
+        await passwordInput.fill(TEST_USERS.owner.password)
+        await submitButton.click()
 
         // Wait for redirect after login
-        await page.waitForURL("**/chat**", { timeout: 10000 }).catch(() => {
+        await page.waitForURL('**/chat**', { timeout: 10000 }).catch(() => {
           // May already be on chat page in dev mode
-        });
+        })
       }
     }
 
     // Save storage state
-    await context.storageState({ path: STORAGE_STATE });
+    await context.storageState({ path: STORAGE_STATE })
 
-    console.log("Global setup completed successfully");
+    console.log('Global setup completed successfully')
   } catch (error) {
-    console.error("Global setup failed:", error);
-    throw error;
+    console.error('Global setup failed:', error)
+    throw error
   } finally {
-    await browser.close();
+    await browser.close()
   }
 }
 
-export default globalSetup;
+export default globalSetup

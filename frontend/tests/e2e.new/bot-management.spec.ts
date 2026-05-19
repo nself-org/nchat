@@ -144,7 +144,7 @@ test.describe('Bot Templates', () => {
 
       // Look for template gallery
       const templateGallery = page.locator(
-        '[data-testid="template-gallery"], .template-grid, text=/templates|choose a template/i'
+        '[data-testid="template-gallery"], .template-grid'
       )
 
       const isVisible = await templateGallery.isVisible().catch(() => false)
@@ -400,7 +400,7 @@ test.describe('Bot Code Editor', () => {
 
         // Look for unsaved indicator
         const unsavedIndicator = page.locator(
-          '[data-testid="unsaved-changes"], text=/unsaved|modified/i, .dirty-indicator'
+          '[data-testid="unsaved-changes"], .dirty-indicator'
         )
 
         const isVisible = await unsavedIndicator.isVisible().catch(() => false)
@@ -449,7 +449,7 @@ test.describe('Bot Code Editor', () => {
 
       // Look for error indicators
       const errorMarkers = page.locator(
-        '[data-testid="code-errors"], .error-marker, .squiggly-error, text=/error|syntax/i'
+        '[data-testid="code-errors"], .error-marker, .squiggly-error'
       )
 
       const count = await errorMarkers.count()
@@ -640,7 +640,7 @@ test.describe('Bot Sandbox Testing', () => {
 
           // Look for execution time
           const executionTime = page.locator(
-            '[data-testid="execution-time"], text=/\\d+ms|\\d+s/, .execution-time'
+            '[data-testid="execution-time"], .execution-time'
           )
 
           const isVisible = await executionTime.isVisible().catch(() => false)
@@ -820,7 +820,7 @@ test.describe('Bot Analytics', () => {
 
         // Look for metrics
         const metrics = page.locator(
-          '[data-testid="bot-metrics"], .metric, .stat, text=/invocations|responses|uptime/i'
+          '[data-testid="bot-metrics"], .metric, .stat'
         )
 
         const count = await metrics.count()
@@ -872,7 +872,7 @@ test.describe('Bot Analytics', () => {
 
         // Look for error rate metric
         const errorRate = page.locator(
-          '[data-testid="error-rate"], text=/error rate|errors/i, .error-metric'
+          '[data-testid="error-rate"], .error-metric'
         )
 
         const isVisible = await errorRate.isVisible().catch(() => false)
@@ -1010,7 +1010,7 @@ test.describe('Bot Configuration', () => {
 
         // Look for trigger settings
         const triggerSettings = page.locator(
-          '[data-testid="bot-triggers"], text=/triggers|events|commands/i'
+          '[data-testid="bot-triggers"]'
         )
 
         const isVisible = await triggerSettings.isVisible().catch(() => false)
@@ -1037,7 +1037,7 @@ test.describe('Bot Configuration', () => {
 
         // Look for permissions section
         const permissions = page.locator(
-          '[data-testid="bot-permissions"], text=/permissions/i, input[type="checkbox"]'
+          '[data-testid="bot-permissions"], input[type="checkbox"]'
         )
 
         const count = await permissions.count()

@@ -545,7 +545,7 @@ test.describe('Channel Management', () => {
 
       // Look for members section
       const membersSection = page.locator(
-        'text=/Members|members/i, [data-testid="channel-members"]'
+        '[data-testid="channel-members"]'
       )
 
       const isVisible = await membersSection.isVisible().catch(() => false)
@@ -562,7 +562,7 @@ test.describe('Channel Management', () => {
 
       // Look for permissions section
       const permissionsSection = page.locator(
-        'text=/Permissions|permissions/i, [data-testid="permissions"]'
+        '[data-testid="permissions"]'
       )
 
       const exists = await permissionsSection.count()

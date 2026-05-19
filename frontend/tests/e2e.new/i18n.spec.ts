@@ -436,7 +436,7 @@ test.describe('Currency Formatting', () => {
   test('should format currency in correct locale', async ({ page }) => {
     // Look for any currency displays in the UI
     const currencyElements = page.locator(
-      '[data-testid="price"], .price, [aria-label*="currency"], text=/$|€|£|¥/i'
+      '[data-testid="price"], .price, [aria-label*="currency"]'
     )
 
     if ((await currencyElements.count()) > 0) {

@@ -162,7 +162,7 @@ test.describe('Call Controls', () => {
 
         // Look for ringing/calling state
         const ringingState = page.locator(
-          '[data-testid="calling-status"], text=/calling|ringing|waiting/i, .status-calling'
+          '[data-testid="calling-status"], .status-calling'
         )
 
         const statusText = page.locator(
@@ -854,7 +854,7 @@ test.describe('Call Notifications', () => {
 
   test('should show missed call notification', async ({ page }) => {
     const missedCallNotification = page.locator(
-      '[data-testid="missed-call-notification"], text=/missed call/i, .missed-call'
+      '[data-testid="missed-call-notification"], .missed-call'
     )
 
     // May not appear in current session
@@ -1085,7 +1085,7 @@ test.describe('Call Quality and Feedback', () => {
 
           // Look for feedback prompt
           const feedbackPrompt = page.locator(
-            '[data-testid="call-feedback"], .feedback, text=/feedback|rate/i'
+            '[data-testid="call-feedback"], .feedback'
           )
 
           const hasFeedback = await feedbackPrompt.isVisible().catch(() => false)

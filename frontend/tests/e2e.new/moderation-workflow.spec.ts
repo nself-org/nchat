@@ -306,7 +306,7 @@ test.describe('Moderation Queue Display', () => {
 
       // Look for flag reason
       const flagReason = firstItem.locator(
-        '[data-testid="flag-reason"], .reason, .badge, text=/spam|profanity|harassment/i'
+        '[data-testid="flag-reason"], .reason, .badge'
       )
 
       const isVisible = await flagReason.isVisible().catch(() => false)
@@ -324,7 +324,7 @@ test.describe('Moderation Queue Display', () => {
       const firstItem = queueItems.first()
 
       // Look for reporter name/indicator
-      const reporter = firstItem.locator('[data-testid="reporter"], text=/reported by|flagged by/i')
+      const reporter = firstItem.locator('[data-testid="reporter"]')
 
       const isVisible = await reporter.isVisible().catch(() => false)
       expect(typeof isVisible).toBe('boolean')
@@ -341,7 +341,7 @@ test.describe('Moderation Queue Display', () => {
       const firstItem = queueItems.first()
 
       // Look for timestamp
-      const timestamp = firstItem.locator('[data-testid="timestamp"], time, .time, text=/ago|at/i')
+      const timestamp = firstItem.locator('[data-testid="timestamp"], time, .time')
 
       const isVisible = await timestamp.isVisible().catch(() => false)
       expect(typeof isVisible).toBe('boolean')
@@ -644,7 +644,7 @@ test.describe('Bulk Moderation', () => {
 
         // Should show selection count
         const selectionCount = page.locator(
-          '[data-testid="selection-count"], text=/\\d+ selected/i'
+          '[data-testid="selection-count"]'
         )
 
         const isVisible = await selectionCount.isVisible().catch(() => false)
@@ -799,7 +799,7 @@ test.describe('Moderation Audit Log', () => {
 
       // Look for moderator name
       const moderatorName = firstEntry.locator(
-        '[data-testid="moderator-name"], text=/by|moderator/i'
+        '[data-testid="moderator-name"]'
       )
 
       const isVisible = await moderatorName.isVisible().catch(() => false)
@@ -817,7 +817,7 @@ test.describe('Moderation Audit Log', () => {
       const firstEntry = logEntries.first()
 
       // Look for timestamp
-      const timestamp = firstEntry.locator('time, .timestamp, text=/ago|at/i')
+      const timestamp = firstEntry.locator('time, .timestamp')
 
       const isVisible = await timestamp.isVisible().catch(() => false)
       expect(typeof isVisible).toBe('boolean')

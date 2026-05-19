@@ -331,7 +331,7 @@ test.describe('Channel Search', () => {
         const firstResult = channelResult.first()
 
         const memberCount = firstResult.locator(
-          '[data-testid="member-count"], .member-count, text=/member/i'
+          '[data-testid="member-count"], .member-count'
         )
 
         const hasCount = await memberCount.isVisible().catch(() => false)
@@ -716,7 +716,7 @@ test.describe('Search Suggestions', () => {
 
       // Look for trending/popular searches
       const trendingSection = page.locator(
-        '[data-testid="trending-searches"], [data-testid="popular-searches"], text=/trending|popular/i'
+        '[data-testid="trending-searches"], [data-testid="popular-searches"]'
       )
 
       const hasTrending = await trendingSection.isVisible().catch(() => false)
@@ -748,7 +748,7 @@ test.describe('Recent Searches', () => {
       await page.waitForTimeout(300)
 
       // Look for recent searches
-      const recentSearches = page.locator('[data-testid="recent-searches"], text=/recent/i')
+      const recentSearches = page.locator('[data-testid="recent-searches"]')
 
       const hasRecent = await recentSearches.isVisible().catch(() => false)
       expect(typeof hasRecent).toBe('boolean')
@@ -930,7 +930,7 @@ test.describe('Search Result Navigation', () => {
 
       // Look for result count
       const resultCount = page.locator(
-        '[data-testid="result-count"], .result-count, text=/result/i'
+        '[data-testid="result-count"], .result-count'
       )
 
       const hasCount = await resultCount.isVisible().catch(() => false)
@@ -1028,7 +1028,7 @@ test.describe('Search Experience', () => {
       await page.waitForTimeout(500)
 
       // Look for no results message
-      const noResults = page.locator('[data-testid="no-results"], text=/no results|not found/i')
+      const noResults = page.locator('[data-testid="no-results"]')
 
       // May show no results
       expect(true).toBe(true)
@@ -1049,7 +1049,7 @@ test.describe('Search Experience', () => {
 
       // Look for error message
       const errorMessage = page.locator(
-        '[data-testid="search-error"], .error, text=/error|failed/i'
+        '[data-testid="search-error"], .error'
       )
 
       // May show error

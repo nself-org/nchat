@@ -69,7 +69,7 @@ test.describe('Bot Management Page', () => {
 
   test('should display installed bots list', async ({ page }) => {
     // Look for installed bots tab/section
-    const installedTab = page.locator('[role="tab"]:has-text("Installed"), text=/Installed/i')
+    const installedTab = page.locator('[role="tab"]:has-text("Installed")')
     const botTable = page.locator('[data-testid="bot-list"], table, [data-testid="installed-bots"]')
 
     if (await installedTab.isVisible()) {
@@ -137,7 +137,7 @@ test.describe('Bot Management Page', () => {
 
   test('should display available bots tab', async ({ page }) => {
     // Look for available bots tab
-    const availableTab = page.locator('[role="tab"]:has-text("Available"), text=/Available/i')
+    const availableTab = page.locator('[role="tab"]:has-text("Available")')
 
     if (await availableTab.isVisible()) {
       await availableTab.click()
@@ -280,7 +280,7 @@ test.describe('Bot Creation & Installation', () => {
 
       // Marketplace should display
       const marketplace = page.locator(
-        'text=/Bot Marketplace|Marketplace/i, [data-testid="marketplace"]'
+        '[data-testid="marketplace"]'
       )
 
       const isVisible = await marketplace.isVisible().catch(() => false)
@@ -1162,7 +1162,7 @@ test.describe('Bot Error Handling', () => {
   test('should show bot offline message', async ({ page }) => {
     // Look for offline indicator
     const offlineIndicator = page.locator(
-      'text=/offline|unavailable|disconnected/i, [data-testid="offline"]'
+      '[data-testid="offline"]'
     )
 
     const exists = await offlineIndicator.count()
