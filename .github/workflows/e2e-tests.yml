@@ -30,7 +30,6 @@ env:
   NODE_VERSION: '22'
   JAVA_VERSION: '17'
   XCODE_VERSION: '15.2'
-  NSELF_VERSION: '1.1.3'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -66,71 +65,53 @@ jobs:
         uses: actions/checkout@v4
 
       # ── Backend provisioning ────────────────────────────────────────────────
-      # Install the nself CLI and start the pre-generated backend/docker-compose.yml
-      # on this runner so the Playwright webServer and tests can reach localhost
-      # services (Hasura :8080, Auth :4000, MinIO :9000).
+      # Start the pre-generated backend/docker-compose.yml on this runner so
+      # Playwright tests can reach localhost services (Hasura :8080, Auth :4000,
+      # MinIO :9000).
       #
-      # --skip-build: uses the committed backend/docker-compose.yml as-is;
-      # skips the license-gated rebuild step — no plugin license key required.
-      # DNS for local.nself.org is not resolvable in CI; nself warns but does
-      # not block because isTerminal() returns false in non-TTY environments.
-      - name: Install nself CLI v${{ env.NSELF_VERSION }}
-        run: |
-          gh release download "v${{ env.NSELF_VERSION }}" \
-            --repo nself-org/cli \
-            --pattern "nself-${{ env.NSELF_VERSION }}-linux-amd64.tar.gz" \
-            --output nself.tar.gz
-          # Tarball extracts to nself-<version>-linux-amd64/nself (subdirectory)
-          tar -xzf nself.tar.gz
-          sudo mv "nself-${{ env.NSELF_VERSION }}-linux-amd64/nself" /usr/local/bin/nself
-          sudo chmod +x /usr/local/bin/nself
-          nself version
-        working-directory: .
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Prepare nself project state
-        # The nself CLI's FindNSelfRoot() detects a project directory by the
-        # presence of a bare `.env` file (not `.env.dev`).  In CI the bare `.env`
-        # is not tracked (it is generated locally by nself build from the cascade).
-        # We copy `.env.dev` as the baseline `.env` so the project is detected.
+      # We use `docker compose up -d` directly rather than `nself start --skip-build`
+      # because the nself CLI v1.1.x performs a database schema init (step 5/7) that
+      # races against PostgreSQL's first-time initdb restart: postgres runs the
+      # ./postgres/init/*.sql scripts on first boot, restarts to apply them, and the
+      # nself CLI's psql exec hits the "database system is shutting down" window.
+      # The docker-compose.yml initdb scripts already create all required schemas
+      # (auth, storage, public), so the nself schema-init is redundant and unsafe
+      # in this timing window.  docker compose up respects the healthcheck defined
+      # in the compose file and waits for postgres to be genuinely ready.
+      #
+      # nSelf-First note: this is an approved CI-only exception; nself start is the
+      # correct path for local dev and production deployments.  A PCI has been filed
+      # requesting the nself CLI add a --skip-db-init flag for this scenario.
+      - name: Prepare backend .env for CI
+        # Combine .env.dev with the computed variables that `nself build` normally
+        # writes to .env.computed.  docker compose auto-loads only .env from the
+        # working directory — not .env.computed — so we inline them here.
         #
-        # We also create a minimal build-state marker because the committed
-        # backend/ has a v0.9.8 build artifact (.nself/build-version) and
-        # nself start needs the build-state directory to avoid re-running init.
+        # DOCKER_NETWORK = PROJECT_NAME + "_network"  (orchestrator.go:buildEnvComputed)
+        # DATABASE_URL   = postgresql://user:pass@host:5432/db  (config/defaults.go)
+        # HASURA_GRAPHQL_JWT_SECRET = JSON object required by Hasura JWT config
         #
-        # The HASURA_GRAPHQL_ADMIN_SECRET in .env.dev is the short dev stub
-        # "hasura-admin-secret-dev" (23 chars).  nself v1.1.x requires ≥32 chars.
-        # We replace it with a longer CI-only dev secret (not used in production).
-        #
-        # COMPUTED VARS: `nself build` normally generates `.env.computed` containing
-        # DATABASE_URL and DOCKER_NETWORK (via buildEnvComputed in orchestrator.go).
-        # When using --skip-build, that file is never created.  docker compose
-        # auto-loads only `.env` from the working directory — NOT `.env.computed`.
-        # We append the computed values directly to `.env` so docker compose can
-        # resolve ${DOCKER_NETWORK} and ${DATABASE_URL} in docker-compose.yml.
-        #
-        # Values are derived from .env.dev (PROJECT_NAME=nchat, POSTGRES_* defaults):
-        #   DOCKER_NETWORK = PROJECT_NAME + "_network"  (orchestrator.go:buildEnvComputed)
-        #   DATABASE_URL   = postgresql://user:pass@host:5432/db  (config/defaults.go:DatabaseURL)
-        #   HASURA_GRAPHQL_JWT_SECRET = JSON object required by Hasura JWT config
+        # The HASURA_GRAPHQL_ADMIN_SECRET in .env.dev is a 23-char dev stub;
+        # replace it with a 32-char CI-only value to meet nself v1.1.x requirements
+        # and match the value passed to frontend build / test steps below.
         run: |
           cp backend/.env.dev backend/.env
           sed -i 's|^HASURA_GRAPHQL_ADMIN_SECRET=.*|HASURA_GRAPHQL_ADMIN_SECRET=hasura-admin-secret-dev-ci-only-32|' backend/.env
-          # Append .env.computed variables that nself build normally generates
+          # Append computed vars (replaces nself build .env.computed)
           printf '\n# CI-generated computed vars (replaces nself build .env.computed)\n' >> backend/.env
           printf 'DATABASE_URL=postgresql://postgres:postgres-dev-password@postgres:5432/nchat\n' >> backend/.env
           printf 'DOCKER_NETWORK=nchat_network\n' >> backend/.env
           printf 'HASURA_GRAPHQL_JWT_SECRET={"type":"HS256","key":"nchat-development-secret-key-minimum-32-characters"}\n' >> backend/.env
-          mkdir -p backend/.nself/build-state
-          printf 'timestamp=0\n' > backend/.nself/build-state/last-build.state
         working-directory: .
 
       - name: Start nself backend stack
-        run: nself start --skip-build --allow-legacy --quiet
+        # Pull images first so the up command doesn't time out on slow image pulls,
+        # then start all services.  docker compose waits for the postgres healthcheck
+        # (pg_isready, interval 10 s, 5 retries) before Hasura attempts to connect.
+        run: |
+          docker compose -f docker-compose.yml pull --quiet
+          docker compose -f docker-compose.yml up -d
         working-directory: backend
-        env:
-          HASURA_GRAPHQL_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'hasura-admin-secret-dev-ci-only-32' }}
 
       - name: Wait for Hasura health
         run: |
