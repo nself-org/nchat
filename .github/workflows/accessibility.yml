@@ -96,7 +96,11 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        # All browser projects (chromium, firefox, webkit, mobile-chrome, mobile-safari, tablet)
+        # are defined in playwright.config.ts — all three engines must be installed.
+        # Installing only chromium causes webkit/mobile-safari/tablet tests to fail with
+        # "Executable doesn't exist" errors.
+        run: npx playwright install --with-deps
 
       - name: Build application
         run: HASURA_ADMIN_SECRET=ci-test-placeholder-not-a-real-secret NEXT_PUBLIC_USE_DEV_AUTH=true NEXT_PUBLIC_ENV=test pnpm build
@@ -149,9 +153,15 @@ jobs:
         # never connects to a real Hasura instance during Lighthouse tests.
 
       - name: Start application
-        run: |
-          PORT=3000 pnpm start &
-          sleep 10
+        # next start loads next.config.js which has a build gate requiring HASURA_ADMIN_SECRET.
+        # CI uses a non-functional placeholder — the app never connects to a real Hasura instance.
+        run: HASURA_ADMIN_SECRET=ci-test-placeholder-not-a-real-secret PORT=3000 pnpm start &
+
+      - name: Wait for server
+        # sleep 10 was insufficient — Next.js production server can take 60-90 s on
+        # ubuntu-latest. Use wait-on with a 120 s cap so the job fails fast if the
+        # server never starts rather than hanging until the 20-minute job timeout.
+        run: npx wait-on http://localhost:3000 --timeout 120000
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12

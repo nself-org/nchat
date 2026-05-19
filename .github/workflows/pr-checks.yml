@@ -444,21 +444,26 @@ jobs:
       - name: Install Playwright
         run: pnpm playwright install --with-deps chromium
 
-      - name: Build app
+      - name: Build application
+        # playwright.config.ts webServer uses `next start` (production server) which
+        # requires a pre-built .next/ directory.  Build here so the webServer can
+        # serve pre-compiled pages without per-route on-demand compilation.
         run: pnpm build
         env:
           HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
-
-      - name: Start server
-        run: pnpm start &
-        env:
-          PORT: 3000
-
-      - name: Wait for server
-        run: npx wait-on http://localhost:3000 --timeout 60000
+          NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
 
       - name: Run accessibility tests
-        run: pnpm test:e2e --grep @a11y
+        # playwright.config.ts webServer starts `next start` (production server).
+        # reuseExistingServer: !process.env.CI = false in CI, so Playwright manages
+        # the server lifecycle.  NEXT_PUBLIC_USE_DEV_AUTH enables FauxAuthService so
+        # the app works without a live Nhost backend.
+        run: pnpm test:e2e --grep @a11y --project=chromium --project=mobile-chrome
+        env:
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
+          NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
 
   lighthouse:
     name: Lighthouse Performance

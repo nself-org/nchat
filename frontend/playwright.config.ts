@@ -31,17 +31,24 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   // Retry on CI to reduce flakiness
-  retries: process.env.CI ? 3 : 0,
+  retries: process.env.CI ? 2 : 0,
 
   // Limit workers on CI for more stable execution
   workers: process.env.CI ? 2 : undefined,
 
-  // Reporter to use
-  reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['list'],
-    ...(process.env.CI ? [['github'] as const] : []),
-  ],
+  // Reporter to use.
+  // In CI shard mode: emit blob reports (for merge-reports aggregation)
+  // plus github annotations.  Locally: HTML report + list.
+  reporter: process.env.CI
+    ? [
+        ['blob', { outputDir: 'blob-report' }],
+        ['github'],
+        ['list'],
+      ]
+    : [
+        ['html', { outputFolder: 'playwright-report' }],
+        ['list'],
+      ],
 
   // Shared settings for all projects
   use: {
@@ -132,12 +139,26 @@ export default defineConfig({
     },
   ],
 
-  // Run local dev server before starting the tests
+  // Global setup — runs once before all tests to warm up routes.
+  // This prevents the first test per route from hitting a cold Next.js
+  // production server and timing out.
+  globalSetup: './tests/e2e.new/global.setup.ts',
+
+  // Run the production server before starting the tests.
+  // The workflow (e2e-tests.yml + pr-checks.yml accessibility job) runs
+  // `pnpm build` as a preceding step, so `next start` serves pre-compiled
+  // pages with no per-route compilation delay.  This eliminates the
+  // on-demand compilation timeouts that occurred with `pnpm dev`.
+  //
+  // HASURA_ADMIN_SECRET satisfies next.config.js start-up gate in CI.
+  // NEXT_PUBLIC_USE_DEV_AUTH is set by the workflow env, not here.
   webServer: {
-    command: 'pnpm dev',
+    command: 'HASURA_ADMIN_SECRET=ci-test-placeholder-not-a-real-secret next start',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+    // 5 minutes: production server startup is slower than dev on first boot.
+    // Per-route compilation is eliminated, so tests themselves are faster.
+    timeout: 300000,
     stdout: 'pipe',
     stderr: 'pipe',
   },

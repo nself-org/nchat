@@ -162,8 +162,16 @@ if (typeof window === "undefined") {
 // Initialize auth service based on environment
 // SECURITY: This is determined at build time and cannot be changed at runtime
 const createAuthService = () => {
-  // Double-check security in production
-  if (authConfig.isProduction && authConfig.useDevAuth) {
+  // Double-check security in production.
+  // Exception: NEXT_PUBLIC_ENV=test is the deliberate CI escape hatch that
+  // allows FauxAuth in production-built binaries during E2E runs (where
+  // NODE_ENV=production because `next start` is used but there is no live
+  // Nhost backend). authConfig.isE2ETest captures this explicit opt-in.
+  if (
+    authConfig.isProduction &&
+    authConfig.useDevAuth &&
+    !authConfig.isE2ETest
+  ) {
     throw new Error("[SECURITY] FATAL: Cannot use dev auth in production");
   }
 
@@ -280,7 +288,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         // Check if 2FA setup is required for this role
-        if (isTwoFactorRequired(mappedUser.role)) {
+        // Skip 2FA enforcement in dev/test mode (FauxAuth) — no real 2FA device to enroll
+        if (isTwoFactorRequired(mappedUser.role) && !authConfig.useDevAuth) {
           const status = await getTwoFactorStatus();
           if (!status.enabled) {
             router.push("/settings/security?setup2fa=true");
