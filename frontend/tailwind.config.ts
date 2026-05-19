@@ -41,9 +41,22 @@ const config: Config = {
         // Core colors from CSS variables
         background: 'var(--background)',
         foreground: 'var(--foreground)',
-        primary: 'var(--primary)',
-        secondary: 'var(--secondary)',
-        accent: 'var(--accent)',
+        // primary must be an object so text-primary-foreground resolves to
+        // --primary-foreground (#0f172a), not to the inherited body foreground
+        // (#f8fafc). A flat string value means primary.foreground is undefined,
+        // and Tailwind falls back to body text color — failing WCAG AA contrast.
+        primary: {
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
+        },
+        secondary: {
+          DEFAULT: 'var(--secondary)',
+          foreground: 'var(--secondary-foreground)',
+        },
+        accent: {
+          DEFAULT: 'var(--accent)',
+          foreground: 'var(--accent-foreground)',
+        },
 
         // Zinc scale - hardcoded dark values for reliability
         zinc: {
