@@ -49,7 +49,7 @@ test.describe('Bot Management Page', () => {
       const submitButton = page.locator('button[type="submit"]')
 
       await emailInput.fill(TEST_USERS.owner.email)
-      await emailInput.fill(TEST_USERS.owner.password)
+      await passwordInput.fill(TEST_USERS.owner.password)
       await submitButton.click()
 
       await page.waitForURL(/\/(admin|chat)/, { timeout: 10000 })

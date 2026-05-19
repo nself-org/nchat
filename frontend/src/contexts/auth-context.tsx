@@ -288,7 +288,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         // Check if 2FA setup is required for this role
-        if (isTwoFactorRequired(mappedUser.role)) {
+        // Skip 2FA enforcement in dev/test mode (FauxAuth) — no real 2FA device to enroll
+        if (isTwoFactorRequired(mappedUser.role) && !authConfig.useDevAuth) {
           const status = await getTwoFactorStatus();
           if (!status.enabled) {
             router.push("/settings/security?setup2fa=true");
