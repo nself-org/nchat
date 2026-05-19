@@ -38,7 +38,10 @@ function ResizeHandle({ className }: { className?: string }) {
       aria-label="Drag to resize panels"
       aria-orientation="vertical"
     >
-      <div className="h-8 w-0.5 rounded-full bg-border opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+      <div
+        className="h-8 w-0.5 rounded-full bg-border opacity-0 transition-opacity group-hover:opacity-100"
+        aria-hidden="true"
+      />
     </PanelResizeHandle>
   );
 }
@@ -165,7 +168,9 @@ export default function ChatLayout({
         aria-live="polite"
         aria-label="Redirecting to sign in"
       >
-        <p className="text-sm text-muted-foreground">Redirecting to sign in...</p>
+        <p className="text-sm text-muted-foreground">
+          Redirecting to sign in...
+        </p>
       </div>
     );
   }

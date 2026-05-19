@@ -351,7 +351,10 @@ export function Sidebar() {
                 role="button"
                 tabIndex={0}
               >
-                <GripVertical className="h-3 w-3 text-zinc-400" aria-hidden="true" />
+                <GripVertical
+                  className="h-3 w-3 text-zinc-400"
+                  aria-hidden="true"
+                />
               </div>
             )}
 
@@ -367,11 +370,20 @@ export function Sidebar() {
             style={{ marginLeft: depth > 0 ? `${depth * 20 + 10}px` : "10px" }}
           >
             {channel.name === "announcements" ? (
-              <Megaphone className="mr-1.5 h-3 w-3 text-zinc-500 dark:text-zinc-400" aria-hidden="true" />
+              <Megaphone
+                className="mr-1.5 h-3 w-3 text-zinc-500 dark:text-zinc-400"
+                aria-hidden="true"
+              />
             ) : channel.type === "private" ? (
-              <Lock className="mr-1.5 h-3 w-3 text-zinc-500 dark:text-zinc-400" aria-hidden="true" />
+              <Lock
+                className="mr-1.5 h-3 w-3 text-zinc-500 dark:text-zinc-400"
+                aria-hidden="true"
+              />
             ) : (
-              <Hash className="mr-1.5 h-3 w-3 text-zinc-500 dark:text-zinc-400" aria-hidden="true" />
+              <Hash
+                className="mr-1.5 h-3 w-3 text-zinc-500 dark:text-zinc-400"
+                aria-hidden="true"
+              />
             )}
             <span className="truncate">{displayName}</span>
             {channel.unreadCount && channel.unreadCount > 0 && (
@@ -390,9 +402,15 @@ export function Sidebar() {
                 aria-expanded={!isCollapsed}
               >
                 {isCollapsed ? (
-                  <ChevronRight className="h-3 w-3 text-zinc-500" aria-hidden="true" />
+                  <ChevronRight
+                    className="h-3 w-3 text-zinc-500"
+                    aria-hidden="true"
+                  />
                 ) : (
-                  <ChevronDown className="h-3 w-3 text-zinc-500" aria-hidden="true" />
+                  <ChevronDown
+                    className="h-3 w-3 text-zinc-500"
+                    aria-hidden="true"
+                  />
                 )}
               </button>
             )}
@@ -400,8 +418,14 @@ export function Sidebar() {
           {(user?.role === "owner" || user?.role === "admin") && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="rounded p-1 opacity-0 transition-all hover:bg-zinc-200 group-hover:opacity-100 dark:hover:bg-zinc-700" aria-label="Channel options">
-                  <MoreVertical className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
+                <button
+                  className="rounded p-1 opacity-0 transition-all hover:bg-zinc-200 group-hover:opacity-100 dark:hover:bg-zinc-700"
+                  aria-label="Channel options"
+                >
+                  <MoreVertical
+                    className="h-3.5 w-3.5 text-zinc-500"
+                    aria-hidden="true"
+                  />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -466,7 +490,10 @@ export function Sidebar() {
                     className="rounded p-1 transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700"
                     aria-label="Sort channels"
                   >
-                    <ArrowUpDown className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
+                    <ArrowUpDown
+                      className="h-3.5 w-3.5 text-zinc-500"
+                      aria-hidden="true"
+                    />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -513,7 +540,10 @@ export function Sidebar() {
                   className="rounded p-1 transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700"
                   aria-label="Add new channel"
                 >
-                  <Plus className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
+                  <Plus
+                    className="h-3.5 w-3.5 text-zinc-500"
+                    aria-hidden="true"
+                  />
                 </button>
               )}
             </div>
@@ -642,9 +672,15 @@ export function Sidebar() {
                         aria-expanded={!isCollapsed}
                       >
                         {isCollapsed ? (
-                          <ChevronRight className="mr-1 h-3 w-3 text-zinc-400" aria-hidden="true" />
+                          <ChevronRight
+                            className="mr-1 h-3 w-3 text-zinc-400"
+                            aria-hidden="true"
+                          />
                         ) : (
-                          <ChevronDown className="mr-1 h-3 w-3 text-zinc-400" aria-hidden="true" />
+                          <ChevronDown
+                            className="mr-1 h-3 w-3 text-zinc-400"
+                            aria-hidden="true"
+                          />
                         )}
                         <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-500">
                           {category.name}
@@ -653,8 +689,14 @@ export function Sidebar() {
                       {(user?.role === "owner" || user?.role === "admin") && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button className="rounded p-0.5 opacity-0 transition-all hover:bg-zinc-200 group-hover:opacity-100 dark:hover:bg-zinc-700" aria-label="Category options">
-                              <MoreVertical className="h-3 w-3 text-zinc-500" aria-hidden="true" />
+                            <button
+                              className="rounded p-0.5 opacity-0 transition-all hover:bg-zinc-200 group-hover:opacity-100 dark:hover:bg-zinc-700"
+                              aria-label="Category options"
+                            >
+                              <MoreVertical
+                                className="h-3 w-3 text-zinc-500"
+                                aria-hidden="true"
+                              />
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
@@ -824,7 +866,10 @@ export function Sidebar() {
       <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex w-full items-center space-x-3 rounded-lg p-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800" aria-label={`Account menu for ${user?.displayName || "user"}`}>
+            <button
+              className="flex w-full items-center space-x-3 rounded-lg p-2 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              aria-label={`Account menu for ${user?.displayName || "user"}`}
+            >
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.avatarUrl} />
                 <AvatarFallback>

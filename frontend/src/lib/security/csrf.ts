@@ -302,8 +302,9 @@ export function withCsrfProtection(
     const response = await handler(request, context);
 
     // Ensure CSRF token is set in response
+    // Guard against response.cookies being undefined (e.g. error responses in test env)
     const existingToken = getCsrfToken(request);
-    if (!existingToken) {
+    if (!existingToken && response.cookies) {
       setCsrfToken(response);
     }
 
