@@ -444,28 +444,19 @@ jobs:
       - name: Install Playwright
         run: pnpm playwright install --with-deps chromium
 
-      - name: Build app
-        run: pnpm build
-        env:
-          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
-
-      - name: Start server
-        # next.config.js has a BUILD GATE that checks HASURA_ADMIN_SECRET at startup and
-        # throws if absent. The build step already passes a CI placeholder; the start step
-        # must do the same or the server exits before wait-on can connect.
-        run: pnpm start &
-        env:
-          PORT: 3000
-          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
-
-      - name: Wait for server
-        # 60 s was insufficient — Next.js production server can take 60-90 s on ubuntu-latest.
-        # Extend to 120 s to match the accessibility.yml timeout so the job fails fast on a
-        # real server failure rather than always timing out.
-        run: npx wait-on http://localhost:3000 --timeout 120000
-
       - name: Run accessibility tests
+        # Playwright's webServer config (playwright.config.ts) starts the dev server
+        # automatically when no server is already running on port 3000.
+        # reuseExistingServer: !process.env.CI means in CI Playwright manages its own
+        # server lifecycle — do NOT manually start pnpm start here or Playwright will
+        # refuse with "port already in use".
+        # HASURA_ADMIN_SECRET satisfies next.config.js BUILD GATE; NEXT_PUBLIC_USE_DEV_AUTH
+        # enables FauxAuthService so the app works without a live Nhost backend in CI.
         run: pnpm test:e2e --grep @a11y
+        env:
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
+          NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
 
   lighthouse:
     name: Lighthouse Performance
