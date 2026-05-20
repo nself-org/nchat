@@ -1,19 +1,54 @@
 /**
  * Visual Regression Tests
  *
- * Playwright visual comparison tests for UI components and pages
+ * Playwright visual comparison tests for UI components and pages.
+ *
+ * Behavior on baseline-missing:
+ *   These tests skip themselves (rather than fail) when a baseline snapshot
+ *   does not yet exist. Visual regression is only meaningful when a committed
+ *   baseline exists; first-run on CI without `--update-snapshots` would write
+ *   an "actual" file and still fail the test, which is noise — not signal.
+ *   We check for baseline presence with `fs.existsSync` before asserting.
  */
 
 import { test, expect } from '@playwright/test'
+import * as fs from 'fs'
+import * as path from 'path'
+
+const SNAPSHOT_DIR = path.join(__dirname, 'visual-regression.spec.ts-snapshots')
+
+function baselineExists(name: string): boolean {
+  // Playwright auto-appends `-chromium-linux` (or matching project/platform)
+  // when comparing. Check for any file starting with the basename.
+  if (!fs.existsSync(SNAPSHOT_DIR)) return false
+  const base = name.replace(/\.png$/, '')
+  try {
+    const entries = fs.readdirSync(SNAPSHOT_DIR)
+    return entries.some((f) => f.startsWith(base) && f.endsWith('.png'))
+  } catch {
+    return false
+  }
+}
+
+async function assertScreenshotIfBaseline(
+  fn: () => Promise<void>,
+  baselineName: string,
+): Promise<void> {
+  if (!baselineExists(baselineName)) {
+    test.skip(true, `No baseline at ${baselineName} — run with --update-snapshots to create.`)
+    return
+  }
+  await fn()
+}
 
 test.describe('Visual Regression Tests', () => {
   test.beforeEach(async ({ page }) => {
-    // Login for authenticated pages
+    // Login for authenticated pages — graceful when dev-auth bypasses login.
     await page.goto('/login')
     await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"]')
-    if (await emailInput.isVisible()) {
+    if (await emailInput.isVisible().catch(() => false)) {
       await emailInput.fill('owner@nself.org')
       await page.locator('input[type="password"]').fill('password123')
       await page.locator('button[type="submit"]').click()
@@ -28,63 +63,57 @@ test.describe('Visual Regression Tests', () => {
   test('landing page snapshot', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('load')
-
-    // Skip when no baseline exists (first-run in CI without --update-snapshots)
-    try {
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('landing-page.png', {
         fullPage: true,
         maxDiffPixels: 100,
       })
-    } catch { }
+    }, 'landing-page.png')
   })
 
   test('login page snapshot', async ({ page }) => {
     await page.goto('/login')
     await page.waitForLoadState('load')
-
-    try {
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('login-page.png', {
         fullPage: true,
         maxDiffPixels: 100,
       })
-    } catch { }
+    }, 'login-page.png')
   })
 
   test('chat page snapshot', async ({ page }) => {
     await page.goto('/chat/general')
     await page.waitForLoadState('load')
     await page.waitForTimeout(1000) // Wait for any animations
-
-    try {
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('chat-page.png', {
         fullPage: true,
         maxDiffPixels: 200, // Allow more variance for dynamic content
       })
-    } catch { }
+    }, 'chat-page.png')
   })
 
   test('settings page snapshot', async ({ page }) => {
     await page.goto('/settings')
     await page.waitForLoadState('load')
-
-    try {
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('settings-page.png', {
         fullPage: true,
         maxDiffPixels: 100,
       })
-    } catch { }
+    }, 'settings-page.png')
   })
 
   test('admin page snapshot', async ({ page }) => {
     await page.goto('/admin')
     await page.waitForLoadState('load')
-
-    try {
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('admin-page.png', {
         fullPage: true,
         maxDiffPixels: 200,
       })
-    } catch { }
+    }, 'admin-page.png')
   })
 
   // =========================================================================
@@ -96,11 +125,12 @@ test.describe('Visual Regression Tests', () => {
     await page.waitForLoadState('load')
 
     const sidebar = page.locator('aside, [data-testid="sidebar"]').first()
-    if (await sidebar.isVisible()) {
+    if (!(await sidebar.isVisible().catch(() => false))) return
+    await assertScreenshotIfBaseline(async () => {
       await expect(sidebar).toHaveScreenshot('sidebar.png', {
         maxDiffPixels: 100,
       })
-    }
+    }, 'sidebar.png')
   })
 
   test('message input snapshot', async ({ page }) => {
@@ -108,11 +138,12 @@ test.describe('Visual Regression Tests', () => {
     await page.waitForLoadState('load')
 
     const messageInput = page.locator('[data-testid="message-input"], .message-input').first()
-    if (await messageInput.isVisible()) {
+    if (!(await messageInput.isVisible().catch(() => false))) return
+    await assertScreenshotIfBaseline(async () => {
       await expect(messageInput).toHaveScreenshot('message-input.png', {
         maxDiffPixels: 50,
       })
-    }
+    }, 'message-input.png')
   })
 
   test('user menu snapshot', async ({ page }) => {
@@ -120,17 +151,17 @@ test.describe('Visual Regression Tests', () => {
     await page.waitForLoadState('load')
 
     const userMenu = page.locator('[data-testid="user-menu"], .user-menu').first()
-    if (await userMenu.isVisible()) {
-      await userMenu.click()
-      await page.waitForTimeout(300)
+    if (!(await userMenu.isVisible().catch(() => false))) return
+    await userMenu.click()
+    await page.waitForTimeout(300)
 
-      const dropdown = page.locator('[role="menu"], .dropdown-menu').first()
-      if (await dropdown.isVisible()) {
-        await expect(dropdown).toHaveScreenshot('user-menu-dropdown.png', {
-          maxDiffPixels: 50,
-        })
-      }
-    }
+    const dropdown = page.locator('[role="menu"], .dropdown-menu').first()
+    if (!(await dropdown.isVisible().catch(() => false))) return
+    await assertScreenshotIfBaseline(async () => {
+      await expect(dropdown).toHaveScreenshot('user-menu-dropdown.png', {
+        maxDiffPixels: 50,
+      })
+    }, 'user-menu-dropdown.png')
   })
 
   // =========================================================================
@@ -141,26 +172,24 @@ test.describe('Visual Regression Tests', () => {
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/chat/general')
     await page.waitForLoadState('load')
-
-    try {
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('mobile-chat-page.png', {
         fullPage: true,
         maxDiffPixels: 200,
       })
-    } catch { }
+    }, 'mobile-chat-page.png')
   })
 
   test('tablet chat page', async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 1024 })
     await page.goto('/chat/general')
     await page.waitForLoadState('load')
-
-    try {
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('tablet-chat-page.png', {
         fullPage: true,
         maxDiffPixels: 200,
       })
-    } catch { }
+    }, 'tablet-chat-page.png')
   })
 
   // =========================================================================
@@ -171,17 +200,16 @@ test.describe('Visual Regression Tests', () => {
     await page.goto('/chat')
     await page.waitForLoadState('load')
 
-    // Toggle dark mode if available
     const themeToggle = page.locator('[data-testid="theme-toggle"], button[aria-label*="theme"]')
-    if (await themeToggle.isVisible()) {
-      await themeToggle.click()
-      await page.waitForTimeout(500)
-
+    if (!(await themeToggle.isVisible().catch(() => false))) return
+    await themeToggle.click()
+    await page.waitForTimeout(500)
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('chat-page-dark.png', {
         fullPage: true,
         maxDiffPixels: 300,
       })
-    }
+    }, 'chat-page-dark.png')
   })
 
   // =========================================================================
@@ -192,19 +220,18 @@ test.describe('Visual Regression Tests', () => {
     await page.goto('/chat')
     await page.waitForLoadState('load')
 
-    // Open create channel modal
     const createButton = page.locator('button:has-text("Create"), [data-testid="create-channel"]')
-    if (await createButton.isVisible()) {
-      await createButton.click()
-      await page.waitForTimeout(300)
+    if (!(await createButton.isVisible().catch(() => false))) return
+    await createButton.click()
+    await page.waitForTimeout(300)
 
-      const modal = page.locator('[role="dialog"]').first()
-      if (await modal.isVisible()) {
-        await expect(modal).toHaveScreenshot('create-channel-modal.png', {
-          maxDiffPixels: 100,
-        })
-      }
-    }
+    const modal = page.locator('[role="dialog"]').first()
+    if (!(await modal.isVisible().catch(() => false))) return
+    await assertScreenshotIfBaseline(async () => {
+      await expect(modal).toHaveScreenshot('create-channel-modal.png', {
+        maxDiffPixels: 100,
+      })
+    }, 'create-channel-modal.png')
   })
 
   test('loading state snapshot', async ({ page }) => {
@@ -216,13 +243,13 @@ test.describe('Visual Regression Tests', () => {
 
     await page.goto('/chat')
 
-    // Capture loading state
     const loadingIndicator = page.locator('.loading, [data-testid="loading"]').first()
-    if (await loadingIndicator.isVisible()) {
+    if (!(await loadingIndicator.isVisible().catch(() => false))) return
+    await assertScreenshotIfBaseline(async () => {
       await expect(page).toHaveScreenshot('loading-state.png', {
         maxDiffPixels: 100,
       })
-    }
+    }, 'loading-state.png')
   })
 
   test('empty state snapshot', async ({ page }) => {
@@ -230,10 +257,11 @@ test.describe('Visual Regression Tests', () => {
     await page.waitForLoadState('load')
 
     const emptyState = page.locator('[data-testid="empty-state"], .empty-state').first()
-    if (await emptyState.isVisible()) {
+    if (!(await emptyState.isVisible().catch(() => false))) return
+    await assertScreenshotIfBaseline(async () => {
       await expect(emptyState).toHaveScreenshot('empty-state.png', {
         maxDiffPixels: 50,
       })
-    }
+    }, 'empty-state.png')
   })
 })
