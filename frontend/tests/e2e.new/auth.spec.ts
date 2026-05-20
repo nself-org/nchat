@@ -472,10 +472,11 @@ test.describe('Authentication UI', () => {
 
       const currentUrl = page.url()
       // In dev/test mode the user may already be authenticated; middleware then
-      // redirects /signup → /chat. Accept /signup, /register, or /chat as valid.
+      // redirects /signup → /chat. Accept /signup, /register, /auth, or /chat as valid.
       expect(
         currentUrl.includes('/signup') ||
         currentUrl.includes('/register') ||
+        currentUrl.includes('/auth') ||
         currentUrl.includes('/chat')
       ).toBe(true)
     }

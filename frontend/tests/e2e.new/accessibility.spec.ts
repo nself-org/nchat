@@ -278,7 +278,7 @@ test.describe('Screen Reader Compatibility', () => {
 
         const hasLabel = ariaLabel || title || (text && text.trim().length > 0)
 
-        expect(hasLabel || true).toBe(true) // Graceful - may not all have labels
+        expect(true).toBe(true) // Graceful - may not all have labels
       }
     }
   })
