@@ -48,8 +48,13 @@ describe("SSRF Protection - Property Tests", () => {
         fc.asyncProperty(fc.string(), async (payload) => {
           const malicious = `javascript:${payload}`;
           const result = await protection.validateUrl(malicious);
+          // Security property: javascript: URLs must NEVER be considered valid.
+          // The rejection reason is either "Protocol ... not allowed" (when the
+          // URL parses with protocol=javascript:) OR "Invalid URL: ..." (when
+          // certain payload shapes make new URL() throw before protocol-check).
+          // Both outcomes are security-correct rejections.
           expect(result.valid).toBe(false);
-          expect(result.reason).toContain("Protocol");
+          expect(result.reason).toMatch(/Protocol|Invalid URL/);
         }),
         { numRuns: 500 },
       );
@@ -60,8 +65,10 @@ describe("SSRF Protection - Property Tests", () => {
         fc.asyncProperty(fc.string(), async (payload) => {
           const malicious = `data:text/html,${payload}`;
           const result = await protection.validateUrl(malicious);
+          // Security property: data: URLs must NEVER be considered valid.
+          // See javascript: test above for rationale on the reason regex.
           expect(result.valid).toBe(false);
-          expect(result.reason).toContain("Protocol");
+          expect(result.reason).toMatch(/Protocol|Invalid URL/);
         }),
         { numRuns: 500 },
       );
