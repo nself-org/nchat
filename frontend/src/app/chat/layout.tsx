@@ -204,7 +204,6 @@ export default function ChatLayout({
                   rule passes even when the overlay is closed (overlay returns null). */}
               <div
                 id="sidebar"
-                tabIndex={-1}
                 className="sr-only outline-none"
                 aria-hidden="true"
               />
@@ -214,9 +213,7 @@ export default function ChatLayout({
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
               >
-                <div
-                  className="relative h-full outline-none"
-                >
+                <div className="relative h-full outline-none">
                   <Button
                     variant="ghost"
                     size="icon"
