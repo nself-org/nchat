@@ -78,6 +78,7 @@ export function Navigation() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="rounded-md p-2 text-foreground hover:bg-accent"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
             >
               {isOpen ? (
                 <X className="h-5 w-5" />

@@ -264,7 +264,7 @@ test.describe('Screen Reader Compatibility', () => {
 
   test('should have aria-label for icon buttons', async ({ page }) => {
     // Find icon buttons
-    const iconButtons = page.locator('button:has(svg):not(:has-text())')
+    const iconButtons = page.locator('button:has(svg)').filter({ hasNotText: /\S/ })
 
     const count = await iconButtons.count()
 
@@ -398,8 +398,10 @@ test.describe('Keyboard Shortcuts', () => {
     const buttons = page.locator('button')
 
     if ((await buttons.count()) > 0) {
-      // Click first button that might open a dialog
-      await buttons.first().click()
+      // Click first enabled button that might open a dialog
+      const enabledButtons = page.locator('button:enabled')
+      if ((await enabledButtons.count()) === 0) return
+      await enabledButtons.first().click()
       await page.waitForTimeout(300)
 
       // Look for dialog
@@ -508,7 +510,7 @@ test.describe('Keyboard Shortcuts', () => {
 
   test('should handle Space for button activation', async ({ page }) => {
     // Find a button
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       const btn = buttons.first()
@@ -538,7 +540,7 @@ test.describe('Focus Management', () => {
   })
 
   test('should set focus on interactive elements', async ({ page }) => {
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       // Click button
@@ -558,7 +560,7 @@ test.describe('Focus Management', () => {
     })
 
     // Try to open a dialog/modal
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       await buttons.first().click()
@@ -605,7 +607,7 @@ test.describe('Focus Management', () => {
 
   test('should trap focus in modal dialogs', async ({ page }) => {
     // Look for a button that opens a modal
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       await buttons.first().click()
@@ -904,7 +906,7 @@ test.describe('Modal Focus Trapping', () => {
 
   test('should trap focus within modal', async ({ page }) => {
     // Open a modal
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       await buttons.first().click()
@@ -943,7 +945,7 @@ test.describe('Modal Focus Trapping', () => {
 
   test('should return focus after modal closes', async ({ page }) => {
     // Click a button to track it
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       const btn = buttons.first()
@@ -971,7 +973,7 @@ test.describe('Modal Focus Trapping', () => {
   })
 
   test('should prevent tab escape from modal', async ({ page }) => {
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       await buttons.first().click()
