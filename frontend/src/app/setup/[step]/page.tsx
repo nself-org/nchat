@@ -98,36 +98,24 @@ export default function SetupStepPage({
     }
   };
 
-  // Render a stable DOM tree across loading and ready states so navigation
-  // into this page does not cause a layout shift (CLS). The wrapper, decorative
-  // overlay, and z-10 content slot are always mounted; the inner content
-  // toggles between the loader and the setup UI. The wrapper is positioned
-  // `relative` so the `absolute inset-0` decoration is contained within the
-  // viewport-tall wrapper and does not shift the page when other content
-  // mounts. See PR#111 root-cause investigation: prior swap from loader-only
-  // <div bg-zinc-950> to <div min-h-screen><div absolute inset-0> scored
-  // CLS ~0.808 on Lighthouse desktop.
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-sky-600"></div>
+          <p className="text-zinc-600 dark:text-zinc-400">Loading setup...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative min-h-screen bg-white antialiased dark:bg-zinc-900">
+    <div className="min-h-screen bg-white antialiased dark:bg-zinc-900">
       {/* Background decoration - Protocol style with nself glows */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -right-32 -top-40 h-96 w-96 rounded-full bg-[#00D4FF]/5 blur-3xl" />
         <div className="absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-[#0EA5E9]/5 blur-3xl" />
       </div>
-
-      {isLoading && (
-        <div
-          className="absolute inset-0 z-20 flex items-center justify-center"
-          role="status"
-          aria-live="polite"
-          aria-label="Loading setup"
-        >
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-sky-600"></div>
-            <p className="text-zinc-600 dark:text-zinc-400">Loading setup...</p>
-          </div>
-        </div>
-      )}
 
       <div className="relative z-10">
         {/* Header - Protocol style with nself branding */}
