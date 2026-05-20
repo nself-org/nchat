@@ -46,39 +46,11 @@ export default function HomePage() {
     }
   }, [config, user, loading, router]);
 
-  // While auth or config is still loading for an authenticated user, show
-  // a stable fixed-positioned redirect screen to avoid layout shift.
-  if (!loading && user) {
-    return (
-      <div
-        className="fixed inset-0 flex items-center justify-center bg-background"
-        role="status"
-        aria-live="polite"
-        aria-label="Redirecting to chat"
-      >
-        <div className="text-muted-foreground">Redirecting...</div>
-      </div>
-    );
-  }
-
-  // For non-landing modes (redirect/chat), show a stable redirect screen.
-  // We check this before loading completes so the layout doesn't shift.
-  if (!loading && config.homepage.mode !== "landing") {
-    return (
-      <div
-        className="fixed inset-0 flex items-center justify-center bg-background"
-        role="status"
-        aria-live="polite"
-        aria-label="Redirecting"
-      >
-        <div className="text-muted-foreground">Redirecting...</div>
-      </div>
-    );
-  }
-
-  // Render the LandingPage immediately — for unauthenticated users in landing
-  // mode this is the correct final state, so rendering it before loading
-  // completes avoids the spinner→full-page layout shift that causes CLS.
-  // The useEffect above handles any necessary redirects (setup, auth, mode).
+  // Always render the LandingPage as the stable base layer.
+  // When a redirect is needed (auth user, non-landing mode, setup incomplete),
+  // the useEffect above calls router.push() and Next.js navigates away.
+  // Rendering a different component here would cause a full-page layout swap
+  // (CLS ~0.8) because all page content disappears mid-paint. Keeping the same
+  // component tree until navigation completes avoids any layout shift.
   return <LandingPage />;
 }
