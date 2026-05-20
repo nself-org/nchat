@@ -266,11 +266,24 @@ jobs:
       - name: Download blob reports
         uses: actions/download-artifact@v4
         with:
-          path: all-blob-reports
+          path: frontend/all-blob-reports
           pattern: blob-report-*
           merge-multiple: true
 
+      - name: Verify blob reports exist
+        run: |
+          if [ ! -d ./all-blob-reports ] || [ -z "$(ls -A ./all-blob-reports 2>/dev/null)" ]; then
+            echo "::warning::No blob reports found from shards; skipping merge."
+            mkdir -p ./playwright-report
+            echo "No shard blob reports were produced." > ./playwright-report/README.txt
+            echo "SKIP_MERGE=1" >> "$GITHUB_ENV"
+          else
+            ls -la ./all-blob-reports
+          fi
+        working-directory: frontend
+
       - name: Merge into HTML report
+        if: env.SKIP_MERGE != '1'
         run: pnpm exec playwright merge-reports --reporter html ./all-blob-reports
         working-directory: frontend
 
