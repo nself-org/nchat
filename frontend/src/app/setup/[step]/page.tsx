@@ -129,7 +129,6 @@ export default function SetupStepPage({
         </div>
       )}
 
-
       <div className="relative z-10">
         {/* Header - Protocol style with nself branding */}
         <div
