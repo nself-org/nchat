@@ -532,7 +532,10 @@ describe("Timing Attack Resistance", () => {
           for (let i = 0; i < ITERATIONS; i++) {
             verifyMasterKey(masterKey, keyHash);
           }
-          const time1 = Math.max((performance.now() - start1) / ITERATIONS, FLOOR_MS);
+          const time1 = Math.max(
+            (performance.now() - start1) / ITERATIONS,
+            FLOOR_MS,
+          );
 
           // Measure time for incorrect key
           const wrongKey = new Uint8Array(KEY_LENGTH).fill(0);
@@ -540,7 +543,10 @@ describe("Timing Attack Resistance", () => {
           for (let i = 0; i < ITERATIONS; i++) {
             verifyMasterKey(wrongKey, keyHash);
           }
-          const time2 = Math.max((performance.now() - start2) / ITERATIONS, FLOOR_MS);
+          const time2 = Math.max(
+            (performance.now() - start2) / ITERATIONS,
+            FLOOR_MS,
+          );
 
           // Times should be similar (within reasonable variance).
           // This is a soft check since exact timing is hard to control on
