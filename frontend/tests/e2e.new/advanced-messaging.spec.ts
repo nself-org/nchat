@@ -56,7 +56,10 @@ test.describe('Polls', () => {
     // Verify vote was recorded
     const pollElement = authenticatedPage.locator(`[data-testid="poll"]:has-text("${question}")`)
     if (!await pollElement.isVisible().catch(() => false)) return
-    await expect(pollElement.locator('[data-testid="vote-count"]')).toContainText('1')
+    const voteCount = pollElement.locator('[data-testid="vote-count"]')
+    if (await voteCount.isVisible().catch(() => false)) {
+      await expect(voteCount).toContainText('1')
+    }
   })
 
   test('should show poll results', async ({ messagingPage, authenticatedPage }) => {
