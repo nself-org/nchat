@@ -176,7 +176,7 @@ export function LoginHistory() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="login-history">
       {/* Dev Mode Notice */}
       {isDevMode && (
         <Alert>
@@ -333,6 +333,7 @@ function LoginAttemptCard({ attempt }: LoginAttemptCardProps) {
 
   return (
     <div
+      data-testid="login-history-item"
       className={cn(
         "flex items-start gap-4 rounded-lg border p-4",
         !attempt.success && "border-red-500/20 bg-red-500/5",

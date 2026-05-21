@@ -225,6 +225,7 @@ export default function AccountSettingsPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter new email"
                   disabled={loading === "email"}
+                  data-testid="account-email"
                 />
               </SettingsRow>
 
@@ -319,6 +320,7 @@ export default function AccountSettingsPage() {
               <div className="flex items-center gap-4">
                 <Button
                   type="submit"
+                  data-testid="change-password"
                   disabled={
                     loading === "password" ||
                     !currentPassword ||
@@ -512,7 +514,12 @@ export default function AccountSettingsPage() {
                   </p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" className="mt-4">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="mt-4"
+                        data-testid="delete-account"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete Account
                       </Button>

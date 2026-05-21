@@ -46,7 +46,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+    <div className="flex min-h-screen items-center justify-center bg-background">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Sign in to nChat</CardTitle>
@@ -109,7 +109,7 @@ export default function LoginPage() {
                     <span className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-muted-foreground dark:bg-zinc-950">
+                    <span className="bg-white px-2 text-gray-500 dark:bg-zinc-950 dark:text-gray-400">
                       Or use test account
                     </span>
                   </div>
@@ -140,7 +140,10 @@ export default function LoginPage() {
 
             <div className="text-center text-sm">
               Don't have an account?{" "}
-              <Link href="/signup" className="text-primary hover:underline">
+              <Link
+                href="/signup"
+                className="text-primary underline underline-offset-4"
+              >
                 Sign up
               </Link>
             </div>

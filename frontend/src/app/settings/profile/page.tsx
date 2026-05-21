@@ -145,6 +145,7 @@ export default function ProfileSettingsPage() {
                 placeholder="Enter your display name"
                 disabled={loading}
                 maxLength={50}
+                data-testid="profile-display-name"
               />
             </SettingsRow>
 
@@ -166,6 +167,7 @@ export default function ProfileSettingsPage() {
                   pattern="^[a-zA-Z0-9_]+$"
                   maxLength={30}
                   className="flex-1"
+                  data-testid="profile-username"
                 />
               </div>
             </SettingsRow>
@@ -201,6 +203,7 @@ export default function ProfileSettingsPage() {
                 disabled={loading}
                 maxLength={160}
                 rows={3}
+                data-testid="profile-bio"
               />
               <p className="text-xs text-muted-foreground">
                 {formData.bio.length}/160 characters
@@ -268,7 +271,7 @@ export default function ProfileSettingsPage() {
 
           {/* Save Button */}
           <div className="flex items-center gap-4">
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} data-testid="save-profile">
               {loading ? "Saving..." : "Save Changes"}
             </Button>
             {saved && (

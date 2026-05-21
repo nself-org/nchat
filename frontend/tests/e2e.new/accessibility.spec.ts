@@ -25,7 +25,7 @@ import AxeBuilder from '@axe-core/playwright'
 test.describe('WCAG 2.1 AA Compliance', () => {
   test('home page should have no accessibility violations @a11y', async ({ page }) => {
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -36,7 +36,7 @@ test.describe('WCAG 2.1 AA Compliance', () => {
 
   test('login page should have no accessibility violations @a11y', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -47,7 +47,7 @@ test.describe('WCAG 2.1 AA Compliance', () => {
 
   test('chat page should have no accessibility violations @a11y', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -59,7 +59,7 @@ test.describe('WCAG 2.1 AA Compliance', () => {
 
   test('settings page should have no accessibility violations @a11y', async ({ page }) => {
     await page.goto('/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa'])
@@ -70,10 +70,14 @@ test.describe('WCAG 2.1 AA Compliance', () => {
 
   test('should meet color contrast requirements @a11y', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
+    // color-contrast-enhanced (WCAG AAA 7:1) is excluded: the app targets WCAG 2.1 AA
+    // (4.5:1 for normal text, 3:1 for large text). cat.color includes both AA and AAA
+    // colour rules; disabling the AAA rule keeps the test scoped to our compliance target.
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['cat.color'])
+      .disableRules(['color-contrast-enhanced'])
       .analyze()
 
     expect(accessibilityScanResults.violations).toEqual([])
@@ -81,7 +85,7 @@ test.describe('WCAG 2.1 AA Compliance', () => {
 
   test('should have proper keyboard accessibility @a11y', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['cat.keyboard'])
@@ -92,7 +96,7 @@ test.describe('WCAG 2.1 AA Compliance', () => {
 
   test('should have proper ARIA attributes @a11y', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accessibilityScanResults = await new AxeBuilder({ page }).withTags(['cat.aria']).analyze()
 
@@ -101,7 +105,7 @@ test.describe('WCAG 2.1 AA Compliance', () => {
 
   test('should have proper semantic HTML @a11y', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .withTags(['best-practice'])
@@ -123,7 +127,7 @@ test.describe('WCAG 2.1 AA Compliance', () => {
 test.describe('Tab Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should navigate between focusable elements with Tab', async ({ page }) => {
@@ -255,12 +259,12 @@ test.describe('Tab Navigation', () => {
 test.describe('Screen Reader Compatibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should have aria-label for icon buttons', async ({ page }) => {
     // Find icon buttons
-    const iconButtons = page.locator('button:has(svg):not(:has-text())')
+    const iconButtons = page.locator('button:has(svg)').filter({ hasNotText: /\S/ })
 
     const count = await iconButtons.count()
 
@@ -274,7 +278,7 @@ test.describe('Screen Reader Compatibility', () => {
 
         const hasLabel = ariaLabel || title || (text && text.trim().length > 0)
 
-        expect(hasLabel || true).toBe(true) // Graceful - may not all have labels
+        expect(true).toBe(true) // Graceful - may not all have labels
       }
     }
   })
@@ -364,7 +368,7 @@ test.describe('Screen Reader Compatibility', () => {
 test.describe('Keyboard Shortcuts', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should focus message input with Ctrl+K or Cmd+K', async ({ page }) => {
@@ -394,8 +398,10 @@ test.describe('Keyboard Shortcuts', () => {
     const buttons = page.locator('button')
 
     if ((await buttons.count()) > 0) {
-      // Click first button that might open a dialog
-      await buttons.first().click()
+      // Click first enabled button that might open a dialog
+      const enabledButtons = page.locator('button:enabled')
+      if ((await enabledButtons.count()) === 0) return
+      await enabledButtons.first().click()
       await page.waitForTimeout(300)
 
       // Look for dialog
@@ -421,7 +427,7 @@ test.describe('Keyboard Shortcuts', () => {
     for (const shortcut of shortcuts) {
       // Reload to reset state
       await page.reload()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
       await page.waitForTimeout(100)
 
       await page.keyboard.press(shortcut).catch(() => {
@@ -504,7 +510,7 @@ test.describe('Keyboard Shortcuts', () => {
 
   test('should handle Space for button activation', async ({ page }) => {
     // Find a button
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       const btn = buttons.first()
@@ -530,11 +536,11 @@ test.describe('Keyboard Shortcuts', () => {
 test.describe('Focus Management', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should set focus on interactive elements', async ({ page }) => {
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       // Click button
@@ -554,7 +560,7 @@ test.describe('Focus Management', () => {
     })
 
     // Try to open a dialog/modal
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       await buttons.first().click()
@@ -601,7 +607,7 @@ test.describe('Focus Management', () => {
 
   test('should trap focus in modal dialogs', async ({ page }) => {
     // Look for a button that opens a modal
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       await buttons.first().click()
@@ -641,7 +647,7 @@ test.describe('Focus Management', () => {
 test.describe('Skip Links', () => {
   test('should have skip link in header', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for skip link
     const skipLink = page.locator(
@@ -655,7 +661,7 @@ test.describe('Skip Links', () => {
 
   test('should activate skip link with Tab', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Tab to first element
     await page.keyboard.press('Tab')
@@ -675,7 +681,7 @@ test.describe('Skip Links', () => {
 
   test('should skip to main content when activated', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for skip link
     const skipLink = page.locator('a[href*="#"], .skip-link')
@@ -712,7 +718,7 @@ test.describe('Skip Links', () => {
 test.describe('Color Contrast', () => {
   test('should meet WCAG AA standards for text contrast', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Use axe or manual check
     const contrastIssues = await page.evaluate(() => {
@@ -788,7 +794,7 @@ test.describe('Color Contrast', () => {
 test.describe('Form Validation Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should announce required fields', async ({ page }) => {
@@ -895,12 +901,12 @@ test.describe('Form Validation Accessibility', () => {
 test.describe('Modal Focus Trapping', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should trap focus within modal', async ({ page }) => {
     // Open a modal
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       await buttons.first().click()
@@ -939,7 +945,7 @@ test.describe('Modal Focus Trapping', () => {
 
   test('should return focus after modal closes', async ({ page }) => {
     // Click a button to track it
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       const btn = buttons.first()
@@ -967,7 +973,7 @@ test.describe('Modal Focus Trapping', () => {
   })
 
   test('should prevent tab escape from modal', async ({ page }) => {
-    const buttons = page.locator('button')
+    const buttons = page.locator('button:enabled')
 
     if ((await buttons.count()) > 0) {
       await buttons.first().click()
@@ -1009,7 +1015,7 @@ test.describe('Modal Focus Trapping', () => {
 test.describe('ARIA Attributes', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should have aria-expanded on collapsible elements', async ({ page }) => {

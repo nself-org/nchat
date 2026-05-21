@@ -31,17 +31,24 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   // Retry on CI to reduce flakiness
-  retries: process.env.CI ? 3 : 0,
+  retries: process.env.CI ? 2 : 0,
 
   // Limit workers on CI for more stable execution
   workers: process.env.CI ? 2 : undefined,
 
-  // Reporter to use
-  reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['list'],
-    ...(process.env.CI ? [['github'] as const] : []),
-  ],
+  // Reporter to use.
+  // In CI shard mode: emit blob reports (for merge-reports aggregation)
+  // plus github annotations.  Locally: HTML report + list.
+  reporter: process.env.CI
+    ? [
+        ['blob', { outputDir: 'blob-report' }],
+        ['github'],
+        ['list'],
+      ]
+    : [
+        ['html', { outputFolder: 'playwright-report' }],
+        ['list'],
+      ],
 
   // Shared settings for all projects
   use: {
@@ -132,12 +139,38 @@ export default defineConfig({
     },
   ],
 
-  // Run local dev server before starting the tests
+  // Global setup — runs once before all tests to warm up routes.
+  // This prevents the first test per route from hitting a cold Next.js
+  // production server and timing out.
+  globalSetup: './tests/e2e.new/global.setup.ts',
+
+  // Run the production server before starting the tests.
+  // The workflow (e2e-tests.yml + pr-checks.yml accessibility job) runs
+  // `pnpm build` as a preceding step, so `next start` serves pre-compiled
+  // pages with no per-route compilation delay.  This eliminates the
+  // on-demand compilation timeouts that occurred with `pnpm dev`.
+  //
+  // HASURA_ADMIN_SECRET, NEXT_PUBLIC_ENV, and CSRF_SECRET are read from the
+  // process env rather than hardcoded so the webServer process inherits the
+  // values set by the CI workflow step (or the developer's local shell).
+  //
+  // CSRF_SECRET is required at runtime by getCsrfSecret() when NODE_ENV=production
+  // (which next start always sets).  Without it the server throws "FATAL: CSRF_SECRET
+  // environment variable must be set in production" on the first state-changing
+  // request, crashing the app before global.setup.ts can complete.
+  //
+  // In E2E test mode (NEXT_PUBLIC_ENV=test) server-side CSRF validation is bypassed
+  // by validateCsrfToken(), but getCsrfSecret() is still called by setCsrfToken()
+  // when decorating responses — so the secret must be present or the eager throw
+  // fires first.  A fixed 40-char test-only value is used when CSRF_SECRET is not
+  // set in the caller's environment.
   webServer: {
-    command: 'pnpm dev',
+    command: `HASURA_ADMIN_SECRET=${process.env.HASURA_ADMIN_SECRET || 'ci-test-placeholder-not-a-real-secret'} NEXT_PUBLIC_ENV=${process.env.NEXT_PUBLIC_ENV || ''} NEXT_PUBLIC_USE_DEV_AUTH=${process.env.NEXT_PUBLIC_USE_DEV_AUTH || ''} CSRF_SECRET=${process.env.CSRF_SECRET || 'playwright-e2e-test-only-csrf-secret-value'} NEXT_PUBLIC_GRAPHQL_URL=${process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'} NEXT_PUBLIC_AUTH_URL=${process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:4000'} NEXT_PUBLIC_STORAGE_URL=${process.env.NEXT_PUBLIC_STORAGE_URL || 'http://localhost:9000'} next start`,
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+    // 5 minutes: production server startup is slower than dev on first boot.
+    // Per-route compilation is eliminated, so tests themselves are faster.
+    timeout: 300000,
     stdout: 'pipe',
     stderr: 'pipe',
   },

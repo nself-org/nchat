@@ -101,6 +101,7 @@ interface SimpleNotificationToggleProps {
   onCheckedChange: (checked: boolean) => void;
   disabled?: boolean;
   className?: string;
+  "data-testid"?: string;
 }
 
 export function SimpleNotificationToggle({
@@ -111,6 +112,7 @@ export function SimpleNotificationToggle({
   onCheckedChange,
   disabled = false,
   className,
+  "data-testid": dataTestId,
 }: SimpleNotificationToggleProps) {
   return (
     <div
@@ -139,6 +141,7 @@ export function SimpleNotificationToggle({
         checked={checked}
         onCheckedChange={onCheckedChange}
         disabled={disabled}
+        data-testid={dataTestId}
       />
     </div>
   );

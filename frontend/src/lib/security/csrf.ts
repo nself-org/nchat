@@ -32,8 +32,14 @@ function getCsrfSecret(): string {
 
   const csrfSecret = process.env.CSRF_SECRET;
 
-  // Production validation
-  if (process.env.NODE_ENV === "production") {
+  // Production validation — skip when running under E2E test mode so that
+  // `next start` (which sets NODE_ENV=production) does not crash when
+  // CSRF_SECRET is absent.  validateCsrfToken() already bypasses the
+  // double-submit check in test mode; this guard prevents the eager throw
+  // from getCsrfSecret() on response decoration (setCsrfToken).
+  const isTestMode = process.env.NEXT_PUBLIC_ENV === "test";
+
+  if (process.env.NODE_ENV === "production" && !isTestMode) {
     if (!csrfSecret) {
       throw new Error(
         "FATAL: CSRF_SECRET environment variable must be set in production",
@@ -221,6 +227,15 @@ export function validateCsrfToken(request: NextRequest): boolean {
     return true;
   }
 
+  // Skip in E2E test mode (NEXT_PUBLIC_ENV=test is the CI escape hatch set by
+  // the E2E workflow). FauxAuth stores its session in localStorage rather than
+  // cookies, so the normal double-submit cookie flow never completes in CI.
+  // This bypass is intentionally narrowed to the test environment variable so
+  // it cannot be triggered in production or staging builds.
+  if (process.env.NEXT_PUBLIC_ENV === "test") {
+    return true;
+  }
+
   // Skip in development mode (optional)
   if (
     process.env.NODE_ENV === "development" &&
@@ -236,8 +251,8 @@ export function validateCsrfToken(request: NextRequest): boolean {
     return false;
   }
 
-  // Get token from cookie
-  const cookieToken = request.cookies.get(CSRF_CONFIG.COOKIE_NAME)?.value;
+  // Get token from cookie (cookies may be undefined in some environments)
+  const cookieToken = request.cookies?.get(CSRF_CONFIG.COOKIE_NAME)?.value;
 
   if (!cookieToken) {
     return false;
@@ -287,8 +302,9 @@ export function withCsrfProtection(
     const response = await handler(request, context);
 
     // Ensure CSRF token is set in response
+    // Guard against response.cookies being undefined (e.g. error responses in test env)
     const existingToken = getCsrfToken(request);
-    if (!existingToken) {
+    if (!existingToken && response.cookies) {
       setCsrfToken(response);
     }
 

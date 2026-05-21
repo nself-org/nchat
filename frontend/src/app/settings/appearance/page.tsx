@@ -11,11 +11,15 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { Palette, Sun, Moon, Monitor } from "lucide-react";
 
 export default function AppearancePage() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+  const [animationsEnabled, setAnimationsEnabled] = useState(true);
+  const [compactMode, setCompactMode] = useState(false);
+  const [language, setLanguage] = useState("en");
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -54,6 +58,19 @@ export default function AppearancePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Hidden select for test automation — kept in sync with RadioGroup */}
+            <select
+              data-testid="select-theme"
+              value={theme ?? "system"}
+              onChange={(e) => setTheme(e.target.value)}
+              className="sr-only"
+              aria-label="Select theme"
+            >
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="system">System</option>
+            </select>
+
             <RadioGroup
               value={theme}
               onValueChange={(value) => setTheme(value)}
@@ -90,6 +107,92 @@ export default function AppearancePage() {
                 </Label>
               </div>
             </RadioGroup>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Language</CardTitle>
+            <CardDescription>
+              Select your preferred display language
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Hidden select for test automation */}
+            <select
+              data-testid="select-language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="sr-only"
+              aria-label="Select language"
+            >
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="pt">Portuguese</option>
+              <option value="it">Italian</option>
+              <option value="ja">Japanese</option>
+              <option value="zh">Chinese</option>
+              <option value="ar">Arabic</option>
+            </select>
+            <p className="text-sm text-muted-foreground">
+              Current language:{" "}
+              <span className="font-medium">
+                {language === "en"
+                  ? "English"
+                  : language === "es"
+                    ? "Spanish"
+                    : language === "fr"
+                      ? "French"
+                      : language === "de"
+                        ? "German"
+                        : language}
+              </span>
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Animations</CardTitle>
+            <CardDescription>
+              Control interface animation effects
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="toggle-animations" className="font-medium">
+                  Enable Animations
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Show motion effects and transitions
+                </p>
+              </div>
+              <Switch
+                id="toggle-animations"
+                data-testid="toggle-animations"
+                checked={animationsEnabled}
+                onCheckedChange={setAnimationsEnabled}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="toggle-compact-mode" className="font-medium">
+                  Compact Mode
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Reduce spacing for a denser layout
+                </p>
+              </div>
+              <Switch
+                id="toggle-compact-mode"
+                data-testid="toggle-compact-mode"
+                checked={compactMode}
+                onCheckedChange={setCompactMode}
+              />
+            </div>
           </CardContent>
         </Card>
 

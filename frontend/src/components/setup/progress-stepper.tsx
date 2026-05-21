@@ -60,7 +60,7 @@ export function ProgressStepper({
   visitedSteps = new Set(),
 }: ProgressStepperProps) {
   return (
-    <div className="w-full px-6 py-8">
+    <div className="w-full px-6 py-8" data-testid="progress-stepper">
       <div className="mx-auto max-w-4xl">
         <div className="relative flex items-center justify-between">
           {/* Background line - positioned at step circle height */}

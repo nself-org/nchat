@@ -30,7 +30,7 @@ export class ChatPage {
   async goto(channel?: string) {
     const url = channel ? `/chat/${channel}` : '/chat'
     await this.page.goto(url)
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async sendMessage(text: string) {
@@ -51,7 +51,7 @@ export class ChatPage {
   async selectChannel(channelName: string) {
     const channel = this.page.locator(`[data-testid="channel-item"]:has-text("${channelName}")`)
     await channel.click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async openThread(messageIndex: number = 0) {

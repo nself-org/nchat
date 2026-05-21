@@ -25,7 +25,6 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import {
   errorResponse,
   unauthorizedResponse,
@@ -111,11 +110,11 @@ export function getClientIp(request: NextRequest): string {
  * Get user tier from request for rate limiting
  */
 function getUserTierFromRequest(request: NextRequest): UserTier | undefined {
-  // Check session cookie for role
+  // Check session cookie for role (cookies may be undefined in some environments)
   const sessionCookie =
-    request.cookies.get("nchat-session")?.value ||
-    request.cookies.get("nhostSession")?.value ||
-    request.cookies.get("nchat-dev-session")?.value;
+    request.cookies?.get("nchat-session")?.value ||
+    request.cookies?.get("nhostSession")?.value ||
+    request.cookies?.get("nchat-dev-session")?.value;
 
   if (sessionCookie) {
     try {
@@ -163,10 +162,11 @@ function buildRateLimitMetadata(request: NextRequest): RateLimitMetadata {
  * Get user ID from request
  */
 function getUserIdFromRequest(request: NextRequest): string | null {
+  // cookies may be undefined in some environments (e.g. Jest node environment)
   const sessionCookie =
-    request.cookies.get("nchat-session")?.value ||
-    request.cookies.get("nhostSession")?.value ||
-    request.cookies.get("nchat-dev-session")?.value;
+    request.cookies?.get("nchat-session")?.value ||
+    request.cookies?.get("nhostSession")?.value ||
+    request.cookies?.get("nchat-dev-session")?.value;
 
   if (sessionCookie) {
     try {
@@ -329,8 +329,8 @@ export async function getAuthenticatedUser(
     return validateToken(token);
   }
 
-  // Check cookie-based auth
-  const sessionCookie = request.cookies.get("nhost-session");
+  // Check cookie-based auth (cookies may be undefined in some environments)
+  const sessionCookie = request.cookies?.get("nhost-session");
   if (sessionCookie?.value) {
     return validateSession(sessionCookie.value);
   }

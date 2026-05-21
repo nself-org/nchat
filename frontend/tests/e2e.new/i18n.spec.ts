@@ -31,7 +31,7 @@ const LOCALES = {
 test.describe('Language Switching', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display language selector', async ({ page }) => {
@@ -140,7 +140,7 @@ test.describe('Language Switching', () => {
 test.describe('RTL Layout for Arabic/Hebrew', () => {
   test('should apply RTL direction for Arabic', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Find language selector
     const languageSelector = page.locator(
@@ -161,7 +161,7 @@ test.describe('RTL Layout for Arabic/Hebrew', () => {
 
   test('should apply RTL direction for Hebrew', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'
@@ -181,7 +181,7 @@ test.describe('RTL Layout for Arabic/Hebrew', () => {
 
   test('should mirror layout elements in RTL', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'
@@ -216,7 +216,7 @@ test.describe('RTL Layout for Arabic/Hebrew', () => {
 
   test('should align text correctly in RTL', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'
@@ -243,7 +243,7 @@ test.describe('RTL Layout for Arabic/Hebrew', () => {
 
   test('should position RTL scrollbar correctly', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'
@@ -269,7 +269,7 @@ test.describe('RTL Layout for Arabic/Hebrew', () => {
 test.describe('Date/Time Formatting per Locale', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should format dates in English', async ({ page }) => {
@@ -369,7 +369,7 @@ test.describe('Date/Time Formatting per Locale', () => {
 test.describe('Number Formatting per Locale', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should format numbers correctly in English', async ({ page }) => {
@@ -436,7 +436,7 @@ test.describe('Currency Formatting', () => {
   test('should format currency in correct locale', async ({ page }) => {
     // Look for any currency displays in the UI
     const currencyElements = page.locator(
-      '[data-testid="price"], .price, [aria-label*="currency"], text=/$|€|£|¥/i'
+      '[data-testid="price"], .price, [aria-label*="currency"]'
     )
 
     if ((await currencyElements.count()) > 0) {
@@ -480,7 +480,7 @@ test.describe('Currency Formatting', () => {
 test.describe('Pluralization Rules', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should handle singular and plural forms', async ({ page }) => {
@@ -539,7 +539,7 @@ test.describe('Pluralization Rules', () => {
 test.describe('Translation Completeness', () => {
   test('should display translations without missing key placeholders', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'
@@ -569,7 +569,7 @@ test.describe('Translation Completeness', () => {
 
   test('should have translations for all UI elements', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'
@@ -594,9 +594,11 @@ test.describe('Translation Completeness', () => {
 
   test('should validate translation keys are not exposed', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
-    const bodyText = await page.textContent('body')
+    // Use innerText to get only visible rendered text, excluding script/style tags
+    // which contain Next.js RSC payloads with }} characters from JSON syntax
+    const bodyText = await page.evaluate(() => document.body.innerText)
 
     // Should not contain untranslated key indicators
     expect(bodyText).not.toContain('{{')
@@ -612,7 +614,7 @@ test.describe('Translation Completeness', () => {
 test.describe('Language Persistence', () => {
   test('should persist language selection to localStorage', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'
@@ -634,7 +636,7 @@ test.describe('Language Persistence', () => {
 
   test('should restore language on page reload', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'
@@ -647,7 +649,7 @@ test.describe('Language Persistence', () => {
 
       // Reload page
       await page.reload()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Language should still be French
       const currentLocale = await page.evaluate(() => document.documentElement.getAttribute('lang'))
@@ -668,7 +670,7 @@ test.describe('Language Persistence', () => {
     })
 
     await pageWithLocale.goto('http://localhost:3000/chat')
-    await pageWithLocale.waitForLoadState('networkidle')
+    await pageWithLocale.waitForLoadState('load')
 
     // Browser language preference should be detected
     const htmlLang = await pageWithLocale.evaluate(() =>
@@ -683,7 +685,7 @@ test.describe('Language Persistence', () => {
   test('should use URL parameter for language if provided', async ({ page }) => {
     // Navigate with language parameter in URL
     await page.goto('/chat?lang=it')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Language should be set from URL
     const currentLocale = await page.evaluate(() => document.documentElement.getAttribute('lang'))
@@ -700,7 +702,7 @@ test.describe('Language Persistence', () => {
 test.describe('Mixed Language Content', () => {
   test('should handle mixed LTR/RTL content', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const languageSelector = page.locator(
       '[data-testid="language-selector"], select[aria-label*="language"]'

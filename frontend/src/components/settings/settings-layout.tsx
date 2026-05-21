@@ -31,7 +31,7 @@ export function SettingsLayout({ children }: SettingsLayoutProps) {
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1">
+      <div className="flex-1" role="region" aria-label="Settings content">
         <div className="container max-w-4xl py-6 md:py-8">
           {/* Mobile Nav */}
           <div className="mb-6 md:hidden">
@@ -42,7 +42,7 @@ export function SettingsLayout({ children }: SettingsLayoutProps) {
 
           {children}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

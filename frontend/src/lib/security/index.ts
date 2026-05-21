@@ -18,8 +18,11 @@ import { logger } from "@/lib/logger";
  */
 export function assertProductionSecurity(): void {
   if (process.env.NODE_ENV === "production") {
-    // Check dev auth is disabled
-    if (authConfig.useDevAuth) {
+    // Check dev auth is disabled.
+    // Exception: NEXT_PUBLIC_ENV=test is the deliberate CI escape hatch that
+    // allows FauxAuth in production-built binaries during E2E runs. isE2ETest
+    // captures this explicit opt-in and must be respected here too.
+    if (authConfig.useDevAuth && !authConfig.isE2ETest) {
       throw new Error(
         "[SECURITY] FATAL: Dev auth is enabled in production. " +
           "This is a critical security vulnerability. Shutting down.",

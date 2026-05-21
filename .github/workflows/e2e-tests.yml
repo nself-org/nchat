@@ -35,11 +35,26 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  # Web E2E Tests (Playwright)
+  # Web E2E Tests (Playwright) — sharded across 3 parallel jobs so the full
+  # suite completes within the GH Actions job limit.  Each shard:
+  #   1. Provisions the nself backend on the same runner (so Docker containers
+  #      are reachable at localhost — GHA jobs are isolated ephemeral runners,
+  #      so backend setup must live IN the same job, not a separate depends-on job).
+  #   2. Builds the Next.js app.
+  #   3. Runs its slice of Playwright tests.
+  # The merge job collects all blob reports and produces a single HTML report.
   e2e-web:
-    name: E2E Web Tests
+    name: E2E Web Tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 75 min: ~12 min backend start + ~8 min build + ~50 min for the shard's
+    # test slice with retries.
+    timeout-minutes: 75
+
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3]
+        shardTotal: [3]
 
     defaults:
       run:
@@ -48,6 +63,121 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # ── Backend provisioning ────────────────────────────────────────────────
+      # Start the pre-generated backend/docker-compose.yml on this runner so
+      # Playwright tests can reach localhost services (Hasura :8080, Auth :4000,
+      # MinIO :9000).
+      #
+      # We use `docker compose up -d` directly rather than `nself start --skip-build`
+      # because the nself CLI v1.1.x performs a database schema init (step 5/7) that
+      # races against PostgreSQL's first-time initdb restart: postgres runs the
+      # ./postgres/init/*.sql scripts on first boot, restarts to apply them, and the
+      # nself CLI's psql exec hits the "database system is shutting down" window.
+      # The docker-compose.yml initdb scripts already create all required schemas
+      # (auth, storage, public), so the nself schema-init is redundant and unsafe
+      # in this timing window.  docker compose up respects the healthcheck defined
+      # in the compose file and waits for postgres to be genuinely ready.
+      #
+      # nSelf-First note: this is an approved CI-only exception; nself start is the
+      # correct path for local dev and production deployments.  A PCI has been filed
+      # requesting the nself CLI add a --skip-db-init flag for this scenario.
+      - name: Prepare backend .env for CI
+        # Combine .env.dev with the computed variables that `nself build` normally
+        # writes to .env.computed.  docker compose auto-loads only .env from the
+        # working directory — not .env.computed — so we inline them here.
+        #
+        # DOCKER_NETWORK = PROJECT_NAME + "_network"  (orchestrator.go:buildEnvComputed)
+        # DATABASE_URL   = postgresql://user:pass@host:5432/db  (config/defaults.go)
+        # HASURA_GRAPHQL_JWT_SECRET = JSON object required by Hasura JWT config
+        #
+        # The HASURA_GRAPHQL_ADMIN_SECRET in .env.dev is a 23-char dev stub;
+        # replace it with a 32-char CI-only value to meet nself v1.1.x requirements
+        # and match the value passed to frontend build / test steps below.
+        run: |
+          cp backend/.env.dev backend/.env
+          sed -i 's|^HASURA_GRAPHQL_ADMIN_SECRET=.*|HASURA_GRAPHQL_ADMIN_SECRET=hasura-admin-secret-dev-ci-only-32|' backend/.env
+          # Append computed vars (replaces nself build .env.computed)
+          printf '\n# CI-generated computed vars (replaces nself build .env.computed)\n' >> backend/.env
+          printf 'DATABASE_URL=postgresql://postgres:postgres-dev-password@postgres:5432/nchat\n' >> backend/.env
+          printf 'DOCKER_NETWORK=nchat_network\n' >> backend/.env
+          printf 'HASURA_GRAPHQL_JWT_SECRET={"type":"HS256","key":"nchat-development-secret-key-minimum-32-characters"}\n' >> backend/.env
+        working-directory: .
+
+      - name: Start nself backend stack
+        # Pull images first so the up command doesn't time out on slow image pulls,
+        # then start all services.  docker compose waits for the postgres healthcheck
+        # (pg_isready, interval 10 s, 5 retries) before Hasura attempts to connect.
+        run: |
+          docker compose -f docker-compose.yml pull --quiet
+          docker compose -f docker-compose.yml up -d
+        working-directory: backend
+
+      - name: Wait for Hasura health
+        run: |
+          echo "Waiting for Hasura at http://localhost:8080/healthz ..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost:8080/healthz > /dev/null 2>&1; then
+              echo "Hasura healthy (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i/24 — waiting 5 s ..."
+            sleep 5
+          done
+          echo "ERROR: Hasura did not become healthy within 120 s" >&2
+          exit 1
+        working-directory: .
+
+      - name: Wait for Auth service health
+        run: |
+          echo "Waiting for Auth at http://localhost:4000/healthz ..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost:4000/healthz > /dev/null 2>&1; then
+              echo "Auth healthy (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i/24 — waiting 5 s ..."
+            sleep 5
+          done
+          echo "ERROR: Auth service did not become healthy within 120 s" >&2
+          exit 1
+        working-directory: .
+
+      - name: Seed E2E test users
+        # Create the five deterministic users the e2e.new specs rely on.
+        # Direct port (4000) — not nginx-proxied domain, which is not resolvable in CI.
+        # 409/already-exists is success so the step is idempotent across re-runs.
+        run: |
+          AUTH_URL="http://localhost:4000"
+          PASSWORD="password123"
+
+          seed_user() {
+            local email="$1"
+            local display="$2"
+            local role="$3"
+            local http_code
+            http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X POST "$AUTH_URL/v1/signup/email-password" \
+              -H "Content-Type: application/json" \
+              -d "{\"email\":\"$email\",\"password\":\"$PASSWORD\",\"options\":{\"displayName\":\"$display\",\"locale\":\"en\",\"metadata\":{\"role\":\"$role\"}}}")
+            if [ "$http_code" = "200" ] || [ "$http_code" = "201" ]; then
+              echo "Created: $email"
+            elif [ "$http_code" = "409" ] || [ "$http_code" = "422" ]; then
+              echo "Already exists (ok): $email"
+            else
+              echo "WARNING: unexpected HTTP $http_code for $email (code $http_code)"
+            fi
+          }
+
+          seed_user "owner@nself.org"     "Test Owner"     "owner"
+          seed_user "admin@nself.org"     "Test Admin"     "admin"
+          seed_user "moderator@nself.org" "Test Moderator" "moderator"
+          seed_user "member@nself.org"    "Test Member"    "member"
+          seed_user "guest@nself.org"     "Test Guest"     "guest"
+
+          echo "Seeding complete."
+        working-directory: .
+      # ── End backend provisioning ────────────────────────────────────────────
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -66,29 +196,102 @@ jobs:
       - name: Build application
         run: pnpm build
         env:
-          HASURA_ADMIN_SECRET: 'dev-secret'
+          # Use the same CI-only admin secret that is patched into backend/.env above.
+          # Do NOT use secrets.HASURA_ADMIN_SECRET here: that secret may differ from
+          # the value injected into the Hasura container, causing 'invalid admin secret'
+          # errors when the webServer's admin client connects to the running Hasura.
+          HASURA_ADMIN_SECRET: 'hasura-admin-secret-dev-ci-only-32'
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
+          # Bake the Hasura URL at build time so NEXT_PUBLIC_GRAPHQL_URL is available
+          # on both client and server bundles.  Without this the admin-client falls back
+          # to an incorrect default and the webServer fails to reach Hasura.
+          NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
+          NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
+          NEXT_PUBLIC_STORAGE_URL: 'http://localhost:9000'
 
-      - name: Run Playwright E2E tests
-        run: pnpm test:e2e --project=chromium
+      - name: Run Playwright E2E tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
+        run: pnpm test:e2e --project=chromium --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
           CI: true
           NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
+          # Wire the running backend into the Playwright webServer and specs.
+          # nself stack binds: Hasura :8080, Auth :4000, MinIO :9000.
+          NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
+          NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
+          NEXT_PUBLIC_STORAGE_URL: 'http://localhost:9000'
+          # Same CI-only secret — must match HASURA_GRAPHQL_ADMIN_SECRET in backend/.env.
+          HASURA_ADMIN_SECRET: 'hasura-admin-secret-dev-ci-only-32'
 
-      - name: Upload Playwright report
+      - name: Upload blob report for merge
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: frontend/playwright-report/
-          retention-days: 7
+          name: blob-report-${{ matrix.shardIndex }}
+          path: frontend/blob-report/
+          retention-days: 1
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results
+          name: playwright-results-${{ matrix.shardIndex }}
           path: frontend/test-results/
+          retention-days: 7
+
+  # Merge shard blob reports into a single HTML report
+  e2e-web-merge:
+    name: E2E Web Tests — Merge Reports
+    runs-on: ubuntu-latest
+    needs: e2e-web
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+        working-directory: frontend
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v4
+        with:
+          path: frontend/all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Verify blob reports exist
+        run: |
+          if [ ! -d ./all-blob-reports ] || [ -z "$(ls -A ./all-blob-reports 2>/dev/null)" ]; then
+            echo "::warning::No blob reports found from shards; skipping merge."
+            mkdir -p ./playwright-report
+            echo "No shard blob reports were produced." > ./playwright-report/README.txt
+            echo "SKIP_MERGE=1" >> "$GITHUB_ENV"
+          else
+            ls -la ./all-blob-reports
+          fi
+        working-directory: frontend
+
+      - name: Merge into HTML report
+        if: env.SKIP_MERGE != '1'
+        run: pnpm exec playwright merge-reports --reporter html ./all-blob-reports
+        working-directory: frontend
+
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
           retention-days: 7
 
   # iOS E2E Tests (Simulator — no real device required)

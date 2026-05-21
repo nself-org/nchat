@@ -327,7 +327,7 @@ export async function waitForNetworkIdle(
 ): Promise<void> {
   const { timeout = 30000, idleTime = 500 } = options
 
-  await page.waitForLoadState('networkidle', { timeout })
+  await page.waitForLoadState('load', { timeout })
 
   // Extra safety: wait for no new requests for idleTime
   let lastRequestTime = Date.now()

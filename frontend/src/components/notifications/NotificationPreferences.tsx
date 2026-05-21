@@ -20,6 +20,8 @@ import {
   Megaphone,
   Settings,
   RefreshCw,
+  Monitor,
+  Volume2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -126,6 +128,7 @@ function ChannelSection({
             onCheckedChange={onToggle}
             disabled={isLoading}
             aria-label={`Enable ${title}`}
+            data-testid={`toggle-${channel}-notifications`}
           />
         </div>
       </CardHeader>
@@ -334,6 +337,9 @@ export function NotificationPreferences({
     onUpdate: onSave,
   });
 
+  const [desktopEnabled, setDesktopEnabled] = React.useState(true);
+  const [soundEnabled, setSoundEnabled] = React.useState(true);
+
   const handleQuietHoursToggle = useCallback(
     async (enabled: boolean) => {
       if (enabled) {
@@ -433,6 +439,60 @@ export function NotificationPreferences({
           }
           isLoading={isLoading}
         />
+      </div>
+
+      {/* Desktop Notifications */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium">Desktop Notifications</h3>
+        <Card>
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <Monitor className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Desktop notifications</p>
+                <p className="text-xs text-muted-foreground">
+                  Show notifications on your desktop
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={desktopEnabled}
+              onCheckedChange={setDesktopEnabled}
+              disabled={isLoading}
+              aria-label="Enable desktop notifications"
+              data-testid="toggle-desktop-notifications"
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Sound Notifications */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium">Sound</h3>
+        <Card>
+          <CardContent className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <Volume2 className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Notification sounds</p>
+                <p className="text-xs text-muted-foreground">
+                  Play sounds for new notifications
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={soundEnabled}
+              onCheckedChange={setSoundEnabled}
+              disabled={isLoading}
+              aria-label="Enable notification sounds"
+              data-testid="toggle-sound"
+            />
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quiet Hours */}

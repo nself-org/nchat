@@ -10,7 +10,7 @@ test.describe('Message Sending', () => {
   test.beforeEach(async ({ page }) => {
     // Login
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"]')
     if (await emailInput.isVisible()) {
@@ -22,7 +22,7 @@ test.describe('Message Sending', () => {
 
     // Navigate to a channel
     await page.goto('/chat/general')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should send a text message', async ({ page }) => {

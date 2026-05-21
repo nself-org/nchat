@@ -44,13 +44,13 @@ export class SearchPage {
     await this.page.waitForTimeout(500) // Wait for debounce
 
     // Wait for results to load
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async selectResult(index: number = 0) {
     const results = this.page.locator('[data-testid="search-result-item"], .search-result-item')
     await results.nth(index).click()
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async navigateResultsWithKeyboard(direction: 'down' | 'up') {
@@ -61,7 +61,7 @@ export class SearchPage {
 
   async selectResultWithEnter() {
     await this.page.keyboard.press('Enter')
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async closeCommandPalette() {
@@ -71,7 +71,7 @@ export class SearchPage {
 
   async openAdvancedSearch() {
     await this.page.goto('/search')
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
   }
 
   async applyFilter(filterName: string, value: string) {
@@ -111,7 +111,7 @@ export class SearchPage {
 
   async loadSavedSearch(name: string) {
     await this.page.goto('/search')
-    await this.page.waitForLoadState('networkidle')
+    await this.page.waitForLoadState('load')
 
     const savedSearch = this.page.locator(`[data-testid="saved-search"]:has-text("${name}")`)
     await savedSearch.click()

@@ -41,7 +41,7 @@ test.describe('Bot Management Page', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -49,7 +49,7 @@ test.describe('Bot Management Page', () => {
       const submitButton = page.locator('button[type="submit"]')
 
       await emailInput.fill(TEST_USERS.owner.email)
-      await emailInput.fill(TEST_USERS.owner.password)
+      await passwordInput.fill(TEST_USERS.owner.password)
       await submitButton.click()
 
       await page.waitForURL(/\/(admin|chat)/, { timeout: 10000 })
@@ -57,7 +57,7 @@ test.describe('Bot Management Page', () => {
 
     // Navigate to bots page
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display bots management page', async ({ page }) => {
@@ -69,7 +69,7 @@ test.describe('Bot Management Page', () => {
 
   test('should display installed bots list', async ({ page }) => {
     // Look for installed bots tab/section
-    const installedTab = page.locator('[role="tab"]:has-text("Installed"), text=/Installed/i')
+    const installedTab = page.locator('[role="tab"]:has-text("Installed")')
     const botTable = page.locator('[data-testid="bot-list"], table, [data-testid="installed-bots"]')
 
     if (await installedTab.isVisible()) {
@@ -137,7 +137,7 @@ test.describe('Bot Management Page', () => {
 
   test('should display available bots tab', async ({ page }) => {
     // Look for available bots tab
-    const availableTab = page.locator('[role="tab"]:has-text("Available"), text=/Available/i')
+    const availableTab = page.locator('[role="tab"]:has-text("Available")')
 
     if (await availableTab.isVisible()) {
       await availableTab.click()
@@ -158,7 +158,7 @@ test.describe('Bot Creation & Installation', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -174,7 +174,7 @@ test.describe('Bot Creation & Installation', () => {
 
     // Navigate to bots page
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should open add bot modal', async ({ page }) => {
@@ -280,7 +280,7 @@ test.describe('Bot Creation & Installation', () => {
 
       // Marketplace should display
       const marketplace = page.locator(
-        'text=/Bot Marketplace|Marketplace/i, [data-testid="marketplace"]'
+        '[data-testid="marketplace"]'
       )
 
       const isVisible = await marketplace.isVisible().catch(() => false)
@@ -362,7 +362,7 @@ test.describe('Bot Commands', () => {
   test.beforeEach(async ({ page }) => {
     // Login as member for chat testing
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -378,7 +378,7 @@ test.describe('Bot Commands', () => {
 
     // Navigate to chat
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should send bot command', async ({ page }) => {
@@ -517,7 +517,7 @@ test.describe('Bot Responses', () => {
   test.beforeEach(async ({ page }) => {
     // Login as member
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -533,7 +533,7 @@ test.describe('Bot Responses', () => {
 
     // Navigate to chat
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display bot message', async ({ page }) => {
@@ -606,7 +606,7 @@ test.describe('Bot Configuration', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -622,7 +622,7 @@ test.describe('Bot Configuration', () => {
 
     // Navigate to bots page
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should open bot settings modal', async ({ page }) => {
@@ -734,7 +734,7 @@ test.describe('Bot Enable/Disable', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -750,7 +750,7 @@ test.describe('Bot Enable/Disable', () => {
 
     // Navigate to bots page
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display bot enabled/disabled status', async ({ page }) => {
@@ -807,7 +807,7 @@ test.describe('Bot Deletion', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -823,7 +823,7 @@ test.describe('Bot Deletion', () => {
 
     // Navigate to bots page
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display delete bot button', async ({ page }) => {
@@ -933,7 +933,7 @@ test.describe('Bot Webhooks', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -949,7 +949,7 @@ test.describe('Bot Webhooks', () => {
 
     // Navigate to webhooks page
     await page.goto('/admin/webhooks')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display webhooks page', async ({ page }) => {
@@ -1035,7 +1035,7 @@ test.describe('Bot Permissions', () => {
   test.beforeEach(async ({ page }) => {
     // Login as owner
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -1051,7 +1051,7 @@ test.describe('Bot Permissions', () => {
 
     // Navigate to bots page
     await page.goto('/admin/bots')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should display permission checkboxes', async ({ page }) => {
@@ -1122,7 +1122,7 @@ test.describe('Bot Error Handling', () => {
   test.beforeEach(async ({ page }) => {
     // Login as member for chat testing
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     if (await emailInput.isVisible()) {
@@ -1138,7 +1138,7 @@ test.describe('Bot Error Handling', () => {
 
     // Navigate to chat
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
   })
 
   test('should handle command parsing errors', async ({ page }) => {
@@ -1162,7 +1162,7 @@ test.describe('Bot Error Handling', () => {
   test('should show bot offline message', async ({ page }) => {
     // Look for offline indicator
     const offlineIndicator = page.locator(
-      'text=/offline|unavailable|disconnected/i, [data-testid="offline"]'
+      '[data-testid="offline"]'
     )
 
     const exists = await offlineIndicator.count()

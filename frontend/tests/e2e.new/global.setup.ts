@@ -54,7 +54,7 @@ async function globalSetup(config: FullConfig) {
     await page.goto(baseURL || 'http://localhost:3000')
 
     // Wait for the app to be ready
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // In dev mode, the app auto-logs in as owner
     // Check if we're already logged in
@@ -65,7 +65,7 @@ async function globalSetup(config: FullConfig) {
     if (!isLoggedIn) {
       // Navigate to login page
       await page.goto(`${baseURL}/login`)
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Fill in credentials for owner
       const emailInput = page.locator('input[type="email"], input[name="email"]')

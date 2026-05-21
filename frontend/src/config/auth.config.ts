@@ -13,16 +13,24 @@ const isDevelopment = process.env.NODE_ENV === "development";
 const isTest = process.env.NODE_ENV === "test";
 const isProduction = process.env.NODE_ENV === "production";
 
-// SECURITY: Dev auth can ONLY be enabled in development/test environments
-// This prevents accidental enabling in production even if env var is set
+// SECURITY: Dev auth can ONLY be enabled in development/test environments, OR
+// when NEXT_PUBLIC_ENV=test is explicitly set (for E2E CI runs that build with
+// `next build` but need FauxAuth because there is no live Nhost backend).
+// `next build` sets NODE_ENV=production, so the isDevelopment/isTest checks
+// alone would silently disable FauxAuth in CI — the NEXT_PUBLIC_ENV guard
+// is the explicit opt-in for production-built E2E runs.
 const devAuthRequested = process.env.NEXT_PUBLIC_USE_DEV_AUTH === "true";
-const canUseDevAuth = (isDevelopment || isTest) && devAuthRequested;
+const isTestEnv = process.env.NEXT_PUBLIC_ENV === "test";
+const canUseDevAuth =
+  devAuthRequested && (isDevelopment || isTest || isTestEnv);
 
-// Production security checks
-if (isProduction && devAuthRequested) {
+// Production security checks — warn but do not silently override the explicit
+// opt-in (NEXT_PUBLIC_ENV=test is the deliberate CI escape hatch).
+if (isProduction && devAuthRequested && !isTestEnv) {
   console.error(
-    "[SECURITY] CRITICAL: NEXT_PUBLIC_USE_DEV_AUTH was set to true in production. " +
-      "This is ignored and dev auth is DISABLED. Remove this environment variable.",
+    "[SECURITY] CRITICAL: NEXT_PUBLIC_USE_DEV_AUTH was set to true in production " +
+      "without NEXT_PUBLIC_ENV=test. This is ignored and dev auth is DISABLED. " +
+      "Remove this environment variable.",
   );
 }
 
@@ -117,6 +125,7 @@ export interface AuthConfig {
   // Environment flags
   isDevelopment: boolean;
   isProduction: boolean;
+  isE2ETest: boolean; // true when NEXT_PUBLIC_ENV=test (CI escape hatch for FauxAuth in prod builds)
   useDevAuth: boolean;
 
   // Backend URLs
@@ -148,6 +157,7 @@ export const authConfig: AuthConfig = {
   // Environment flags
   isDevelopment,
   isProduction,
+  isE2ETest: isTestEnv,
   useDevAuth: canUseDevAuth,
 
   // Backend URLs
@@ -421,7 +431,11 @@ export function isTwoFactorRequired(
  */
 export function verifySecurityConfiguration(): void {
   if (isProduction) {
-    if (authConfig.useDevAuth) {
+    // Exception: NEXT_PUBLIC_ENV=test is the deliberate CI escape hatch that
+    // allows FauxAuth in production-built binaries during E2E runs (where
+    // NODE_ENV=production because `next start` is used but there is no live
+    // Nhost backend). isTestEnv captures this explicit opt-in.
+    if (authConfig.useDevAuth && !isTestEnv) {
       throw new Error(
         "[SECURITY] FATAL: Dev auth is enabled in production. This should never happen. Check auth.config.ts.",
       );

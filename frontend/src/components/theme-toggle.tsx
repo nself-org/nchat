@@ -15,8 +15,11 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="flex h-6 w-6 items-center justify-center rounded-lg shadow-md shadow-black/5 ring-1 ring-black/5 dark:bg-zinc-800 dark:ring-inset dark:ring-white/5">
-        <Sun className="h-4 w-4 fill-zinc-400" />
+      <button
+        className="flex h-6 w-6 items-center justify-center rounded-lg shadow-md shadow-black/5 ring-1 ring-black/5 dark:bg-zinc-800 dark:ring-inset dark:ring-white/5"
+        aria-label="Toggle theme"
+      >
+        <Sun className="h-4 w-4 fill-zinc-400" aria-hidden="true" />
       </button>
     );
   }

@@ -48,7 +48,7 @@ const FLAGGED_CONTENT = {
 test.beforeEach(async ({ page }) => {
   // Login as moderator for most tests
   await page.goto('/login')
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('load')
 
   const emailInput = page.locator('input[type="email"], input[name="email"]')
   if (await emailInput.isVisible()) {
@@ -70,7 +70,7 @@ test.beforeEach(async ({ page }) => {
 test.describe('Moderation Queue Access', () => {
   test('should navigate to moderation queue from admin menu', async ({ page }) => {
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Take screenshot
     await page.screenshot({ path: 'test-results/admin-dashboard-moderator.png', fullPage: true })
@@ -82,7 +82,7 @@ test.describe('Moderation Queue Access', () => {
 
     if (await moderationLink.isVisible()) {
       await moderationLink.click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       const currentUrl = page.url()
       expect(currentUrl).toContain('moderation')
@@ -91,7 +91,7 @@ test.describe('Moderation Queue Access', () => {
 
   test('should display moderation queue page', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Take screenshot
     await page.screenshot({ path: 'test-results/moderation-queue.png', fullPage: true })
@@ -105,7 +105,7 @@ test.describe('Moderation Queue Access', () => {
 
   test('should display moderation queue count badge', async ({ page }) => {
     await page.goto('/admin')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for badge with count
     const moderationBadge = page.locator(
@@ -118,7 +118,7 @@ test.describe('Moderation Queue Access', () => {
 
   test('should show notification for new flagged content', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for moderation notification
     const notification = page.locator(
@@ -138,7 +138,7 @@ test.describe('Flagged Content Creation', () => {
   test('should auto-flag spam messages', async ({ page }) => {
     // Login as member to post message
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"]')
     if (await emailInput.isVisible()) {
@@ -153,7 +153,7 @@ test.describe('Flagged Content Creation', () => {
     }
 
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const messageInput = page
       .locator('[data-testid="message-input"], [contenteditable="true"], textarea')
@@ -178,7 +178,7 @@ test.describe('Flagged Content Creation', () => {
 
   test('should allow users to report messages', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const messages = page.locator('[data-testid="message-item"], .message-item')
 
@@ -199,7 +199,7 @@ test.describe('Flagged Content Creation', () => {
 
   test('should submit user report with reason', async ({ page }) => {
     await page.goto('/chat')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const messages = page.locator('[data-testid="message-item"]')
 
@@ -265,7 +265,7 @@ test.describe('Flagged Content Creation', () => {
 test.describe('Moderation Queue Display', () => {
   test('should display list of flagged items', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for flagged items list
     const queueItems = page.locator(
@@ -278,7 +278,7 @@ test.describe('Moderation Queue Display', () => {
 
   test('should show message preview for flagged content', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -297,7 +297,7 @@ test.describe('Moderation Queue Display', () => {
 
   test('should display flag reason/type', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -306,7 +306,7 @@ test.describe('Moderation Queue Display', () => {
 
       // Look for flag reason
       const flagReason = firstItem.locator(
-        '[data-testid="flag-reason"], .reason, .badge, text=/spam|profanity|harassment/i'
+        '[data-testid="flag-reason"], .reason, .badge'
       )
 
       const isVisible = await flagReason.isVisible().catch(() => false)
@@ -316,7 +316,7 @@ test.describe('Moderation Queue Display', () => {
 
   test('should show reporter information', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -324,7 +324,7 @@ test.describe('Moderation Queue Display', () => {
       const firstItem = queueItems.first()
 
       // Look for reporter name/indicator
-      const reporter = firstItem.locator('[data-testid="reporter"], text=/reported by|flagged by/i')
+      const reporter = firstItem.locator('[data-testid="reporter"]')
 
       const isVisible = await reporter.isVisible().catch(() => false)
       expect(typeof isVisible).toBe('boolean')
@@ -333,7 +333,7 @@ test.describe('Moderation Queue Display', () => {
 
   test('should display timestamp of flagged content', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -341,7 +341,7 @@ test.describe('Moderation Queue Display', () => {
       const firstItem = queueItems.first()
 
       // Look for timestamp
-      const timestamp = firstItem.locator('[data-testid="timestamp"], time, .time, text=/ago|at/i')
+      const timestamp = firstItem.locator('[data-testid="timestamp"], time, .time')
 
       const isVisible = await timestamp.isVisible().catch(() => false)
       expect(typeof isVisible).toBe('boolean')
@@ -350,7 +350,7 @@ test.describe('Moderation Queue Display', () => {
 
   test('should filter queue by flag type', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for filter dropdown
     const filterDropdown = page.locator(
@@ -371,7 +371,7 @@ test.describe('Moderation Queue Display', () => {
 
   test('should sort queue by date/priority', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for sort dropdown
     const sortDropdown = page.locator('[data-testid="sort-by"], select, button:has-text("Sort")')
@@ -396,7 +396,7 @@ test.describe('Moderation Queue Display', () => {
 test.describe('Moderation Actions', () => {
   test('should display action buttons for flagged item', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -418,7 +418,7 @@ test.describe('Moderation Actions', () => {
 
   test('should approve flagged content', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -449,7 +449,7 @@ test.describe('Moderation Actions', () => {
 
   test('should remove flagged content', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -491,7 +491,7 @@ test.describe('Moderation Actions', () => {
 
   test('should warn user about flagged content', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -536,7 +536,7 @@ test.describe('Moderation Actions', () => {
 
   test('should ban user for violations', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -595,7 +595,7 @@ test.describe('Moderation Actions', () => {
 
   test('should allow adding notes to moderation action', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -627,7 +627,7 @@ test.describe('Moderation Actions', () => {
 test.describe('Bulk Moderation', () => {
   test('should select multiple items in queue', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const queueItems = page.locator('[data-testid="queue-item"]')
 
@@ -644,7 +644,7 @@ test.describe('Bulk Moderation', () => {
 
         // Should show selection count
         const selectionCount = page.locator(
-          '[data-testid="selection-count"], text=/\\d+ selected/i'
+          '[data-testid="selection-count"]'
         )
 
         const isVisible = await selectionCount.isVisible().catch(() => false)
@@ -655,7 +655,7 @@ test.describe('Bulk Moderation', () => {
 
   test('should display bulk action buttons', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const checkboxes = page.locator('input[type="checkbox"]')
 
@@ -675,7 +675,7 @@ test.describe('Bulk Moderation', () => {
 
   test('should approve multiple items at once', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const checkboxes = page.locator('input[type="checkbox"]')
 
@@ -703,7 +703,7 @@ test.describe('Bulk Moderation', () => {
 
   test('should remove multiple items at once', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const checkboxes = page.locator('input[type="checkbox"]')
 
@@ -741,7 +741,7 @@ test.describe('Bulk Moderation', () => {
 test.describe('Moderation Audit Log', () => {
   test('should navigate to audit log', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for audit log tab/link
     const auditLogLink = page.locator(
@@ -750,7 +750,7 @@ test.describe('Moderation Audit Log', () => {
 
     if (await auditLogLink.isVisible()) {
       await auditLogLink.click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Take screenshot
       await page.screenshot({ path: 'test-results/audit-log.png', fullPage: true })
@@ -762,7 +762,7 @@ test.describe('Moderation Audit Log', () => {
 
   test('should display list of moderation actions', async ({ page }) => {
     await page.goto('/admin/moderation/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for audit log entries
     const logEntries = page.locator('[data-testid="audit-entry"], .audit-log-item, tbody tr')
@@ -773,7 +773,7 @@ test.describe('Moderation Audit Log', () => {
 
   test('should show action details in audit log', async ({ page }) => {
     await page.goto('/admin/moderation/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const logEntries = page.locator('[data-testid="audit-entry"]')
 
@@ -790,7 +790,7 @@ test.describe('Moderation Audit Log', () => {
 
   test('should display moderator who took action', async ({ page }) => {
     await page.goto('/admin/moderation/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const logEntries = page.locator('[data-testid="audit-entry"]')
 
@@ -799,7 +799,7 @@ test.describe('Moderation Audit Log', () => {
 
       // Look for moderator name
       const moderatorName = firstEntry.locator(
-        '[data-testid="moderator-name"], text=/by|moderator/i'
+        '[data-testid="moderator-name"]'
       )
 
       const isVisible = await moderatorName.isVisible().catch(() => false)
@@ -809,7 +809,7 @@ test.describe('Moderation Audit Log', () => {
 
   test('should show timestamp of moderation action', async ({ page }) => {
     await page.goto('/admin/moderation/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const logEntries = page.locator('[data-testid="audit-entry"]')
 
@@ -817,7 +817,7 @@ test.describe('Moderation Audit Log', () => {
       const firstEntry = logEntries.first()
 
       // Look for timestamp
-      const timestamp = firstEntry.locator('time, .timestamp, text=/ago|at/i')
+      const timestamp = firstEntry.locator('time, .timestamp')
 
       const isVisible = await timestamp.isVisible().catch(() => false)
       expect(typeof isVisible).toBe('boolean')
@@ -826,7 +826,7 @@ test.describe('Moderation Audit Log', () => {
 
   test('should filter audit log by action type', async ({ page }) => {
     await page.goto('/admin/moderation/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for filter
     const filterDropdown = page.locator(
@@ -846,7 +846,7 @@ test.describe('Moderation Audit Log', () => {
 
   test('should filter audit log by moderator', async ({ page }) => {
     await page.goto('/admin/moderation/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for moderator filter
     const moderatorFilter = page.locator(
@@ -866,7 +866,7 @@ test.describe('Moderation Audit Log', () => {
 
   test('should filter audit log by date range', async ({ page }) => {
     await page.goto('/admin/moderation/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for date filter
     const dateFilter = page.locator(
@@ -879,7 +879,7 @@ test.describe('Moderation Audit Log', () => {
 
   test('should export audit log', async ({ page }) => {
     await page.goto('/admin/moderation/audit')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for export button
     const exportButton = page.locator(
@@ -908,16 +908,17 @@ test.describe('Moderation Audit Log', () => {
 test.describe('Auto-Moderation Settings', () => {
   test('should navigate to moderation settings', async ({ page }) => {
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
-    // Look for settings button/tab
+    // Look for settings button/tab — use first() to avoid strict mode violation
+    // when multiple Settings links exist (e.g. sidebar + page tabs)
     const settingsLink = page.locator(
       'button:has-text("Settings"), a:has-text("Settings"), [role="tab"]:has-text("Settings")'
-    )
+    ).first()
 
     if (await settingsLink.isVisible()) {
       await settingsLink.click()
-      await page.waitForLoadState('networkidle')
+      await page.waitForLoadState('load')
 
       // Take screenshot
       await page.screenshot({
@@ -931,7 +932,7 @@ test.describe('Auto-Moderation Settings', () => {
 
   test('should toggle auto-moderation features', async ({ page }) => {
     await page.goto('/admin/moderation/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for toggle switches
     const toggles = page.locator('input[type="checkbox"], [role="switch"]')
@@ -951,7 +952,7 @@ test.describe('Auto-Moderation Settings', () => {
 
   test('should configure spam detection sensitivity', async ({ page }) => {
     await page.goto('/admin/moderation/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for sensitivity slider
     const sensitivitySlider = page.locator(
@@ -964,7 +965,7 @@ test.describe('Auto-Moderation Settings', () => {
 
   test('should add custom blocked words', async ({ page }) => {
     await page.goto('/admin/moderation/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for blocked words section
     const blockedWordsInput = page.locator(
@@ -988,7 +989,7 @@ test.describe('Auto-Moderation Settings', () => {
 
   test('should save moderation settings', async ({ page }) => {
     await page.goto('/admin/moderation/settings')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Look for save button
     const saveButton = page.locator('[data-testid="save-settings"], button:has-text("Save")')
@@ -1014,7 +1015,7 @@ test.describe('Moderator Permissions', () => {
   test('should restrict non-moderators from accessing moderation queue', async ({ page }) => {
     // Login as regular member
     await page.goto('/login')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const emailInput = page.locator('input[type="email"]')
     if (await emailInput.isVisible()) {
@@ -1030,7 +1031,7 @@ test.describe('Moderator Permissions', () => {
 
     // Try to access moderation page
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     // Take screenshot
     await page.screenshot({ path: 'test-results/moderation-denied.png', fullPage: true })
@@ -1048,7 +1049,7 @@ test.describe('Moderator Permissions', () => {
   test('should allow moderator role to access queue', async ({ page }) => {
     // Already logged in as moderator in beforeEach
     await page.goto('/admin/moderation')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('load')
 
     const currentUrl = page.url()
     expect(currentUrl).toContain('moderation')
