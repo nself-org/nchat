@@ -3,6 +3,7 @@ name: Desktop — Windows (Tauri 2)
 on:
   push:
     tags: ['v*']
+    branches-ignore: ['**']
   pull_request:
     paths:
       - 'desktop/**'
@@ -80,10 +81,10 @@ jobs:
         with:
           name: desktop-windows-x64
           path: |
-            nchat/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
-            nchat/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
-            nchat/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi.zip
-            nchat/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi.zip.sig
+            desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+            desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi.zip
+            desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi.zip.sig
           retention-days: 14
 
       # T18 — publish updater feed to S3 (tag pushes only)
@@ -96,7 +97,7 @@ jobs:
           AWS_DEFAULT_REGION: eu-central-1
           AWS_ENDPOINT_URL: https://fsn1.your-objectstorage.com
         run: |
-          for sig in nchat/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi.zip.sig; do
+          for sig in desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi.zip.sig; do
             [ -f "$sig" ] || continue
             aws s3 cp "$sig" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
             aws s3 cp "${sig%.sig}" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
