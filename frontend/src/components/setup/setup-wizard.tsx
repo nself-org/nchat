@@ -50,7 +50,9 @@ export function SetupWizard({
     initialStep ?? initialConfig.setup.currentStep ?? 0,
   );
   const [config, setConfig] = useState<AppConfig>(initialConfig);
-  const [isValid, setIsValid] = useState(true);
+  // Start false so the Next button is disabled until the current step's
+  // onValidate fires — prevents premature navigation on empty required fields.
+  const [isValid, setIsValid] = useState(false);
   const [visitedSteps, setVisitedSteps] = useState<Set<number>>(
     externalVisitedSteps || new Set(initialConfig.setup.visitedSteps || [0]),
   );
