@@ -1,0 +1,17 @@
+# Grype vulnerability scan configuration for nself-org/nchat.
+# Ignores are for CVEs that cannot be patched via pnpm overrides because they
+# are embedded in third-party npm-shrinkwrap.json files inside devDependencies.
+# Each ignore is documented with the reason and affected package.
+
+ignore:
+  # shell-quote 1.8.3 (GHSA-w7jw-789q-3m8p, Critical) is embedded inside
+  # appium-xcuitest-driver and appium-uiautomator2-driver npm-shrinkwrap.json
+  # files. These are devDependencies used only for E2E testing; the shrinkwrap
+  # is internal to those packages and cannot be overridden via pnpm overrides.
+  # The actual shell-quote version resolved in our dep tree is >=1.8.4 (enforced
+  # by pnpm.overrides in frontend/package.json). This is not a runtime risk.
+  - vulnerability: GHSA-w7jw-789q-3m8p
+    package:
+      name: shell-quote
+      version: 1.8.3
+      type: npm
