@@ -21,7 +21,10 @@
       "shell-quote": ">=1.8.4",
       "vitest": ">=4.1.8",
       "@vitest/utils": ">=4.1.8",
-      "@vitest/coverage-v8": ">=4.1.8"
+      "@vitest/coverage-v8": ">=4.1.8",
+      "tmp": ">=0.2.6",
+      "@grpc/grpc-js": ">=1.14.4",
+      "esbuild": ">=0.28.1"
     }
   }
 }
