@@ -35,11 +35,11 @@
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",
     "@vitejs/plugin-react": "^4",
-    "@vitest/coverage-v8": "^2",
+    "@vitest/coverage-v8": "^4",
     "jsdom": "^24",
     "ts-node": "^10",
     "typescript": "^6.0.3",
     "vite": "^6",
-    "vitest": "^2"
+    "vitest": "^4"
   }
 }

@@ -16,7 +16,11 @@
       "rollup": ">=3.30.0",
       "serialize-javascript": ">=7.0.3",
       "undici": ">=6.24.0",
-      "@nhost/nhost-js": "^3.3.1"
+      "@nhost/nhost-js": "^3.3.1",
+      "shell-quote": ">=1.8.4",
+      "vitest": ">=4.1.8",
+      "@vitest/utils": ">=4.1.8",
+      "@vitest/coverage-v8": ">=4.1.8"
     }
   }
 }

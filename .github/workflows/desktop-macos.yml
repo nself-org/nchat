@@ -65,6 +65,10 @@ jobs:
         working-directory: .
         run: pnpm install --frozen-lockfile
 
+      - name: Build workspace packages (@nself-chat/ui etc.)
+        working-directory: .
+        run: pnpm --filter "@nself-chat/ui" --filter "@nself-chat/core" --filter "@nself-chat/state" --filter "@nself-chat/config" build
+
       - name: Build Tauri (macOS ${{ matrix.arch }})
         working-directory: desktop
         run: pnpm tauri build --target ${{ matrix.rust_target }}
@@ -153,6 +157,10 @@ jobs:
       - name: Install deps
         working-directory: .
         run: pnpm install --frozen-lockfile
+
+      - name: Build workspace packages (@nself-chat/ui etc.)
+        working-directory: .
+        run: pnpm --filter "@nself-chat/ui" --filter "@nself-chat/core" --filter "@nself-chat/state" --filter "@nself-chat/config" build
 
       - name: Install Playwright browsers
         working-directory: desktop

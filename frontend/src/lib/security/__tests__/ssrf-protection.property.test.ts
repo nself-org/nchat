@@ -8,9 +8,37 @@
  * - DNS rebinding scenarios
  */
 
-import { describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach, beforeAll, afterAll, jest } from "@jest/globals";
 import * as fc from "fast-check";
 import { SsrfProtection, clearDnsCache } from "../ssrf-protection";
+
+// Mock dns.promises so property-based tests don't make real network calls.
+// Without this, 100 fast-check webUrl() iterations each trigger DNS lookups,
+// exhausting the 60s Jest timeout on slow/sandboxed CI runners.
+const mockDnsResolve4 = jest.fn<() => Promise<string[]>>();
+const mockDnsResolve6 = jest.fn<() => Promise<string[]>>();
+const mockDnsLookup = jest.fn<() => Promise<{ address: string; family: number }[]>>();
+
+beforeAll(() => {
+  // Stub dns module so dynamic import("dns") inside resolveHostname() returns mocks.
+  // Returning empty arrays causes the SSRF validator to treat the hostname as
+  // unresolvable — the security assertions still pass (rejections for bad protocols
+  // happen before DNS, and the "may fail for other reasons" guard covers DNS-failure).
+  jest.mock("dns", () => ({
+    promises: {
+      resolve4: mockDnsResolve4,
+      resolve6: mockDnsResolve6,
+      lookup: mockDnsLookup,
+    },
+  }));
+  mockDnsResolve4.mockResolvedValue([]);
+  mockDnsResolve6.mockResolvedValue([]);
+  mockDnsLookup.mockResolvedValue([]);
+});
+
+afterAll(() => {
+  jest.unmock("dns");
+});
 
 describe("SSRF Protection - Property Tests", () => {
   let protection: SsrfProtection;

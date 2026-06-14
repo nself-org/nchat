@@ -346,10 +346,20 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Download build artifacts
+        id: download-artifact
         uses: actions/download-artifact@v4
         with:
           name: build-output
           path: frontend/.next
+        continue-on-error: true
+
+      - name: Build if artifact unavailable
+        if: steps.download-artifact.outcome == 'failure'
+        run: HASURA_ADMIN_SECRET=ci-build-placeholder-not-a-real-secret NEXT_PUBLIC_USE_DEV_AUTH=true pnpm build
+        env:
+          NEXT_PUBLIC_ENV: 'test'
+          NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
+          NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
 
       - name: Run E2E tests
         run: pnpm test:e2e

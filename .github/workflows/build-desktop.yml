@@ -15,6 +15,8 @@ jobs:
     strategy:
       matrix:
         arch: [x64, arm64]
+    env:
+      NODE_OPTIONS: '--max-old-space-size=8192'
     defaults:
       run:
         working-directory: frontend
@@ -44,7 +46,9 @@ jobs:
 
       - name: Build Electron TypeScript
         working-directory: frontend/platforms/desktop
-        run: pnpm build:all
+        run: pnpm build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
 
       - name: Build macOS DMG
         working-directory: frontend/platforms/desktop
@@ -98,7 +102,9 @@ jobs:
 
       - name: Build Electron TypeScript
         working-directory: frontend/platforms/desktop
-        run: pnpm build:all
+        run: pnpm build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
 
       - name: Build Windows installer
         working-directory: frontend/platforms/desktop
@@ -154,7 +160,9 @@ jobs:
 
       - name: Build Electron TypeScript
         working-directory: frontend/platforms/desktop
-        run: pnpm build:all
+        run: pnpm build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
 
       - name: Build Linux packages
         working-directory: frontend/platforms/desktop
