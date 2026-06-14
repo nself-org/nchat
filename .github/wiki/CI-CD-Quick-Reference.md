@@ -329,6 +329,23 @@ gh run cancel <run-id>
 
 ---
 
+## Android Debug Build CI
+
+The `android-build` job in `ci.yml` runs on every push to `main` or `develop` and on pull requests.
+
+**Stack:** Capacitor + Next.js web assets compiled into an Android APK.
+**Runner:** `ubuntu-latest` · **Java:** 17 (Temurin) · **No signing secrets required.**
+
+What the job does:
+1. Installs Node.js + pnpm dependencies.
+2. Builds Next.js web assets (`pnpm build`) with dev-auth env vars (no real backend needed).
+3. Runs `cap sync android` to generate the native Android project under `frontend/platforms/mobile/android/`.
+4. Runs `./gradlew assembleDebug --no-daemon` to produce the debug APK.
+
+**Trigger:** Automatic on `push`/`pull_request` via the top-level `ci.yml` trigger.
+
+**Release / signed APK:** handled by `deploy-mobile-android.yml` (requires Play Store secrets, not in `ci.yml`).
+
 ## Quick Links
 
 - [Full CI/CD Documentation](./CI-CD-Setup.md)

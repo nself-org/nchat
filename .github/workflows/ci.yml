@@ -373,3 +373,55 @@ jobs:
           name: playwright-report
           path: frontend/playwright-report/
           retention-days: 30
+
+  # ─── Android debug build (Capacitor) ────────────────────────────
+  # Debug build only — no signing secrets required.
+  # Release / Play Store signing is handled by deploy-mobile-android.yml.
+  android-build:
+    name: Android · debug APK (Capacitor)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Build web assets
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_USE_DEV_AUTH: 'true'
+          NEXT_PUBLIC_ENV: 'test'
+          NEXT_PUBLIC_GRAPHQL_URL: 'http://localhost:8080/v1/graphql'
+          NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
+          HASURA_ADMIN_SECRET: 'ci-build-placeholder-not-a-real-secret'
+
+      - name: Install Capacitor CLI
+        run: pnpm add -D @capacitor/cli --ignore-scripts
+
+      - name: Sync Capacitor Android
+        working-directory: frontend/platforms/mobile
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: frontend/platforms/mobile/android
+        run: ./gradlew assembleDebug --no-daemon
