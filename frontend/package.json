@@ -76,7 +76,7 @@
     "@sendgrid/mail": "^8.1.6",
     "@sentry/capacitor": "^1.4.0",
     "@sentry/electron": "^4.19.0",
-    "@sentry/nextjs": "8.55.0",
+    "@sentry/nextjs": "10.49.0",
     "@signalapp/libsignal-client": "^0.88.3",
     "@tanstack/react-virtual": "^3.13.23",
     "@tensorflow-models/toxicity": "^1.2.2",
