@@ -2,8 +2,8 @@ name: Desktop — Windows (Tauri 2)
 
 on:
   push:
-    tags: ['v*']
-    branches-ignore: ['**']
+    tags:
+      - 'v*'
   pull_request:
     paths:
       - 'desktop/**'
