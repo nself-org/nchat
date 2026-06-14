@@ -7,7 +7,8 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "type-check": "pnpm -r type-check",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "ci:local": "pnpm lint && pnpm type-check && pnpm test && pnpm build"
   },
   "pnpm": {
     "overrides": {
@@ -20,7 +21,10 @@
       "shell-quote": ">=1.8.4",
       "vitest": ">=4.1.8",
       "@vitest/utils": ">=4.1.8",
-      "@vitest/coverage-v8": ">=4.1.8"
+      "@vitest/coverage-v8": ">=4.1.8",
+      "tmp": ">=0.2.6",
+      "@grpc/grpc-js": ">=1.14.4",
+      "esbuild": ">=0.28.1"
     }
   }
 }
