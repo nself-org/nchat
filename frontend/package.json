@@ -87,7 +87,7 @@
     "@tiptap/extension-floating-menu": "^2.11.2",
     "@tiptap/extension-link": "^2.11.2",
     "@tiptap/extension-mention": "^2.11.2",
-    "@tiptap/extension-placeholder": "^2.11.2",
+    "@tiptap/extension-placeholder": "^3.21.0",
     "@tiptap/extension-underline": "^2.11.2",
     "@tiptap/pm": "^2.11.2",
     "@tiptap/react": "^2.11.2",
