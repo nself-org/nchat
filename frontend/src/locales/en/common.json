@@ -198,5 +198,23 @@
     "japanese": "Japanese",
     "portuguese": "Portuguese",
     "russian": "Russian"
+  },
+  "billing": {
+    "paywall": {
+      "unlimited": "Unlimited",
+      "remaining": "{{count}} remaining",
+      "upgradeRequired": "Upgrade required",
+      "upgradeToPlan": "Upgrade to {{plan}}",
+      "upgradeToAccess": "Upgrade to access this feature",
+      "planRequired": "{{plan}} required",
+      "whatYouGet": "What you'll get:",
+      "prioritySupport": "Priority support",
+      "advancedIntegrations": "Advanced integrations",
+      "maybeLater": "Maybe later",
+      "upgrade": "Upgrade",
+      "premiumFeatures": "Premium features",
+      "availableOnPlan": "Available on {{plan}} plan",
+      "selectEventsPrompt": "Select events for push notifications:"
+    }
   }
 }

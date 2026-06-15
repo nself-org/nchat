@@ -11,6 +11,7 @@
 "use client";
 
 import { ReactNode, useState, useEffect, useCallback } from "react";
+import { useCommonTranslation } from "@/hooks/use-translation";
 import {
   Lock,
   Sparkles,
@@ -251,6 +252,7 @@ export function UsageProgress({
   size = "md",
   className,
 }: UsageProgressProps) {
+  const { t } = useCommonTranslation();
   const percentage = limit ? Math.min(100, (current / limit) * 100) : 0;
   const remaining = limit ? Math.max(0, limit - current) : null;
 
@@ -279,7 +281,7 @@ export function UsageProgress({
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>
             {current.toLocaleString()} /{" "}
-            {limit?.toLocaleString() ?? "Unlimited"} {unit}
+            {limit?.toLocaleString() ?? t("billing.paywall.unlimited")} {unit}
           </span>
           {remaining !== null && (
             <span
@@ -288,7 +290,7 @@ export function UsageProgress({
                 isExceeded && "text-red-600",
               )}
             >
-              {remaining.toLocaleString()} remaining
+              {t("billing.paywall.remaining", { count: remaining.toLocaleString() })}
             </span>
           )}
         </div>
@@ -312,6 +314,7 @@ export function PaywallOverlay({
   onDismiss,
   className,
 }: PaywallOverlayProps) {
+  const { t } = useCommonTranslation();
   const targetPlan = requiredPlan ?? "starter";
   const displayMessage =
     message ??
@@ -319,7 +322,7 @@ export function PaywallOverlay({
       ? `${FEATURE_DISPLAY_NAMES[feature] ?? feature} requires ${PLAN_TIER_NAMES[targetPlan]} plan`
       : limit
         ? `You've reached your ${LIMIT_DISPLAY_NAMES[limit]} limit`
-        : "Upgrade required");
+        : t("billing.paywall.upgradeRequired"));
 
   return (
     <div
@@ -345,13 +348,13 @@ export function PaywallOverlay({
             />
           )}
           <p className="text-sm text-muted-foreground">
-            Upgrade to {PLAN_TIER_NAMES[targetPlan]} to unlock this feature
+            {t("billing.paywall.upgradeToPlan", { plan: PLAN_TIER_NAMES[targetPlan] })}
           </p>
         </div>
 
         <div className="flex gap-2">
           <Button onClick={() => onUpgradeClick?.(targetPlan)}>
-            Upgrade to {PLAN_TIER_NAMES[targetPlan]}
+            {t("billing.paywall.upgradeToPlan", { plan: PLAN_TIER_NAMES[targetPlan] })}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           {onDismiss && (
@@ -378,6 +381,7 @@ export function PaywallModal({
   promptConfig,
   onUpgradeClick,
 }: PaywallModalProps) {
+  const { t } = useCommonTranslation();
   const targetPlan = requiredPlan ?? "starter";
 
   const title =
@@ -411,7 +415,7 @@ export function PaywallModal({
 
         {promptConfig?.showComparison && (
           <div className="space-y-3 py-4">
-            <h4 className="text-sm font-medium">What you'll get:</h4>
+            <h4 className="text-sm font-medium">{t("billing.paywall.whatYouGet")}</h4>
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-green-600" />
@@ -419,15 +423,15 @@ export function PaywallModal({
                   ? FEATURE_DISPLAY_NAMES[feature]
                   : limit
                     ? LIMIT_DISPLAY_NAMES[limit]
-                    : "Premium features"}
+                    : t("billing.paywall.premiumFeatures")}
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-green-600" />
-                Priority support
+                {t("billing.paywall.prioritySupport")}
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-green-600" />
-                Advanced integrations
+                {t("billing.paywall.advancedIntegrations")}
               </li>
             </ul>
           </div>
@@ -442,7 +446,7 @@ export function PaywallModal({
             }}
           >
             {promptConfig?.primaryCta?.text ??
-              `Upgrade to ${PLAN_TIER_NAMES[targetPlan]}`}
+              t("billing.paywall.upgradeToPlan", { plan: PLAN_TIER_NAMES[targetPlan] })}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           <Button
@@ -450,7 +454,7 @@ export function PaywallModal({
             className="w-full"
             onClick={() => onOpenChange(false)}
           >
-            {promptConfig?.secondaryCta?.text ?? "Maybe later"}
+            {promptConfig?.secondaryCta?.text ?? t("billing.paywall.maybeLater")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -480,6 +484,7 @@ export function InlineUpgradePrompt({
   onDismiss?: () => void;
   className?: string;
 }) {
+  const { t } = useCommonTranslation();
   const targetPlan = requiredPlan ?? "starter";
   const percentage = usage?.limit
     ? Math.min(100, ((usage.current ?? 0) / usage.limit) * 100)
@@ -506,12 +511,12 @@ export function InlineUpgradePrompt({
       <AlertDescription className="flex items-center justify-between">
         <span>
           {limit && usage
-            ? `${usage.current.toLocaleString()} / ${usage.limit?.toLocaleString() ?? "Unlimited"} ${LIMIT_UNITS[limit]}`
-            : `Available on ${PLAN_TIER_NAMES[targetPlan]} plan`}
+            ? `${usage.current.toLocaleString()} / ${usage.limit?.toLocaleString() ?? t("billing.paywall.unlimited")} ${LIMIT_UNITS[limit]}`
+            : t("billing.paywall.availableOnPlan", { plan: PLAN_TIER_NAMES[targetPlan] })}
         </span>
         <div className="flex gap-2">
           <Button size="sm" onClick={() => onUpgradeClick?.(targetPlan)}>
-            Upgrade
+            {t("billing.paywall.upgrade")}
           </Button>
           {onDismiss && (
             <Button size="sm" variant="ghost" onClick={onDismiss}>
@@ -570,6 +575,7 @@ export function PaywallGate({
   onDismiss,
   className,
 }: PaywallGateProps) {
+  const { t } = useCommonTranslation();
   const [showModal, setShowModal] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
@@ -707,14 +713,20 @@ export function PaywallGate({
       return (
         <div
           className={cn("relative cursor-pointer", className)}
+          role="button"
+          tabIndex={0}
+          aria-label={t("billing.paywall.upgradeToAccess")}
           onClick={handleLockedClick}
+          onKeyDown={(e) =>
+            (e.key === "Enter" || e.key === " ") && handleLockedClick()
+          }
         >
           <div className="pointer-events-none opacity-30">{children}</div>
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex items-center gap-2 rounded-full bg-background/90 px-4 py-2 shadow-lg">
               <Lock className="h-4 w-4" />
               <span className="text-sm font-medium">
-                {PLAN_TIER_NAMES[requiredPlan ?? "starter"]} required
+                {t("billing.paywall.planRequired", { plan: PLAN_TIER_NAMES[requiredPlan ?? "starter"] })}
               </span>
             </div>
           </div>
@@ -740,7 +752,16 @@ export function PaywallGate({
 
     case "blurred":
       return (
-        <div className={cn("relative", className)} onClick={handleLockedClick}>
+        <div
+          className={cn("relative", className)}
+          role="button"
+          tabIndex={0}
+          aria-label={t("billing.paywall.upgradeToAccess")}
+          onClick={handleLockedClick}
+          onKeyDown={(e) =>
+            (e.key === "Enter" || e.key === " ") && handleLockedClick()
+          }
+        >
           <div className="pointer-events-none blur-md">{children}</div>
           <PaywallOverlay
             planTier={planTier}
@@ -795,7 +816,13 @@ export function PaywallGate({
         <>
           <div
             className={cn("relative cursor-pointer", className)}
+            role="button"
+            tabIndex={0}
+            aria-label={t("billing.paywall.upgradeToAccess")}
             onClick={() => setShowModal(true)}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") && setShowModal(true)
+            }
           >
             <div className="pointer-events-none opacity-50">{children}</div>
             {showBadge && (

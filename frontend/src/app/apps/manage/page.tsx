@@ -42,8 +42,10 @@ import {
 import { AppIcon } from "@/components/app-directory";
 import { getAllApps } from "@/lib/app-directory/app-registry";
 import type { App } from "@/lib/app-directory/app-types";
+import { useAdminTranslation } from "@/hooks/use-translation";
 
 export default function ManageAppsPage() {
+  const { t } = useAdminTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("overview");
@@ -83,19 +85,19 @@ export default function ManageAppsPage() {
           className="mb-4 flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to App Directory
+          {t("manage.apps.backLink")}
         </Link>
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Manage Apps</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("manage.apps.title")}</h1>
             <p className="mt-2 text-muted-foreground">
-              Admin controls for the app marketplace
+              {t("manage.apps.subtitle")}
             </p>
           </div>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Add App
+            {t("manage.apps.addApp")}
           </Button>
         </div>
       </div>
@@ -105,7 +107,7 @@ export default function ManageAppsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Apps
+              {t("manage.apps.totalApps")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -116,7 +118,7 @@ export default function ManageAppsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Apps
+              {t("manage.apps.activeApps")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -129,7 +131,7 @@ export default function ManageAppsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Pending Review
+              {t("manage.apps.pendingReview")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -142,7 +144,7 @@ export default function ManageAppsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Deprecated
+              {t("manage.apps.deprecated")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -155,7 +157,7 @@ export default function ManageAppsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Installs
+              {t("manage.apps.totalInstalls")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -172,17 +174,17 @@ export default function ManageAppsPage() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="overview">All Apps</TabsTrigger>
+          <TabsTrigger value="overview">{t("manage.apps.tabAll")}</TabsTrigger>
           <TabsTrigger value="pending">
-            Pending Review
+            {t("manage.apps.tabPending")}
             {stats.pending > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {stats.pending}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="featured">Featured</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="featured">{t("manage.apps.tabFeatured")}</TabsTrigger>
+          <TabsTrigger value="settings">{t("manage.apps.tabSettings")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
@@ -193,20 +195,20 @@ export default function ManageAppsPage() {
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search apps..."
+                placeholder={t("manage.apps.searchPlaceholder")}
                 className="pl-10"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t("manage.apps.statusFilter")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="deprecated">Deprecated</SelectItem>
-                <SelectItem value="disabled">Disabled</SelectItem>
+                <SelectItem value="all">{t("manage.apps.statusAll")}</SelectItem>
+                <SelectItem value="active">{t("manage.apps.statusActive")}</SelectItem>
+                <SelectItem value="pending">{t("manage.apps.statusPending")}</SelectItem>
+                <SelectItem value="deprecated">{t("manage.apps.statusDeprecated")}</SelectItem>
+                <SelectItem value="disabled">{t("manage.apps.statusDisabled")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -216,17 +218,17 @@ export default function ManageAppsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>App</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Installs</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t("manage.apps.tableApp")}</TableHead>
+                  <TableHead>{t("manage.apps.tableType")}</TableHead>
+                  <TableHead>{t("manage.apps.tableStatus")}</TableHead>
+                  <TableHead>{t("manage.apps.tableInstalls")}</TableHead>
+                  <TableHead>{t("manage.apps.tableRating")}</TableHead>
+                  <TableHead className="text-right">{t("manage.apps.tableActions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredApps.map((app) => (
-                  <AppTableRow key={app.id} app={app} />
+                  <AppTableRow key={app.id} app={app} t={t} />
                 ))}
               </TableBody>
             </Table>
@@ -237,7 +239,7 @@ export default function ManageAppsPage() {
           <Card>
             <CardContent className="p-8 text-center text-muted-foreground">
               <AlertCircle className="mx-auto mb-4 h-12 w-12 opacity-50" />
-              <p>No apps pending review</p>
+              <p>{t("manage.apps.noPendingApps")}</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -245,9 +247,9 @@ export default function ManageAppsPage() {
         <TabsContent value="featured" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Featured Apps</CardTitle>
+              <CardTitle>{t("manage.apps.featuredTitle")}</CardTitle>
               <CardDescription>
-                Select apps to feature in the App Directory homepage
+                {t("manage.apps.featuredSubtitle")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -263,12 +265,11 @@ export default function ManageAppsPage() {
                       <div className="flex-1">
                         <p className="font-medium">{app.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatNumber(app.stats.activeInstalls)} active
-                          installs
+                          {formatNumber(app.stats.activeInstalls)} {t("manage.apps.activeInstalls")}
                         </p>
                       </div>
                       <Button variant="outline" size="sm">
-                        Remove
+                        {t("manage.apps.removeFeatured")}
                       </Button>
                     </div>
                   ))}
@@ -283,27 +284,47 @@ export default function ManageAppsPage() {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Shield className="h-5 w-5" />
-                  <CardTitle>Security Settings</CardTitle>
+                  <CardTitle>{t("manage.apps.securityTitle")}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Require App Review</p>
+                    <label
+                      htmlFor="setting-require-review"
+                      className="font-medium cursor-pointer"
+                    >
+                      {t("manage.apps.requireReviewLabel")}
+                    </label>
                     <p className="text-sm text-muted-foreground">
-                      All new apps must be reviewed before publishing
+                      {t("manage.apps.requireReviewDesc")}
                     </p>
                   </div>
-                  <input type="checkbox" defaultChecked className="toggle" />
+                  <input
+                    id="setting-require-review"
+                    type="checkbox"
+                    defaultChecked
+                    className="toggle"
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">Allow Third-Party Apps</p>
+                    <label
+                      htmlFor="setting-third-party-apps"
+                      className="font-medium cursor-pointer"
+                    >
+                      {t("manage.apps.allowThirdPartyLabel")}
+                    </label>
                     <p className="text-sm text-muted-foreground">
-                      Enable users to install non-verified apps
+                      {t("manage.apps.allowThirdPartyDesc")}
                     </p>
                   </div>
-                  <input type="checkbox" defaultChecked className="toggle" />
+                  <input
+                    id="setting-third-party-apps"
+                    type="checkbox"
+                    defaultChecked
+                    className="toggle"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -312,31 +333,46 @@ export default function ManageAppsPage() {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  <CardTitle>Permission Defaults</CardTitle>
+                  <CardTitle>{t("manage.apps.permissionsTitle")}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">
-                      Auto-approve Low-Risk Permissions
-                    </p>
+                    <label
+                      htmlFor="setting-auto-approve-low-risk"
+                      className="font-medium cursor-pointer"
+                    >
+                      {t("manage.apps.autoApproveLowRiskLabel")}
+                    </label>
                     <p className="text-sm text-muted-foreground">
-                      Automatically grant basic permissions
+                      {t("manage.apps.autoApproveLowRiskDesc")}
                     </p>
                   </div>
-                  <input type="checkbox" className="toggle" />
+                  <input
+                    id="setting-auto-approve-low-risk"
+                    type="checkbox"
+                    className="toggle"
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium">
-                      Require Admin Approval for Admin Access
-                    </p>
+                    <label
+                      htmlFor="setting-admin-approval"
+                      className="font-medium cursor-pointer"
+                    >
+                      {t("manage.apps.requireAdminApprovalLabel")}
+                    </label>
                     <p className="text-sm text-muted-foreground">
-                      Apps requesting admin permissions need approval
+                      {t("manage.apps.requireAdminApprovalDesc")}
                     </p>
                   </div>
-                  <input type="checkbox" defaultChecked className="toggle" />
+                  <input
+                    id="setting-admin-approval"
+                    type="checkbox"
+                    defaultChecked
+                    className="toggle"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -347,7 +383,7 @@ export default function ManageAppsPage() {
   );
 }
 
-function AppTableRow({ app }: { app: App }) {
+function AppTableRow({ app, t }: { app: App; t: (key: string, opts?: Record<string, string | number>) => string }) {
   const statusColors = {
     active: "bg-green-100 text-green-700",
     pending: "bg-yellow-100 text-yellow-700",
@@ -373,7 +409,7 @@ function AppTableRow({ app }: { app: App }) {
               {app.name}
             </Link>
             <p className="text-sm text-muted-foreground">
-              by {app.developer.name}
+              {t("manage.apps.developerBy", { name: app.developer.name })}
             </p>
           </div>
         </div>

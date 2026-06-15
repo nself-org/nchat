@@ -192,7 +192,15 @@ function UserFooter({
 
       {menuOpen && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+          {/* Backdrop — keyboard-accessible per WCAG 2.1.1: role + aria-label + Enter/Space close */}
+          <div
+            className="fixed inset-0 z-40"
+            role="button"
+            aria-label="Close sidebar menu"
+            tabIndex={0}
+            onClick={() => setMenuOpen(false)}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setMenuOpen(false)}
+          />
           <div
             className={cn(
               'absolute bottom-full left-0 z-50 mb-1 w-48',

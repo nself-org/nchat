@@ -211,44 +211,6 @@ export function getPublicFileUrl(storagePath: string): string {
 }
 
 /**
- * Get the internal storage path for a file
- * @deprecated Use generateStoragePath from upload.service instead
- */
-export function generateStoragePath(
-  fileId: string,
-  fileName: string,
-  options: {
-    channelId?: string;
-    userId?: string;
-    prefix?: string;
-  } = {},
-): string {
-  const { channelId, userId, prefix = "uploads" } = options;
-  const extension = fileName.split(".").pop()?.toLowerCase() || "";
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  let path = prefix;
-
-  if (channelId) {
-    path += `/channels/${channelId}`;
-  } else if (userId) {
-    path += `/users/${userId}`;
-  }
-
-  path += `/${year}/${month}/${day}`;
-  path += `/${fileId}`;
-
-  if (extension) {
-    path += `.${extension}`;
-  }
-
-  return path;
-}
-
-/**
  * Generate thumbnail storage path
  */
 export function generateThumbnailPath(

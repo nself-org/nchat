@@ -5,6 +5,9 @@ useDefault = true
 
 [allowlist]
 paths = [
+  # Dependency directories — third-party code, not source (excluded from --no-git scans)
+  '''node_modules/''',
+  '''\.pnpm/''',
   # Test files — mock credentials are intentional test vectors
   '''.*_test\.dart''',
   '''.*\.test\.ts''',

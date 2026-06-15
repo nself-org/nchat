@@ -470,7 +470,10 @@ export function validateEnv(): { valid: boolean; errors: string[] } {
   const requiredClient = ["NEXT_PUBLIC_GRAPHQL_URL", "NEXT_PUBLIC_AUTH_URL"];
 
   const requiredServer: string[] = [
-    // Add server-side required vars here
+    "DATABASE_URL",
+    "HASURA_GRAPHQL_ADMIN_SECRET",
+    "JWT_SECRET",
+    "NEXTAUTH_SECRET",
   ];
 
   // Check client variables
@@ -486,6 +489,17 @@ export function validateEnv(): { valid: boolean; errors: string[] } {
       if (!envIsSet(name)) {
         errors.push(`Missing required environment variable: ${name}`);
       }
+    }
+
+    // Check for sentinel values that must not be used in production
+    const adminSecret = getRawEnv("HASURA_GRAPHQL_ADMIN_SECRET");
+    if (
+      adminSecret &&
+      adminSecret === "nchat_admin_secret_change_in_production"
+    ) {
+      errors.push(
+        `FATAL: HASURA_GRAPHQL_ADMIN_SECRET is using sentinel value. Set a real secret value in .env.secrets`,
+      );
     }
   }
 
