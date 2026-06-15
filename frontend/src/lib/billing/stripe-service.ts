@@ -404,22 +404,6 @@ export class StripeBillingService {
   }
 
   /**
-   * Legacy update subscription method (returns Stripe.Subscription directly)
-   * @deprecated Use updateSubscription instead which returns PlanTransitionResult
-   */
-  async updateSubscriptionLegacy(
-    tenant: Tenant,
-    newPlan: BillingPlan,
-    newInterval: BillingInterval,
-  ): Promise<Stripe.Subscription> {
-    const result = await this.updateSubscription(tenant, newPlan, newInterval);
-    if (!result.success || !result.subscription) {
-      throw new Error(result.error || "Failed to update subscription");
-    }
-    return result.subscription;
-  }
-
-  /**
    * Cancel subscription
    */
   async cancelSubscription(
