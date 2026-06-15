@@ -7,7 +7,8 @@ export default defineConfig({
   base: './',
   build: {
     outDir: 'dist/renderer',
-    sourcemap: true,
+    // Gate sourcemap on DEBUG env var — avoids bloating production bundles (T15)
+    sourcemap: process.env.DEBUG === 'true',
     minify: 'esbuild',
     target: 'es2020',
     rollupOptions: {
