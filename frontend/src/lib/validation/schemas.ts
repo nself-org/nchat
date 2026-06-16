@@ -263,6 +263,56 @@ export const sendMessageSchema = z.object({
 });
 
 /**
+ * Chat message content — strict 1-4000 char limit with XSS strip.
+ * Used for user-facing send-message forms; validation shown inline.
+ */
+export const messageSchema = z.object({
+  content: z
+    .string()
+    .min(1, "Message cannot be empty")
+    .max(4000, "Message must not exceed 4000 characters")
+    .transform((val) =>
+      val
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+        .replace(/on\w+="[^"]*"/gi, "")
+        .replace(/on\w+='[^']*'/gi, ""),
+    ),
+  channelId: uuidSchema,
+  parentId: uuidSchema.optional(),
+  attachments: z.array(uuidSchema).max(10, "Maximum 10 attachments").optional(),
+  mentions: z.array(uuidSchema).max(50, "Maximum 50 mentions").optional(),
+  /** Client-generated idempotency key — UUID v4 generated per send attempt. */
+  idempotencyKey: z.string().uuid("idempotencyKey must be a UUID").optional(),
+});
+
+/**
+ * Workspace creation — name + slug pair.
+ * Slug must be URL-safe lowercase; auto-derived from name if omitted by the UI.
+ */
+export const workspaceCreateSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Workspace name must be at least 2 characters")
+    .max(80, "Workspace name must not exceed 80 characters")
+    .trim(),
+  slug: z
+    .string()
+    .min(2, "Slug must be at least 2 characters")
+    .max(80, "Slug must not exceed 80 characters")
+    .regex(
+      /^[a-z0-9-]+$/,
+      "Slug can only contain lowercase letters, numbers, and hyphens",
+    )
+    .optional(),
+  description: z
+    .string()
+    .max(500, "Description must not exceed 500 characters")
+    .optional(),
+  iconEmoji: z.string().max(10).optional(),
+});
+
+/**
  * Update message validation
  */
 export const updateMessageSchema = z.object({
@@ -509,3 +559,5 @@ export type AdminCreateUserInput = z.infer<typeof adminCreateUserSchema>;
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
 export type BanUserInput = z.infer<typeof banUserSchema>;
 export type SearchInput = z.infer<typeof searchSchema>;
+export type MessageInput = z.infer<typeof messageSchema>;
+export type WorkspaceCreateInput = z.infer<typeof workspaceCreateSchema>;

@@ -68,3 +68,13 @@ export {
 export type { RetryConfig, QueuedOperation } from "./retry-manager";
 
 export { DEFAULT_RETRY_CONFIG } from "./retry-manager";
+
+// ChatError discriminated union
+export {
+  chatError,
+  isChatError,
+  isChatErrorType,
+  asChatError,
+} from "./chat-error";
+
+export type { ChatError, ChatErrorType } from "./chat-error";

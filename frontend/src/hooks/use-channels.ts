@@ -15,7 +15,7 @@ import {
   useMutation,
   useLazyQuery,
 } from "@apollo/client";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { logger } from "@/lib/logger";
@@ -428,6 +428,8 @@ export function useChannelMutations() {
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  /** Idempotency: track createChannel keys to prevent duplicate channels on retry. */
+  const createdChannelKeysRef = useRef(new Set<string>());
 
   // Mutations
   const [createChannelMutation, { loading: creatingChannel }] =
@@ -454,10 +456,20 @@ export function useChannelMutations() {
         throw new Error("User not authenticated");
       }
 
+      // Idempotency: use name+creator as natural key to deduplicate retries.
+      const idempotencyKey = `${user.id}:${input.name}`;
+      if (createdChannelKeysRef.current.has(idempotencyKey)) {
+        logger.debug("Duplicate createChannel suppressed via idempotency key", {
+          idempotencyKey,
+        });
+        return null;
+      }
+
       try {
         logger.info("Creating channel", {
           userId: user.id,
           channelName: input.name,
+          idempotencyKey,
         });
 
         const slug =
@@ -483,11 +495,13 @@ export function useChannelMutations() {
           },
         });
 
+        createdChannelKeysRef.current.add(idempotencyKey);
         const channel = transformChannel(data.insert_nchat_channels_one);
 
         logger.info("Channel created", {
           userId: user.id,
           channelId: channel.id,
+          idempotencyKey,
         });
         toast({
           title: "Channel created",

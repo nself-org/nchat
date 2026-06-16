@@ -8,7 +8,7 @@
  */
 
 import { useQuery, useMutation, useSubscription } from "@apollo/client";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { logger } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
@@ -99,6 +99,8 @@ export function useMessages(channelId: string) {
 export function useMessageMutations() {
   const { user } = useAuth();
   const { toast } = useToast();
+  /** Track processed idempotency keys to deduplicate double-sends on retry. */
+  const sentKeysRef = useRef(new Set<string>());
 
   // CRUD Mutations
   const [sendMessageMutation, { loading: sendingMessage }] =
@@ -181,10 +183,23 @@ export function useMessageMutations() {
         throw new Error("User not authenticated");
       }
 
+      // Idempotency: generate a key per send attempt; deduplicate on retry.
+      const idempotencyKey =
+        (input as SendMessageInput & { idempotencyKey?: string })
+          .idempotencyKey ?? crypto.randomUUID();
+
+      if (sentKeysRef.current.has(idempotencyKey)) {
+        logger.debug("Duplicate sendMessage suppressed via idempotency key", {
+          idempotencyKey,
+        });
+        return null;
+      }
+
       try {
         logger.debug("Sending message", {
           userId: user.id,
           channelId: input.channelId,
+          idempotencyKey,
         });
 
         const { data } = await sendMessageMutation({
@@ -194,13 +209,15 @@ export function useMessageMutations() {
             replyToId: input.replyToId,
             attachments: input.attachments,
             mentions: input.mentions,
-            metadata: input.metadata,
+            metadata: { ...input.metadata, idempotencyKey },
           },
         });
 
+        sentKeysRef.current.add(idempotencyKey);
         logger.debug("Message sent", {
           userId: user.id,
           messageId: data.insert_nchat_messages_one.id,
+          idempotencyKey,
         });
         return data.insert_nchat_messages_one;
       } catch (error) {
