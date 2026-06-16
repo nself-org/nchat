@@ -15,10 +15,13 @@
     "ipc-parity": "ts-node --esm tests/ipc-parity.ts"
   },
   "dependencies": {
+    "@nself/auth-core": "workspace:*",
+    "@nself/graphql-client": "workspace:*",
+    "@nself/i18n": "workspace:*",
+    "@nself/observability": "workspace:*",
+    "@nself/ui": "workspace:*",
     "@nself-chat/ui": "workspace:*",
     "@nself-chat/web": "workspace:*",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-autostart": "^2",
     "@tauri-apps/plugin-deep-link": "^2",
@@ -26,7 +29,9 @@
     "@tauri-apps/plugin-shell": "^2",
     "@tauri-apps/plugin-store": "^2",
     "@tauri-apps/plugin-updater": "^2",
-    "@tauri-apps/plugin-window-state": "^2"
+    "@tauri-apps/plugin-window-state": "^2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.44",
@@ -34,6 +39,8 @@
     "@tauri-apps/cli": "^2",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4",
     "@vitest/coverage-v8": "^4",
     "jsdom": "^24",

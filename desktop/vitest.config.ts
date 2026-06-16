@@ -8,6 +8,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     globals: true,
+    exclude: ["src-tauri/**", "tests/e2e/**", "*.config.*", "node_modules"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],

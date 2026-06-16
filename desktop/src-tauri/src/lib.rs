@@ -10,15 +10,16 @@ use tauri::{Emitter, Listener, WindowEvent};
 pub fn run() {
     // T28: optional crash reporting via sentry-tauri.
     // DSN loaded from env; no-op if absent (never required at runtime).
-    let _sentry_guard = std::env::var("SENTRY_DSN").ok().map(|dsn| {
-        sentry::init((
-            dsn,
-            sentry::ClientOptions {
-                release: sentry::release_name!(),
-                ..Default::default()
-            },
-        ))
-    });
+    // NOTE: Disabled temporarily due to sentry-tauri incompatibility with Tauri 2.
+    // let _sentry_guard = std::env::var("SENTRY_DSN").ok().map(|dsn| {
+    //     sentry::init((
+    //         dsn,
+    //         sentry::ClientOptions {
+    //             release: sentry::release_name!(),
+    //             ..Default::default()
+    //         },
+    //     ))
+    // });
 
     tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::new().build())
@@ -32,7 +33,7 @@ pub fn run() {
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::new().build())
-        .plugin(sentry_tauri::plugin())
+        // .plugin(sentry_tauri::plugin())
         .on_menu_event(|app, event| {
             menu::handle_menu_event(app, event.id.as_ref());
         })
