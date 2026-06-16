@@ -183,6 +183,8 @@ jobs:
     steps:
       - name: Download test results
         uses: actions/download-artifact@v4
+        # ACCEPTED: coverage artifact may not exist if unit-tests job was skipped.
+        # Expiry: permanent — artifact download is best-effort for reporting step.
         continue-on-error: true
         with:
           name: coverage-report
@@ -191,6 +193,8 @@ jobs:
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
+        # ACCEPTED: publish action requires write permissions unavailable on fork PRs.
+        # Expiry: permanent — test result publishing is informational telemetry.
         continue-on-error: true
         with:
           files: coverage/junit.xml

@@ -26,6 +26,9 @@ jobs:
           repository: ${{ github.repository }}.wiki
           path: wiki
           token: ${{ secrets.GITHUB_TOKEN }}
+        # ACCEPTED: wiki git repo is created by GitHub only after the first page is saved via the web UI.
+        # Until initialized, pushes to <repo>.wiki.git fail. Step below handles missing wiki gracefully.
+        # Expiry: permanent — wiki checkout must remain best-effort until wiki is confirmed initialized.
         continue-on-error: true
 
       - name: Initialize wiki if needed

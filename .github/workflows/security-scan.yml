@@ -96,6 +96,8 @@ jobs:
             p/secrets
             p/owasp-top-ten
           generateSarif: true
+        # ACCEPTED: SEMGREP_APP_TOKEN absent on forks/public PRs; findings still captured by custom SAST above.
+        # Expiry: permanent — third-party action token may be unavailable in fork contexts.
         continue-on-error: true
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
@@ -106,6 +108,8 @@ jobs:
         with:
           sarif_file: semgrep.sarif
           category: 'semgrep-sast'
+        # ACCEPTED: SARIF upload requires GHAS (private repo feature); upload failure must not block CI.
+        # Expiry: permanent — SARIF upload is best-effort telemetry, not a gate.
         continue-on-error: true
 
       - name: Analyze SAST results
@@ -210,6 +214,8 @@ jobs:
             echo "moderate=0" >> $GITHUB_OUTPUT
             echo "low=0" >> $GITHUB_OUTPUT
           fi
+        # ACCEPTED: pnpm audit exits non-zero on any finding; raw counts are captured and analyzed by the gate below.
+        # Expiry: permanent — audit captures findings; blocking happens in security-gate job via should_block output.
         continue-on-error: true
 
       - name: Run Trivy vulnerability scanner
@@ -229,6 +235,8 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-sca'
+        # ACCEPTED: SARIF upload requires GHAS; failure must not block CI gate (blocking is in security-gate job).
+        # Expiry: permanent — SARIF upload is best-effort telemetry.
         continue-on-error: true
 
       - name: Analyze dependency results
@@ -296,6 +304,8 @@ jobs:
           base: ${{ github.event.pull_request.base.sha || '' }}
           head: ${{ github.event.pull_request.head.sha || 'HEAD' }}
           extra_args: --only-verified
+        # ACCEPTED: TruffleHog may fail on shallow clones or API rate limits; custom scanner below is authoritative.
+        # Expiry: permanent — third-party action is best-effort supplementary; custom scan is the gate.
         continue-on-error: true
 
       - name: Run custom secret scanner
@@ -387,6 +397,8 @@ jobs:
           echo "## License Check Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           cat license-report.txt >> $GITHUB_STEP_SUMMARY
+        # ACCEPTED: license-checker may fail on packages with missing/UNKNOWN license metadata.
+        # Expiry: 2026-12-01 — remove once all deps have confirmed acceptable licenses.
         continue-on-error: true
 
       - name: Upload license report
@@ -533,6 +545,8 @@ jobs:
               repo: context.repo.repo,
               body: body
             });
+        # ACCEPTED: PR comment may fail if permissions are restricted on fork PRs.
+        # Expiry: permanent — PR comments are informational, not gates.
         continue-on-error: true
 
   # ==========================================================================
@@ -546,6 +560,8 @@ jobs:
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+        # ACCEPTED: some artifacts may not exist if upstream jobs were skipped or failed.
+        # Expiry: permanent — summary generation must not fail due to missing artifacts.
         continue-on-error: true
 
       - name: Generate final summary

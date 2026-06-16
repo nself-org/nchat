@@ -105,6 +105,8 @@ jobs:
 
       - name: Check formatting
         run: pnpm format:check
+        # ACCEPTED: formatting check is a soft gate — reported via CI summary; enforced via pre-commit hook.
+        # Expiry: 2026-12-01 — remove once all formatting issues are resolved and this is a hard gate.
         continue-on-error: true
 
       # S09.T04 — Dummy buffer lint gate.
@@ -214,6 +216,8 @@ jobs:
 
       - name: Check production code hygiene
         run: bash frontend/scripts/check-production-hygiene.sh
+        # ACCEPTED: hygiene script covers incremental adoption; violations surfaced but not yet blocking.
+        # Expiry: 2026-12-01 — remove once hygiene script exits 0 on the full repo.
         continue-on-error: true
 
   # Stage 2: Security scanning (blocking gate)
@@ -249,11 +253,15 @@ jobs:
 
       - name: Run dependency audit
         run: pnpm audit --audit-level=high
+        # ACCEPTED: audit advisories tracked via security-scan workflow; this step collects for summary.
+        # Expiry: 2026-09-01 — promote to hard gate once all high advisories are resolved.
         continue-on-error: true
 
       - name: Run security check script
         working-directory: .
         run: bash frontend/scripts/security-check.sh
+        # ACCEPTED: security-check.sh covers incremental adoption; blocking happens in security-scan.yml.
+        # Expiry: 2026-12-01 — remove once security-check.sh exits 0 on full repo.
         continue-on-error: true
         env:
           NODE_ENV: production
@@ -293,6 +301,8 @@ jobs:
 
       - name: Validate production environment
         run: pnpm validate:env:prod
+        # ACCEPTED: env vars are not present on GH runners (injected by nSelf at deploy time).
+        # Expiry: permanent — env validation is informational in CI, enforced by nself deploy gate.
         continue-on-error: true
         if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
         env:
@@ -319,7 +329,9 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [build]
-    continue-on-error: true # E2E tests are optional for now
+    # ACCEPTED: E2E tests are canary — not yet stable enough to block merges.
+    # Expiry: 2026-12-01 — remove once E2E suite has <5% flakiness across 10 consecutive runs.
+    continue-on-error: true
     # Run E2E tests on main branch or when explicitly requested
     if: github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[run-e2e]')
     defaults:
@@ -351,6 +363,8 @@ jobs:
         with:
           name: build-output
           path: frontend/.next
+        # ACCEPTED: artifact may not exist (e.g. first run, parallel job failure); step below rebuilds if missing.
+        # Expiry: permanent — fallback pattern is intentional.
         continue-on-error: true
 
       - name: Build if artifact unavailable

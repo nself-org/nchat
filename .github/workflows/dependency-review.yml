@@ -54,6 +54,8 @@ jobs:
 
       - name: Run audit
         run: pnpm audit --audit-level=high
+        # ACCEPTED: audit exits non-zero on any finding; actual gate is the dependency-review job above.
+        # Expiry: permanent — raw audit is for count extraction in the next step; gate is dependency-review-action.
         continue-on-error: true
 
       - name: Check for vulnerabilities

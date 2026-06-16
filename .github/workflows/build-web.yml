@@ -110,6 +110,8 @@ jobs:
         env:
           ANALYZE: 'true'
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
+        # ACCEPTED: bundle analysis is informational; build:analyze may not be configured on all environments.
+        # Expiry: 2026-12-01 — remove once bundle analysis is stable and consistently configured.
         continue-on-error: true
 
       - name: Upload bundle analysis
@@ -118,4 +120,6 @@ jobs:
           name: bundle-analysis
           path: frontend/.next/analyze/
           retention-days: 7
+        # ACCEPTED: analysis artifact may not exist if build:analyze step above was skipped or failed.
+        # Expiry: permanent — artifact upload is best-effort when source step may not produce output.
         continue-on-error: true
