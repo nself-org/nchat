@@ -1,6 +1,12 @@
 /**
- * Desktop app shell — renders the nChat layout using @nself-chat/ui components.
- * Adapters are provided at the shell layer so UI components stay platform-agnostic.
+ * Purpose: ɳChat desktop app shell — wraps the layout with i18n + RTL support.
+ * Inputs:  Tauri IPC (appInfo), i18next locale, @nself-chat/ui Sidebar adapter.
+ * Outputs: Full app shell with sidebar + main content area.
+ * Constraints:
+ *   - NselfI18nProvider must wrap the tree so useNselfTranslation() works everywhere.
+ *   - RTL: document.documentElement.dir is kept in sync with i18next locale changes.
+ *   - Tauri embeds a Vite SPA so the same CSS dir-attribute approach as web applies.
+ * SPORT: F08-SERVICE-INVENTORY.md — nchat-desktop-app-shell
  */
 
 import React from 'react';
@@ -8,6 +14,23 @@ import { Sidebar } from '@nself-chat/ui/layout';
 import type { SidebarAdapter } from '@nself-chat/ui/layout';
 import { Spinner } from '@nself-chat/ui/primitives';
 import { tauriAdapters } from './lib/ui-adapters';
+import { NselfI18nProvider, useNselfTranslation, isRTL, useTranslation } from '@nself/i18n';
+
+// ─── RTL — set document.dir on locale change ────────────────────────────────
+
+function useDocumentDir(): void {
+  const { i18n } = useTranslation();
+  React.useEffect(() => {
+    const applyDir = (lang: string): void => {
+      document.documentElement.dir = isRTL(lang) ? 'rtl' : 'ltr';
+    };
+    applyDir(i18n.language ?? 'en');
+    i18n.on('languageChanged', applyDir);
+    return () => {
+      i18n.off('languageChanged', applyDir);
+    };
+  }, [i18n]);
+}
 
 // ---------------------------------------------------------------------------
 // Stub sidebar adapter — all required fields satisfied, all optional undefined.
@@ -46,11 +69,15 @@ const sidebarAdapter: SidebarAdapter = {
 };
 
 // ---------------------------------------------------------------------------
-// Desktop app shell
+// Inner shell — uses t() for all user-visible strings
 // ---------------------------------------------------------------------------
 
-export function DesktopApp(): React.ReactElement {
+function DesktopShell(): React.ReactElement {
+  const { t } = useNselfTranslation();
   const [ready, setReady] = React.useState(false);
+
+  // Apply dir=rtl on Arabic locale (Tauri SPA — same approach as web).
+  useDocumentDir();
 
   React.useEffect(() => {
     // Confirm Tauri IPC is live before rendering the shell.
@@ -85,9 +112,21 @@ export function DesktopApp(): React.ReactElement {
       {/* Main content area */}
       <main className="flex flex-1 flex-col overflow-hidden">
         <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
-          Select a channel to start messaging
+          {t('desktop.nchat.selectChannel')}
         </div>
       </main>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Desktop app shell — wraps shell with NselfI18nProvider
+// ---------------------------------------------------------------------------
+
+export function DesktopApp(): React.ReactElement {
+  return (
+    <NselfI18nProvider>
+      <DesktopShell />
+    </NselfI18nProvider>
   );
 }
