@@ -47,7 +47,7 @@
     "jsdom": "^24",
     "ts-node": "^10",
     "typescript": "^6.0.3",
-    "vite": "^6",
+    "vite": "^6.4.3",
     "vitest": "^4"
   }
 }
