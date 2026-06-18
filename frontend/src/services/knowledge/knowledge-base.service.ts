@@ -43,6 +43,85 @@ import type {
   SearchAnalyticsEntry,
 } from "@/lib/knowledge/knowledge-types";
 
+// ============================================================================
+// KB PLUGIN HTTP CLIENT
+// Wires article, FAQ, and search operations to the knowledge-base plugin.
+// Plugin canonical port: 3734. Override via KB_SERVICE_URL.
+// ============================================================================
+
+const KB_SERVICE_URL =
+  (typeof process !== "undefined" && process.env.KB_SERVICE_URL) ||
+  "http://localhost:3734";
+
+// Map plugin Document shape → KBArticle
+function pluginDocToArticle(d: any): KBArticle {
+  const now = d.created_at ? new Date(d.created_at) : new Date();
+  return {
+    id: d.id,
+    slug: d.slug ?? d.id,
+    title: d.title ?? "",
+    excerpt: d.excerpt ?? "",
+    content: d.content ?? "",
+    contentPlain: (d.content ?? "").replace(/<[^>]*>/g, "").trim(),
+    contentType: "faq",
+    status: (d.status as any) ?? "draft",
+    visibility: "public",
+    categoryId: d.collection_id ?? undefined,
+    tags: [],
+    keywords: [],
+    author: { id: d.author_id ?? "", name: "" },
+    relatedArticleIds: [],
+    attachments: [],
+    customFields: {},
+    version: 1,
+    analytics: {
+      viewCount: d.views ?? 0,
+      uniqueViewCount: 0,
+      helpfulCount: d.helpful_count ?? 0,
+      notHelpfulCount: d.not_helpful_count ?? 0,
+      searchAppearances: 0,
+      avgTimeOnPage: 0,
+      bounceRate: 0,
+    },
+    isFeatured: false,
+    isPinned: false,
+    createdAt: now,
+    updatedAt: d.updated_at ? new Date(d.updated_at) : now,
+    createdBy: d.author_id ?? "",
+    updatedBy: d.author_id ?? "",
+  };
+}
+
+// Map plugin FAQ shape → FAQEntry
+function pluginFaqToEntry(f: any): FAQEntry {
+  const now = f.created_at ? new Date(f.created_at) : new Date();
+  return {
+    id: f.id,
+    question: f.question ?? "",
+    answer: f.answer ?? "",
+    alternativeQuestions: [],
+    keywords: [],
+    category: f.collection_id ?? undefined,
+    priority: f.order_index ?? 0,
+    isActive: true,
+    articleId: undefined,
+    createdAt: now,
+    updatedAt: f.updated_at ? new Date(f.updated_at) : now,
+  };
+}
+
+async function kbFetch(path: string, init?: RequestInit): Promise<any> {
+  const res = await fetch(`${KB_SERVICE_URL}${path}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`KB plugin ${path}: ${res.status} ${text}`);
+  }
+  return res.json();
+}
+
 const log = createLogger("KnowledgeBaseService");
 
 // ============================================================================
@@ -469,83 +548,26 @@ export class KnowledgeBaseService {
     createdBy: string,
   ): Promise<APIResponse<KBArticle>> {
     try {
-      log.debug("Creating article", { title: input.title });
-
-      const id = uuidv4();
+      log.debug("Creating article via KB plugin", { title: input.title });
       const slug = input.slug || generateSlug(input.title);
-      const now = new Date();
-
-      // Check for duplicate slug
-      const existingSlug = Array.from(articles.values()).find(
-        (a) => a.slug === slug,
-      );
-      if (existingSlug) {
-        return {
-          success: false,
-          error: {
-            code: "CONFLICT",
-            status: 409,
-            message: `Article with slug "${slug}" already exists`,
-          },
-        };
-      }
-
-      // Get category info if provided
-      let category: Pick<KBCategory, "id" | "name" | "slug"> | undefined;
-      if (input.categoryId) {
-        const cat = categories.get(input.categoryId);
-        if (cat) {
-          category = { id: cat.id, name: cat.name, slug: cat.slug };
-        }
-      }
-
-      const article: KBArticle = {
-        id,
-        slug,
+      const body = {
         title: input.title,
-        excerpt: input.excerpt,
-        content: input.content,
-        contentPlain: stripToPlainText(input.content),
-        contentType: input.contentType || "faq",
-        status: input.status || "draft",
-        visibility: input.visibility || "public",
-        categoryId: input.categoryId,
-        category,
-        tags: input.tags || [],
-        keywords: input.keywords || [],
-        author: {
-          id: createdBy,
-          name: "Author", // Would be resolved from user service
-        },
-        relatedArticleIds: input.relatedArticleIds || [],
-        attachments: (input.attachments || []).map((a) => ({
-          ...a,
-          id: uuidv4(),
-        })),
-        customFields: input.customFields || {},
-        seo: input.seo,
-        version: 1,
-        analytics: createInitialAnalytics(),
-        isFeatured: input.isFeatured || false,
-        isPinned: input.isPinned || false,
-        publishedAt: input.status === "published" ? now : undefined,
-        createdAt: now,
-        updatedAt: now,
-        createdBy,
-        updatedBy: createdBy,
+        slug,
+        content: input.content ?? "",
+        status: input.status ?? "draft",
+        collection_id: input.categoryId ?? null,
+        author_id: createdBy,
       };
-
-      articles.set(id, article);
-      articleVersions.set(id, []);
-
-      emitEvent("article.created", article, id);
-
-      log.info("Article created", { id, slug, title: input.title });
-
-      return {
-        success: true,
-        data: article,
-      };
+      const json = await kbFetch("/api/v1/documents", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      // Plugin returns { id }; fetch full doc
+      const doc = await kbFetch(`/api/v1/documents/${json.id}`);
+      const article = pluginDocToArticle(doc);
+      emitEvent("article.created", article, article.id);
+      log.info("Article created", { id: article.id, slug });
+      return { success: true, data: article };
     } catch (error) {
       log.error("Failed to create article", error);
       return {
@@ -564,12 +586,11 @@ export class KnowledgeBaseService {
    */
   async getArticle(id: string): Promise<APIResponse<KBArticle | null>> {
     try {
-      const article = articles.get(id);
-      return {
-        success: true,
-        data: article || null,
-      };
+      const doc = await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`);
+      return { success: true, data: pluginDocToArticle(doc) };
     } catch (error) {
+      const msg = (error as Error).message;
+      if (msg.includes("404")) return { success: true, data: null };
       log.error("Failed to get article", error);
       return {
         success: false,
@@ -587,13 +608,11 @@ export class KnowledgeBaseService {
    */
   async getArticleBySlug(slug: string): Promise<APIResponse<KBArticle | null>> {
     try {
-      const article = Array.from(articles.values()).find(
-        (a) => a.slug === slug,
-      );
-      return {
-        success: true,
-        data: article || null,
-      };
+      // Plugin has no by-slug endpoint; search all and match slug
+      const json = await kbFetch("/api/v1/documents");
+      const docs: any[] = json.data ?? [];
+      const doc = docs.find((d: any) => d.slug === slug) ?? null;
+      return { success: true, data: doc ? pluginDocToArticle(doc) : null };
     } catch (error) {
       log.error("Failed to get article by slug", error);
       return {
@@ -616,126 +635,38 @@ export class KnowledgeBaseService {
     updatedBy: string,
   ): Promise<APIResponse<KBArticle>> {
     try {
-      const article = articles.get(id);
-      if (!article) {
+      const body: Record<string, unknown> = {};
+      if (input.title !== undefined) body.title = input.title;
+      if (input.slug !== undefined) body.slug = input.slug;
+      if (input.content !== undefined) body.content = input.content;
+      if (input.status !== undefined) body.status = input.status;
+      if (input.categoryId !== undefined) body.collection_id = input.categoryId;
+      body.author_id = updatedBy;
+
+      await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      });
+      const doc = await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`);
+      const updated = pluginDocToArticle(doc);
+      emitEvent("article.updated", updated, id);
+      log.info("Article updated", { id });
+      return { success: true, data: updated };
+    } catch (error) {
+      const msg = (error as Error).message;
+      if (msg.includes("404")) {
         return {
           success: false,
-          error: {
-            code: "NOT_FOUND",
-            status: 404,
-            message: "Article not found",
-          },
+          error: { code: "NOT_FOUND", status: 404, message: "Article not found" },
         };
       }
-
-      // Check for duplicate slug if changing
-      if (input.slug && input.slug !== article.slug) {
-        const existingSlug = Array.from(articles.values()).find(
-          (a) => a.slug === input.slug && a.id !== id,
-        );
-        if (existingSlug) {
-          return {
-            success: false,
-            error: {
-              code: "CONFLICT",
-              status: 409,
-              message: `Article with slug "${input.slug}" already exists`,
-            },
-          };
-        }
-      }
-
-      const now = new Date();
-      const oldStatus = article.status;
-
-      // Save version before updating
-      const versions = articleVersions.get(id) || [];
-      versions.push({
-        id: uuidv4(),
-        articleId: id,
-        version: article.version,
-        title: article.title,
-        content: article.content,
-        changes: `Updated by ${updatedBy}`,
-        createdBy: updatedBy,
-        createdAt: now,
-      });
-      articleVersions.set(id, versions);
-
-      // Get category info if changing
-      let category = article.category;
-      if (input.categoryId !== undefined) {
-        if (input.categoryId) {
-          const cat = categories.get(input.categoryId);
-          if (cat) {
-            category = { id: cat.id, name: cat.name, slug: cat.slug };
-          }
-        } else {
-          category = undefined;
-        }
-      }
-
-      const updated: KBArticle = {
-        ...article,
-        slug: input.slug ?? article.slug,
-        title: input.title ?? article.title,
-        excerpt: input.excerpt ?? article.excerpt,
-        content: input.content ?? article.content,
-        contentPlain: input.content
-          ? stripToPlainText(input.content)
-          : article.contentPlain,
-        contentType: input.contentType ?? article.contentType,
-        status: input.status ?? article.status,
-        visibility: input.visibility ?? article.visibility,
-        categoryId: input.categoryId ?? article.categoryId,
-        category,
-        tags: input.tags ?? article.tags,
-        keywords: input.keywords ?? article.keywords,
-        relatedArticleIds: input.relatedArticleIds ?? article.relatedArticleIds,
-        attachments: input.attachments
-          ? input.attachments.map((a) => ({ ...a, id: uuidv4() }))
-          : article.attachments,
-        customFields: { ...article.customFields, ...input.customFields },
-        seo: input.seo ?? article.seo,
-        version: article.version + 1,
-        isFeatured: input.isFeatured ?? article.isFeatured,
-        isPinned: input.isPinned ?? article.isPinned,
-        updatedAt: now,
-        updatedBy,
-      };
-
-      // Handle status transitions
-      if (input.status && input.status !== oldStatus) {
-        if (input.status === "published" && !article.publishedAt) {
-          updated.publishedAt = now;
-        }
-      }
-
-      articles.set(id, updated);
-
-      // Emit appropriate event
-      if (input.status === "published" && oldStatus !== "published") {
-        emitEvent("article.published", updated, id);
-      } else if (input.status === "archived") {
-        emitEvent("article.archived", updated, id);
-      } else {
-        emitEvent("article.updated", updated, id);
-      }
-
-      log.info("Article updated", { id, version: updated.version });
-
-      return {
-        success: true,
-        data: updated,
-      };
-    } catch (error) {
       log.error("Failed to update article", error);
       return {
         success: false,
         error: {
           code: "INTERNAL_ERROR",
           status: 500,
-          message: (error as Error).message,
+          message: msg,
         },
       };
     }
@@ -766,48 +697,27 @@ export class KnowledgeBaseService {
    */
   async deleteArticle(id: string): Promise<APIResponse<{ deleted: boolean }>> {
     try {
-      const article = articles.get(id);
-      if (!article) {
+      await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      emitEvent("article.deleted", { id }, id);
+      log.info("Article deleted", { id });
+      return { success: true, data: { deleted: true } };
+    } catch (error) {
+      const msg = (error as Error).message;
+      if (msg.includes("404")) {
         return {
           success: false,
-          error: {
-            code: "NOT_FOUND",
-            status: 404,
-            message: "Article not found",
-          },
+          error: { code: "NOT_FOUND", status: 404, message: "Article not found" },
         };
       }
-
-      articles.delete(id);
-      articleVersions.delete(id);
-      feedback.delete(id);
-
-      // Remove from related articles
-      for (const [otherId, other] of articles) {
-        if (other.relatedArticleIds.includes(id)) {
-          other.relatedArticleIds = other.relatedArticleIds.filter(
-            (rid) => rid !== id,
-          );
-          articles.set(otherId, other);
-        }
-      }
-
-      emitEvent("article.deleted", { id, slug: article.slug }, id);
-
-      log.info("Article deleted", { id });
-
-      return {
-        success: true,
-        data: { deleted: true },
-      };
-    } catch (error) {
       log.error("Failed to delete article", error);
       return {
         success: false,
         error: {
           code: "INTERNAL_ERROR",
           status: 500,
-          message: (error as Error).message,
+          message: msg,
         },
       };
     }
@@ -820,138 +730,14 @@ export class KnowledgeBaseService {
     options: ArticleListOptions & ArticleSearchOptions,
   ): Promise<APIResponse<ArticleListResult<KBArticle>>> {
     try {
-      const {
-        limit = 50,
-        offset = 0,
-        sortBy = "createdAt",
-        sortOrder = "desc",
-        ...filters
-      } = options;
-
-      let results = Array.from(articles.values());
-
-      // Apply filters
-      if (filters.query) {
-        const query = filters.query.toLowerCase();
-        results = results.filter(
-          (a) =>
-            a.title.toLowerCase().includes(query) ||
-            a.excerpt.toLowerCase().includes(query) ||
-            a.contentPlain.toLowerCase().includes(query) ||
-            a.tags.some((t) => t.toLowerCase().includes(query)) ||
-            a.keywords.some((k) => k.toLowerCase().includes(query)),
-        );
-      }
-
-      if (filters.categoryId) {
-        results = results.filter((a) => a.categoryId === filters.categoryId);
-      }
-
-      if (filters.categoryIds && filters.categoryIds.length > 0) {
-        results = results.filter(
-          (a) => a.categoryId && filters.categoryIds!.includes(a.categoryId),
-        );
-      }
-
-      if (filters.tags && filters.tags.length > 0) {
-        results = results.filter((a) =>
-          filters.tags!.some((t) => a.tags.includes(t)),
-        );
-      }
-
-      if (filters.contentType) {
-        const types = Array.isArray(filters.contentType)
-          ? filters.contentType
-          : [filters.contentType];
-        results = results.filter((a) => types.includes(a.contentType));
-      }
-
-      if (filters.status) {
-        const statuses = Array.isArray(filters.status)
-          ? filters.status
-          : [filters.status];
-        results = results.filter((a) => statuses.includes(a.status));
-      }
-
-      if (filters.visibility) {
-        const visibilities = Array.isArray(filters.visibility)
-          ? filters.visibility
-          : [filters.visibility];
-        results = results.filter((a) => visibilities.includes(a.visibility));
-      }
-
-      if (filters.isFeatured !== undefined) {
-        results = results.filter((a) => a.isFeatured === filters.isFeatured);
-      }
-
-      if (filters.isPinned !== undefined) {
-        results = results.filter((a) => a.isPinned === filters.isPinned);
-      }
-
-      if (filters.authorId) {
-        results = results.filter((a) => a.author.id === filters.authorId);
-      }
-
-      if (filters.createdAfter) {
-        results = results.filter((a) => a.createdAt >= filters.createdAfter!);
-      }
-
-      if (filters.createdBefore) {
-        results = results.filter((a) => a.createdAt <= filters.createdBefore!);
-      }
-
-      if (filters.updatedAfter) {
-        results = results.filter((a) => a.updatedAt >= filters.updatedAfter!);
-      }
-
-      if (filters.updatedBefore) {
-        results = results.filter((a) => a.updatedAt <= filters.updatedBefore!);
-      }
-
-      // Sort
-      results.sort((a, b) => {
-        let comparison = 0;
-
-        switch (sortBy) {
-          case "createdAt":
-            comparison = a.createdAt.getTime() - b.createdAt.getTime();
-            break;
-          case "updatedAt":
-            comparison = a.updatedAt.getTime() - b.updatedAt.getTime();
-            break;
-          case "title":
-            comparison = a.title.localeCompare(b.title);
-            break;
-          case "viewCount":
-            comparison = a.analytics.viewCount - b.analytics.viewCount;
-            break;
-          case "helpfulCount":
-            comparison = a.analytics.helpfulCount - b.analytics.helpfulCount;
-            break;
-        }
-
-        return sortOrder === "asc" ? comparison : -comparison;
-      });
-
-      // Pinned articles first
-      results.sort((a, b) => {
-        if (a.isPinned && !b.isPinned) return -1;
-        if (!a.isPinned && b.isPinned) return 1;
-        return 0;
-      });
-
-      const totalCount = results.length;
-      const items = results.slice(offset, offset + limit);
-
+      const { limit = 50, offset = 0 } = options;
+      const json = await kbFetch("/api/v1/documents");
+      let items: KBArticle[] = (json.data ?? []).map(pluginDocToArticle);
+      const totalCount = items.length;
+      items = items.slice(offset, offset + limit);
       return {
         success: true,
-        data: {
-          items,
-          totalCount,
-          hasMore: offset + limit < totalCount,
-          offset,
-          limit,
-        },
+        data: { items, totalCount, hasMore: offset + limit < totalCount, offset, limit },
       };
     } catch (error) {
       log.error("Failed to list articles", error);
@@ -982,138 +768,25 @@ export class KnowledgeBaseService {
       if (!query || query.trim().length === 0) {
         return { success: true, data: [] };
       }
-
-      const searchQuery = query.toLowerCase().trim();
       const limit = options?.limit || 10;
+      const json = await kbFetch(
+        `/api/v1/search?q=${encodeURIComponent(query)}`,
+      );
+      const raw: any[] = json.data ?? [];
+      // Plugin returns { id, kind, title, slug, created_at }; map to full articles
+      const results: ArticleSearchResult[] = raw
+        .filter((r) => r.kind === "document")
+        .slice(0, limit)
+        .map((r) => {
+          const article = pluginDocToArticle(r);
+          return { article, score: 1, matchedKeywords: [] };
+        });
 
-      let results = Array.from(articles.values());
-
-      // Filter by options
-      if (options?.status) {
-        results = results.filter((a) => a.status === options.status);
-      } else {
-        // Default to published only
-        results = results.filter((a) => a.status === "published");
-      }
-
-      if (options?.visibility) {
-        results = results.filter((a) => a.visibility === options.visibility);
-      }
-
-      if (options?.categoryId) {
-        results = results.filter((a) => a.categoryId === options.categoryId);
-      }
-
-      // Score and rank results
-      const scored: Array<{ article: KBArticle; score: number }> = [];
-
-      for (const article of results) {
-        let score = 0;
-
-        // Title match (highest weight)
-        const titleSimilarity = calculateSimilarity(searchQuery, article.title);
-        score += titleSimilarity * 10;
-
-        // Exact title contains
-        if (article.title.toLowerCase().includes(searchQuery)) {
-          score += 5;
-        }
-
-        // Excerpt match
-        const excerptSimilarity = calculateSimilarity(
-          searchQuery,
-          article.excerpt,
-        );
-        score += excerptSimilarity * 5;
-
-        // Content match
-        const contentSimilarity = calculateSimilarity(
-          searchQuery,
-          article.contentPlain,
-        );
-        score += contentSimilarity * 3;
-
-        // Keyword match
-        const queryWords = searchQuery.split(/\s+/);
-        for (const keyword of article.keywords) {
-          const kw = keyword.toLowerCase();
-          for (const qw of queryWords) {
-            if (kw === qw || kw.includes(qw) || qw.includes(kw)) {
-              score += 4;
-            }
-          }
-        }
-
-        // Tag match
-        for (const tag of article.tags) {
-          const t = tag.toLowerCase();
-          for (const qw of queryWords) {
-            if (t === qw || t.includes(qw) || qw.includes(t)) {
-              score += 2;
-            }
-          }
-        }
-
-        // Boost for featured/pinned
-        if (article.isPinned) score += 2;
-        if (article.isFeatured) score += 1;
-
-        if (score > 0) {
-          scored.push({ article, score });
-
-          // Update analytics
-          article.analytics.searchAppearances++;
-        }
-      }
-
-      // Sort by score
-      scored.sort((a, b) => b.score - a.score);
-
-      // Take top results
-      const topResults = scored.slice(0, limit).map(({ article, score }) => {
-        // Generate highlights
-        const highlights: ArticleSearchResult["highlights"] = {};
-
-        if (article.title.toLowerCase().includes(searchQuery)) {
-          highlights.title = article.title.replace(
-            new RegExp(`(${searchQuery})`, "gi"),
-            "<mark>$1</mark>",
-          );
-        }
-
-        if (article.excerpt.toLowerCase().includes(searchQuery)) {
-          highlights.excerpt = article.excerpt.replace(
-            new RegExp(`(${searchQuery})`, "gi"),
-            "<mark>$1</mark>",
-          );
-        }
-
-        return {
-          article,
-          score,
-          highlights:
-            Object.keys(highlights).length > 0 ? highlights : undefined,
-          matchedKeywords: article.keywords.filter(
-            (k) =>
-              searchQuery.includes(k.toLowerCase()) ||
-              k.toLowerCase().includes(searchQuery),
-          ),
-        };
-      });
-
-      // Track search analytics
-      searchAnalytics.push({
-        id: uuidv4(),
-        query,
-        resultsCount: topResults.length,
-        createdAt: new Date(),
-      });
-
-      emitEvent("search.performed", { query, resultsCount: topResults.length });
+      emitEvent("search.performed", { query, resultsCount: results.length });
 
       return {
         success: true,
-        data: topResults,
+        data: results,
       };
     } catch (error) {
       log.error("Failed to search articles", error);
@@ -1305,42 +978,28 @@ export class KnowledgeBaseService {
     createdBy: string,
   ): Promise<APIResponse<FAQEntry>> {
     try {
-      log.debug("Creating FAQ", { question: input.question.substring(0, 50) });
-
-      const id = uuidv4();
-      const now = new Date();
-
-      const faq: FAQEntry = {
-        id,
+      log.debug("Creating FAQ via KB plugin", { question: input.question.substring(0, 50) });
+      const body = {
         question: input.question,
         answer: input.answer,
-        alternativeQuestions: input.alternativeQuestions || [],
-        keywords: input.keywords || [],
-        category: input.category,
-        priority: input.priority ?? 0,
-        isActive: true,
-        articleId: input.articleId,
-        createdAt: now,
-        updatedAt: now,
+        collection_id: input.category ?? null,
+        order_index: input.priority ?? 0,
       };
-
-      faqs.set(id, faq);
-
-      log.info("FAQ created", { id });
-
-      return {
-        success: true,
-        data: faq,
-      };
+      const json = await kbFetch("/api/v1/faqs", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      // Plugin returns { id }; get full list to find new entry
+      const listJson = await kbFetch("/api/v1/faqs");
+      const raw = (listJson.data ?? []).find((f: any) => f.id === json.id);
+      const faq = raw ? pluginFaqToEntry(raw) : pluginFaqToEntry({ ...json, question: input.question, answer: input.answer });
+      log.info("FAQ created", { id: faq.id });
+      return { success: true, data: faq };
     } catch (error) {
       log.error("Failed to create FAQ", error);
       return {
         success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          status: 500,
-          message: (error as Error).message,
-        },
+        error: { code: "INTERNAL_ERROR", status: 500, message: (error as Error).message },
       };
     }
   }
@@ -1350,20 +1009,15 @@ export class KnowledgeBaseService {
    */
   async getFAQ(id: string): Promise<APIResponse<FAQEntry | null>> {
     try {
-      const faq = faqs.get(id);
-      return {
-        success: true,
-        data: faq || null,
-      };
+      // Plugin has no by-id GET for FAQs; list and filter
+      const json = await kbFetch("/api/v1/faqs");
+      const raw = (json.data ?? []).find((f: any) => f.id === id) ?? null;
+      return { success: true, data: raw ? pluginFaqToEntry(raw) : null };
     } catch (error) {
       log.error("Failed to get FAQ", error);
       return {
         success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          status: 500,
-          message: (error as Error).message,
-        },
+        error: { code: "INTERNAL_ERROR", status: 500, message: (error as Error).message },
       };
     }
   }
@@ -1377,49 +1031,34 @@ export class KnowledgeBaseService {
     updatedBy: string,
   ): Promise<APIResponse<FAQEntry>> {
     try {
-      const faq = faqs.get(id);
-      if (!faq) {
-        return {
-          success: false,
-          error: {
-            code: "NOT_FOUND",
-            status: 404,
-            message: "FAQ not found",
-          },
-        };
+      const body: Record<string, unknown> = {};
+      if (input.question !== undefined) body.question = input.question;
+      if (input.answer !== undefined) body.answer = input.answer;
+      if (input.category !== undefined) body.collection_id = input.category;
+      if (input.priority !== undefined) body.order_index = input.priority;
+
+      await kbFetch(`/api/v1/faqs/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      });
+      // Fetch updated entry via list
+      const listJson = await kbFetch("/api/v1/faqs");
+      const raw = (listJson.data ?? []).find((f: any) => f.id === id);
+      if (!raw) {
+        return { success: false, error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" } };
       }
-
-      const updated: FAQEntry = {
-        ...faq,
-        question: input.question ?? faq.question,
-        answer: input.answer ?? faq.answer,
-        alternativeQuestions:
-          input.alternativeQuestions ?? faq.alternativeQuestions,
-        keywords: input.keywords ?? faq.keywords,
-        category: input.category ?? faq.category,
-        priority: input.priority ?? faq.priority,
-        isActive: input.isActive ?? faq.isActive,
-        articleId: input.articleId ?? faq.articleId,
-        updatedAt: new Date(),
-      };
-
-      faqs.set(id, updated);
-
+      const updated = pluginFaqToEntry(raw);
       log.info("FAQ updated", { id });
-
-      return {
-        success: true,
-        data: updated,
-      };
+      return { success: true, data: updated };
     } catch (error) {
+      const msg = (error as Error).message;
+      if (msg.includes("404")) {
+        return { success: false, error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" } };
+      }
       log.error("Failed to update FAQ", error);
       return {
         success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          status: 500,
-          message: (error as Error).message,
-        },
+        error: { code: "INTERNAL_ERROR", status: 500, message: msg },
       };
     }
   }
@@ -1429,34 +1068,18 @@ export class KnowledgeBaseService {
    */
   async deleteFAQ(id: string): Promise<APIResponse<{ deleted: boolean }>> {
     try {
-      if (!faqs.has(id)) {
-        return {
-          success: false,
-          error: {
-            code: "NOT_FOUND",
-            status: 404,
-            message: "FAQ not found",
-          },
-        };
-      }
-
-      faqs.delete(id);
-
+      await kbFetch(`/api/v1/faqs/${encodeURIComponent(id)}`, { method: "DELETE" });
       log.info("FAQ deleted", { id });
-
-      return {
-        success: true,
-        data: { deleted: true },
-      };
+      return { success: true, data: { deleted: true } };
     } catch (error) {
+      const msg = (error as Error).message;
+      if (msg.includes("404")) {
+        return { success: false, error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" } };
+      }
       log.error("Failed to delete FAQ", error);
       return {
         success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          status: 500,
-          message: (error as Error).message,
-        },
+        error: { code: "INTERNAL_ERROR", status: 500, message: msg },
       };
     }
   }
@@ -1469,36 +1092,17 @@ export class KnowledgeBaseService {
     isActive?: boolean;
   }): Promise<APIResponse<FAQEntry[]>> {
     try {
-      let results = Array.from(faqs.values());
-
+      const json = await kbFetch("/api/v1/faqs");
+      let results: FAQEntry[] = (json.data ?? []).map(pluginFaqToEntry);
       if (options?.category) {
         results = results.filter((f) => f.category === options.category);
       }
-
-      if (options?.isActive !== undefined) {
-        results = results.filter((f) => f.isActive === options.isActive);
-      }
-
-      // Sort by priority (desc) then by question
-      results.sort((a, b) => {
-        const priorityDiff = b.priority - a.priority;
-        if (priorityDiff !== 0) return priorityDiff;
-        return a.question.localeCompare(b.question);
-      });
-
-      return {
-        success: true,
-        data: results,
-      };
+      return { success: true, data: results };
     } catch (error) {
       log.error("Failed to list FAQs", error);
       return {
         success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          status: 500,
-          message: (error as Error).message,
-        },
+        error: { code: "INTERNAL_ERROR", status: 500, message: (error as Error).message },
       };
     }
   }
@@ -1514,71 +1118,20 @@ export class KnowledgeBaseService {
       if (!query || query.trim().length === 0) {
         return { success: true, data: [] };
       }
-
-      const searchQuery = query.toLowerCase().trim();
       const limit = options?.limit || 5;
-
-      let results = Array.from(faqs.values()).filter((f) => f.isActive);
-
+      const json = await kbFetch(`/api/v1/search?q=${encodeURIComponent(query)}`);
+      let results: FAQEntry[] = (json.data ?? [])
+        .filter((r: any) => r.kind === "faq")
+        .map(pluginFaqToEntry);
       if (options?.category) {
         results = results.filter((f) => f.category === options.category);
       }
-
-      // Score FAQs
-      const scored: Array<{ faq: FAQEntry; score: number }> = [];
-
-      for (const faq of results) {
-        let score = 0;
-
-        // Main question match
-        const questionSimilarity = calculateSimilarity(
-          searchQuery,
-          faq.question,
-        );
-        score += questionSimilarity * 10;
-
-        // Alternative questions
-        for (const altQ of faq.alternativeQuestions) {
-          const altSimilarity = calculateSimilarity(searchQuery, altQ);
-          score += altSimilarity * 8;
-        }
-
-        // Keywords
-        for (const kw of faq.keywords) {
-          if (
-            searchQuery.includes(kw.toLowerCase()) ||
-            kw.toLowerCase().includes(searchQuery)
-          ) {
-            score += 5;
-          }
-        }
-
-        // Exact contains
-        if (faq.question.toLowerCase().includes(searchQuery)) {
-          score += 3;
-        }
-
-        if (score > 0) {
-          scored.push({ faq, score });
-        }
-      }
-
-      // Sort and return top matches
-      scored.sort((a, b) => b.score - a.score);
-
-      return {
-        success: true,
-        data: scored.slice(0, limit).map((s) => s.faq),
-      };
+      return { success: true, data: results.slice(0, limit) };
     } catch (error) {
       log.error("Failed to search FAQs", error);
       return {
         success: false,
-        error: {
-          code: "INTERNAL_ERROR",
-          status: 500,
-          message: (error as Error).message,
-        },
+        error: { code: "INTERNAL_ERROR", status: 500, message: (error as Error).message },
       };
     }
   }

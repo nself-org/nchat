@@ -1,0 +1,1302 @@
+# nchat Hasura Actions — Wave B2 (P3)
+# Registers all 7 plugin workstreams as Hasura Actions.
+# Handler URLs point to plugin REST endpoints.
+# All actions: kind: synchronous, forward_client_headers: true
+# X-Source-Account-ID forwarded for multi-app isolation (Convention Wall).
+
+# ─────────────────────────────────────────────────────────────────────────────
+# web3  (plugin-web3:3128)
+# ─────────────────────────────────────────────────────────────────────────────
+actions:
+  - name: web3VerifyTokenGate
+    definition:
+      kind: synchronous
+      handler: http://plugin-web3:3128/api/v1/gate-checks
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Verify an NFT/token gate check for a user; records pass/fail with expiry."
+    permissions:
+      - role: user
+
+  - name: web3CreateTokenGate
+    definition:
+      kind: synchronous
+      handler: http://plugin-web3:3128/api/v1/token-gates
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Create a new token gate for a workspace channel or thread."
+    permissions:
+      - role: user
+
+  - name: web3RpcCall
+    definition:
+      kind: synchronous
+      handler: http://plugin-web3:3128/api/v1/rpc/{{$body.input.input.chainId}}
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input.payload }}"
+    comment: "Proxy a JSON-RPC call to the specified chain through the web3 plugin."
+    permissions:
+      - role: user
+
+# ─────────────────────────────────────────────────────────────────────────────
+# livekit / meetings  (livekit-plugin, meetings-plugin)
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: liveKitToken
+    definition:
+      kind: synchronous
+      handler: http://livekit-plugin/api/v1/tokens
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Generate a signed LiveKit JWT for a user to join a room."
+    permissions:
+      - role: user
+
+  - name: createMeeting
+    definition:
+      kind: synchronous
+      handler: http://meetings-plugin/api/v1/events
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Create a scheduled meeting event."
+    permissions:
+      - role: user
+
+  - name: joinMeeting
+    definition:
+      kind: synchronous
+      handler: http://meetings-plugin/api/v1/attendees
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Register the current user as an attendee for a meeting event."
+    permissions:
+      - role: user
+
+  - name: endMeeting
+    definition:
+      kind: synchronous
+      handler: http://meetings-plugin/api/v1/events/{{$body.input.input.id}}
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: PUT
+        content_type: application/json
+        body:
+          action: transform
+          template: '{"status": "cancelled"}'
+    comment: "End (cancel) a meeting event."
+    permissions:
+      - role: user
+
+  - name: getRecording
+    definition:
+      kind: synchronous
+      handler: http://livekit-plugin/api/v1/recordings/{{$body.input.room_name}}/{{$body.input.recording_id}}
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+    comment: "Retrieve recording metadata for a room (S3-backed, in-process TS)."
+    permissions:
+      - role: user
+
+# ─────────────────────────────────────────────────────────────────────────────
+# e2ee  (nself-e2ee:3055) — 8 actions
+# True E2EE: server stores only PUBLIC keys (key directory, no encapsulation).
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: e2eeRegisterIdentity
+    definition:
+      kind: synchronous
+      handler: http://nself-e2ee:3055/api/v1/e2ee/identity/register
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Register a device identity key (ML-KEM-1024 / Ed25519 public key)."
+    permissions:
+      - role: user
+
+  - name: e2eeUploadSignedPreKey
+    definition:
+      kind: synchronous
+      handler: http://nself-e2ee:3055/api/v1/e2ee/signed-prekey
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Upload a new Ed25519-signed pre-key for a device."
+    permissions:
+      - role: user
+
+  - name: e2eeUploadOneTimePreKeys
+    definition:
+      kind: synchronous
+      handler: http://nself-e2ee:3055/api/v1/e2ee/one-time-prekeys
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Upload a batch of one-time pre-keys (Curve25519) and Kyber pre-keys (ML-KEM-1024)."
+    permissions:
+      - role: user
+
+  - name: e2eeGetPreKeyBundle
+    definition:
+      kind: synchronous
+      handler: http://nself-e2ee:3055/api/v1/e2ee/bundle/{{$body.input.input.userId}}
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+    comment: "Fetch the pre-key bundle for a user device to initiate an E2EE session."
+    permissions:
+      - role: user
+
+  - name: e2eeCheckReplenish
+    definition:
+      kind: synchronous
+      handler: http://nself-e2ee:3055/api/v1/e2ee/replenish/{{$body.input.input.userId}}
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+    comment: "Check whether a device needs to upload more one-time pre-keys."
+    permissions:
+      - role: user
+
+  - name: e2eePostSafetyNumber
+    definition:
+      kind: synchronous
+      handler: http://nself-e2ee:3055/api/v1/e2ee/safety-number
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Record or update a safety number verification state between two users."
+    permissions:
+      - role: user
+
+  - name: e2eeGetVerificationState
+    definition:
+      kind: synchronous
+      handler: http://nself-e2ee:3055/api/v1/e2ee/verification/{{$body.input.input.userId}}/{{$body.input.input.peerId}}
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+    comment: "Get the current safety number verification state between two users."
+    permissions:
+      - role: user
+
+  - name: e2eeListAudit
+    definition:
+      kind: synchronous
+      handler: http://nself-e2ee:3055/api/v1/e2ee/audit/{{$body.input.input.userId}}
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+    comment: "List key-change audit events for a user (append-only log)."
+    permissions:
+      - role: user
+
+# ─────────────────────────────────────────────────────────────────────────────
+# search + knowledge  (meilisearch proxy:8050, knowledge-base:3734)
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: searchQuery
+    definition:
+      kind: synchronous
+      handler: http://localhost:8050/search/index/messages/query
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Full-text search over indexed messages via MeiliSearch proxy (port 8050)."
+    permissions:
+      - role: user
+
+  - name: searchReindex
+    definition:
+      kind: synchronous
+      handler: http://localhost:3000/api/search/reindex
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Trigger a Hasura bulk-fetch reindex into MeiliSearch (admin-only in practice)."
+    permissions:
+      - role: admin
+
+  - name: knowledgeQuery
+    definition:
+      kind: synchronous
+      handler: http://localhost:3734/api/v1/search
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+        query_params:
+          q: "{{ $body.input.input.q }}"
+    comment: "Search the knowledge-base plugin (port 3734) for docs, articles, and pages."
+    permissions:
+      - role: user
+
+# ─────────────────────────────────────────────────────────────────────────────
+# content-safety + moderation  (moderation:3208, content-safety:3213)
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: moderationEnqueue
+    definition:
+      kind: synchronous
+      handler: http://127.0.0.1:3208/api/v1/queue
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Submit content to the moderation queue."
+    permissions:
+      - role: user
+
+  - name: moderationDecide
+    definition:
+      kind: synchronous
+      handler: http://127.0.0.1:3208/api/v1/decisions
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Record a moderator decision (approve / remove / escalate) for a queue item."
+    permissions:
+      - role: moderator
+
+  - name: moderationSetSlowmode
+    definition:
+      kind: synchronous
+      handler: http://127.0.0.1:3208/api/v1/slowmode
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Set or clear slowmode on a channel."
+    permissions:
+      - role: moderator
+
+  - name: moderationBulkAction
+    definition:
+      kind: synchronous
+      handler: http://127.0.0.1:3208/api/v1/bulk
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Apply a moderation action to multiple content items at once."
+    permissions:
+      - role: moderator
+
+  - name: moderationApplyPenalty
+    definition:
+      kind: synchronous
+      handler: http://127.0.0.1:3208/api/v1/penalties
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Apply a timeout, mute, kick, or ban penalty to a user."
+    permissions:
+      - role: moderator
+
+  - name: contentSafetyAnalyze
+    definition:
+      kind: synchronous
+      handler: http://127.0.0.1:3213/api/v1/spam/analyze
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Run content through the content-safety plugin classifiers (spam, toxicity, CSAM hash)."
+    permissions:
+      - role: user
+
+  - name: contentSafetyRaid
+    definition:
+      kind: synchronous
+      handler: http://127.0.0.1:3213/api/v1/raid/lockdown
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Engage or release workspace raid lockdown via the content-safety plugin."
+    permissions:
+      - role: moderator
+
+  - name: contentSafetySpamCheck
+    definition:
+      kind: synchronous
+      handler: http://127.0.0.1:3213/api/v1/spam/analyze
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Quick spam-only check for a message before delivery."
+    permissions:
+      - role: user
+
+# ─────────────────────────────────────────────────────────────────────────────
+# auth  (auth-plugin:3821) — core/session, account, OAuth, ID.me, SSO/SAML
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: authSignIn
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/signin
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Sign in with email + password. Returns tokens or MFA ticket."
+    permissions:
+      - role: anonymous
+
+  - name: authSignUp
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/signup
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Create a new account with email + password."
+    permissions:
+      - role: anonymous
+
+  - name: authSignOut
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/signout
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Invalidate the current refresh token (sign out one device)."
+    permissions:
+      - role: user
+
+  - name: authRefreshToken
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/refresh
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Rotate an access token using a valid refresh token."
+    permissions:
+      - role: anonymous
+
+  - name: authVerifyPassword
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/verify-password
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Verify a user's current password (e.g. before sensitive settings change). Rate-limited 429."
+    permissions:
+      - role: user
+
+  - name: authChangePassword
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/change-password
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Change password (requires current password verification)."
+    permissions:
+      - role: user
+
+  - name: authResetPassword
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/reset-password
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Send a password reset email (generic 200 to prevent user enumeration)."
+    permissions:
+      - role: anonymous
+
+  - name: authVerifyEmail
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/verify-email
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Verify an email address using a single-use SHA-256-hashed token."
+    permissions:
+      - role: anonymous
+
+  - name: authListSessions
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/sessions
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+        query_params:
+          user_id: "{{ $body.input.input.user_id }}"
+    comment: "List all active sessions for a user."
+    permissions:
+      - role: user
+
+  - name: authAddTrustedDevice
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/trusted-devices
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Add a device to the trusted-device list (skips MFA on next sign-in)."
+    permissions:
+      - role: user
+
+  - name: authRevokeTrustedDevice
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/trusted-devices/revoke
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Revoke trust for a specific device."
+    permissions:
+      - role: user
+
+  - name: authGenerateBackupCodes
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/backup-codes
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Regenerate MFA backup codes for a user."
+    permissions:
+      - role: user
+
+  - name: authSetRegistrationLock
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/auth/registration-lock
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Lock or unlock new registrations for the workspace."
+    permissions:
+      - role: admin
+
+  - name: authOAuthInitiate
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/oauth/{{$body.input.input.provider}}/authorize
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+        query_params:
+          redirect_uri: "{{ $body.input.input.redirect_uri }}"
+          user_id: "{{ $body.input.input.user_id }}"
+    comment: "Begin OAuth flow — returns authorization_url with 256-bit single-use state (CSRF protection)."
+    permissions:
+      - role: user
+
+  - name: authOAuthCallback
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/oauth/{{$body.input.input.provider}}/callback
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Complete OAuth flow — validates state, exchanges code, returns user identity."
+    permissions:
+      - role: anonymous
+
+  - name: authIdmeVerify
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/idme/verify
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Verify a user via ID.me (veteran / military / government identity)."
+    permissions:
+      - role: user
+
+  - name: authSsoInitiate
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/sso/initiate
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Initiate SAML SSO flow for a workspace — returns redirect URL."
+    permissions:
+      - role: user
+
+  - name: authSsoCallback
+    definition:
+      kind: synchronous
+      handler: http://auth-plugin:3821/api/v1/sso/callback
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Handle SAML SSO callback (cert-pinned, replay-nonce protected, XML-DSig partial)."
+    permissions:
+      - role: anonymous
+
+# ─────────────────────────────────────────────────────────────────────────────
+# billing — stripe (stripe-plugin:3740)
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: billingCreateCheckout
+    definition:
+      kind: synchronous
+      handler: http://stripe-plugin:3740/api/checkout-sessions
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Create a Stripe Checkout session for subscription or one-time purchase."
+    permissions:
+      - role: user
+
+  - name: billingCreatePaymentIntent
+    definition:
+      kind: synchronous
+      handler: http://stripe-plugin:3740/api/payment-intents
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Create a Stripe PaymentIntent (returns client_secret for frontend confirmation)."
+    permissions:
+      - role: user
+
+  - name: billingCreatePortalSession
+    definition:
+      kind: synchronous
+      handler: http://stripe-plugin:3740/api/portal
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Create a Stripe Customer Portal session for self-service billing management."
+    permissions:
+      - role: user
+
+  - name: billingRefund
+    definition:
+      kind: synchronous
+      handler: http://stripe-plugin:3740/api/refunds
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Issue a full or partial refund for a payment intent."
+    permissions:
+      - role: admin
+
+  - name: billingInvoicePay
+    definition:
+      kind: synchronous
+      handler: http://stripe-plugin:3740/api/invoices/pay
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Pay an open Stripe invoice immediately."
+    permissions:
+      - role: user
+
+  - name: billingInvoiceVoid
+    definition:
+      kind: synchronous
+      handler: http://stripe-plugin:3740/api/invoices/void
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Void an uncollectible or erroneous invoice."
+    permissions:
+      - role: admin
+
+  - name: billingInvoiceUpcoming
+    definition:
+      kind: synchronous
+      handler: http://stripe-plugin:3740/api/invoices/upcoming
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+        query_params:
+          user_id: "{{ $body.input.input.user_id }}"
+          subscription_id: "{{ $body.input.input.subscription_id }}"
+    comment: "Preview the upcoming invoice (amount due, period, line items)."
+    permissions:
+      - role: user
+
+  - name: billingRecordUsage
+    definition:
+      kind: synchronous
+      handler: http://stripe-plugin:3740/api/usage/record
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Record metered usage for a subscription item (e.g. AI token consumption)."
+    permissions:
+      - role: service
+
+# ─────────────────────────────────────────────────────────────────────────────
+# billing — entitlements (entitlements-plugin:3735)
+# ─────────────────────────────────────────────────────────────────────────────
+  - name: subscriptionPause
+    definition:
+      kind: synchronous
+      handler: http://entitlements-plugin:3735/api/subscriptions/pause
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Pause a Stripe subscription (collection_behavior: keep_as_draft)."
+    permissions:
+      - role: user
+
+  - name: subscriptionResume
+    definition:
+      kind: synchronous
+      handler: http://entitlements-plugin:3735/api/subscriptions/resume
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Resume a paused subscription."
+    permissions:
+      - role: user
+
+  - name: subscriptionUpgrade
+    definition:
+      kind: synchronous
+      handler: http://entitlements-plugin:3735/api/subscriptions/upgrade
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Upgrade or downgrade a subscription to a new price."
+    permissions:
+      - role: user
+
+  - name: subscriptionGetProration
+    definition:
+      kind: synchronous
+      handler: http://entitlements-plugin:3735/api/subscriptions/proration
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Preview the proration amount for a plan change."
+    permissions:
+      - role: user
+
+  - name: entitlementsBatch
+    definition:
+      kind: synchronous
+      handler: http://entitlements-plugin:3735/api/entitlements/batch
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Batch-check up to 100 entitlement keys for a user (for feature-gating)."
+    permissions:
+      - role: user
+
+  - name: entitlementGrantCreate
+    definition:
+      kind: synchronous
+      handler: http://entitlements-plugin:3735/api/grants
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Manually grant a feature entitlement to a user (admin / support use)."
+    permissions:
+      - role: admin
+
+  - name: entitlementGrantList
+    definition:
+      kind: synchronous
+      handler: http://entitlements-plugin:3735/api/grants
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: GET
+        query_params:
+          user_id: "{{ $body.input.input.user_id }}"
+          active_only: "{{ $body.input.input.active_only }}"
+    comment: "List entitlement grants for a user (admin / support view)."
+    permissions:
+      - role: admin
+
+  - name: entitlementGrantRevoke
+    definition:
+      kind: synchronous
+      handler: http://entitlements-plugin:3735/api/grants/{{$body.input.input.grant_id}}/revoke
+      forward_client_headers: true
+      headers:
+        - name: X-Source-Account-ID
+          value_from_env: HASURA_GRAPHQL_X_SOURCE_ACCOUNT_ID
+      request_transform:
+        method: POST
+        content_type: application/json
+        body:
+          action: transform
+          template: "{{ $body.input.input }}"
+    comment: "Revoke a manually-granted entitlement."
+    permissions:
+      - role: admin
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Custom types — mirrors actions.graphql input/output types for Hasura v3
+# ─────────────────────────────────────────────────────────────────────────────
+custom_types:
+  enums: []
+  input_objects:
+    # web3
+    - name: Web3VerifyTokenGateInput
+    - name: Web3CreateTokenGateInput
+    - name: Web3RpcCallInput
+    # livekit / meetings
+    - name: LiveKitTokenInput
+    - name: CreateMeetingInput
+    - name: JoinMeetingInput
+    - name: EndMeetingInput
+    # e2ee
+    - name: E2eeRegisterIdentityInput
+    - name: E2eeUploadSignedPreKeyInput
+    - name: E2eeOneTimeKey
+    - name: E2eeKyberPreKey
+    - name: E2eeUploadOneTimePreKeysInput
+    - name: E2eeGetPreKeyBundleInput
+    - name: E2eeCheckReplenishInput
+    - name: E2eePostSafetyNumberInput
+    - name: E2eeGetVerificationStateInput
+    - name: E2eeListAuditInput
+    # search / knowledge
+    - name: SearchQueryInput
+    - name: SearchReindexInput
+    - name: KnowledgeQueryInput
+    # moderation / content-safety
+    - name: ModerationEnqueueInput
+    - name: ModerationDecideInput
+    - name: ModerationSlowmodeInput
+    - name: ModerationBulkActionInput
+    - name: ModerationPenaltyInput
+    - name: ContentSafetyAnalyzeInput
+    - name: ContentSafetyRaidInput
+    - name: ContentSafetySpamInput
+    # auth
+    - name: AuthSignInInput
+    - name: AuthSignUpInput
+    - name: AuthSignOutInput
+    - name: AuthRefreshInput
+    - name: AuthVerifyPasswordInput
+    - name: AuthChangePasswordInput
+    - name: AuthResetPasswordInput
+    - name: AuthVerifyEmailInput
+    - name: AuthSessionListInput
+    - name: AuthTrustedDeviceInput
+    - name: AuthBackupCodesInput
+    - name: AuthRegistrationLockInput
+    - name: AuthOAuthInitiateInput
+    - name: AuthOAuthCallbackInput
+    - name: AuthIdmeVerifyInput
+    - name: AuthSsoCallbackInput
+    - name: AuthSsoInitiateInput
+    # billing
+    - name: BillingCreateCheckoutInput
+    - name: BillingCreatePaymentIntentInput
+    - name: BillingPortalSessionInput
+    - name: BillingRefundInput
+    - name: BillingInvoicePayInput
+    - name: BillingInvoiceVoidInput
+    - name: BillingInvoiceUpcomingInput
+    - name: BillingUsageRecordInput
+    - name: SubscriptionPauseInput
+    - name: SubscriptionResumeInput
+    - name: SubscriptionUpgradeInput
+    - name: SubscriptionProrationInput
+    - name: EntitlementsBatchInput
+    - name: EntitlementGrantCreateInput
+    - name: EntitlementGrantListInput
+    - name: EntitlementGrantRevokeInput
+  objects:
+    # web3
+    - name: Web3VerifyTokenGateOutput
+      relationships: []
+    - name: Web3CreateTokenGateOutput
+      relationships: []
+    - name: Web3RpcCallOutput
+      relationships: []
+    # livekit / meetings
+    - name: LiveKitTokenOutput
+      relationships: []
+    - name: MeetingOutput
+      relationships: []
+    - name: AttendeeOutput
+      relationships: []
+    # e2ee
+    - name: StatusOutput
+      relationships: []
+    - name: E2eeSignedPreKeyOutput
+      relationships: []
+    - name: E2eeUploadOneTimePreKeysOutput
+      relationships: []
+    - name: E2eePreKeyBundle
+      relationships: []
+    - name: E2eeReplenishOutput
+      relationships: []
+    - name: E2eeSafetyNumberOutput
+      relationships: []
+    - name: E2eeVerificationStateOutput
+      relationships: []
+    - name: E2eeAuditEntry
+      relationships: []
+    # search / knowledge
+    - name: SearchHit
+      relationships: []
+    - name: SearchQueryOutput
+      relationships: []
+    - name: SearchReindexOutput
+      relationships: []
+    - name: KnowledgeItem
+      relationships: []
+    - name: KnowledgeQueryOutput
+      relationships: []
+    # moderation / content-safety
+    - name: ModerationEnqueueOutput
+      relationships: []
+    - name: ModerationDecideOutput
+      relationships: []
+    - name: ModerationSlowmodeOutput
+      relationships: []
+    - name: ModerationBulkActionOutput
+      relationships: []
+    - name: ModerationPenaltyOutput
+      relationships: []
+    - name: ContentSafetyAnalyzeOutput
+      relationships: []
+    - name: ContentSafetyRaidOutput
+      relationships: []
+    - name: ContentSafetySpamOutput
+      relationships: []
+    # auth
+    - name: AuthSignInOutput
+      relationships: []
+    - name: AuthSignUpOutput
+      relationships: []
+    - name: AuthTokenOutput
+      relationships: []
+    - name: AuthVerifyPasswordOutput
+      relationships: []
+    - name: AuthSessionListOutput
+      relationships: []
+    - name: AuthSession
+      relationships: []
+    - name: AuthTrustedDeviceOutput
+      relationships: []
+    - name: AuthBackupCodesOutput
+      relationships: []
+    - name: AuthRegistrationLockOutput
+      relationships: []
+    - name: AuthOAuthInitiateOutput
+      relationships: []
+    - name: AuthOAuthCallbackOutput
+      relationships: []
+    - name: AuthIdmeOutput
+      relationships: []
+    - name: AuthSsoCallbackOutput
+      relationships: []
+    - name: AuthSsoInitiateOutput
+      relationships: []
+    # billing
+    - name: BillingCreateCheckoutOutput
+      relationships: []
+    - name: BillingPaymentIntentOutput
+      relationships: []
+    - name: BillingPortalSessionOutput
+      relationships: []
+    - name: BillingRefundOutput
+      relationships: []
+    - name: BillingInvoicePayOutput
+      relationships: []
+    - name: BillingInvoiceVoidOutput
+      relationships: []
+    - name: BillingInvoiceUpcomingOutput
+      relationships: []
+    - name: BillingUsageRecordOutput
+      relationships: []
+    - name: SubscriptionPauseOutput
+      relationships: []
+    - name: SubscriptionResumeOutput
+      relationships: []
+    - name: SubscriptionUpgradeOutput
+      relationships: []
+    - name: SubscriptionProrationOutput
+      relationships: []
+    - name: EntitlementBatchResult
+      relationships: []
+    - name: EntitlementsBatchOutput
+      relationships: []
+    - name: EntitlementGrantOutput
+      relationships: []
+    - name: EntitlementGrantListOutput
+      relationships: []
+    - name: EntitlementGrantRevokeOutput
+      relationships: []
+  scalars: []

@@ -9,7 +9,9 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { gql } from "@apollo/client";
 import { getSyncService, getIndexService } from "@/services/search";
+import { getApolloClient } from "@/lib/apollo-server";
 import {
   getAuthenticatedUser,
   withErrorHandler,
@@ -17,8 +19,269 @@ import {
   compose,
 } from "@/lib/api/middleware";
 import { captureError } from "@/lib/sentry-utils";
+import type { Message } from "@/types/message";
+import type { Channel } from "@/types/channel";
+import type { User } from "@/types/user";
+import type { FileInput, UserInput, ChannelInput } from "@/services/search/sync.service";
 
 import { logger } from "@/lib/logger";
+
+// ============================================================================
+// Bulk GraphQL Queries for Reindex
+// ============================================================================
+
+const REINDEX_MESSAGES_QUERY = gql`
+  query ReindexMessages($limit: Int = 500, $offset: Int = 0) {
+    nchat_messages(
+      where: { is_deleted: { _eq: false } }
+      order_by: { created_at: asc }
+      limit: $limit
+      offset: $offset
+    ) {
+      id
+      content
+      type
+      channel_id
+      user_id
+      created_at
+      updated_at
+      is_pinned
+      channel {
+        id
+        name
+      }
+      user {
+        id
+        username
+        display_name
+        avatar_url
+      }
+    }
+    nchat_messages_aggregate(where: { is_deleted: { _eq: false } }) {
+      aggregate { count }
+    }
+  }
+`;
+
+const REINDEX_USERS_QUERY = gql`
+  query ReindexUsers($limit: Int = 500, $offset: Int = 0) {
+    nchat_users(
+      order_by: { created_at: asc }
+      limit: $limit
+      offset: $offset
+    ) {
+      id
+      username
+      display_name
+      email
+      avatar_url
+      bio
+      role
+      is_active
+      is_bot
+      created_at
+      last_seen_at
+    }
+  }
+`;
+
+const REINDEX_CHANNELS_QUERY = gql`
+  query ReindexChannels($limit: Int = 500, $offset: Int = 0) {
+    nchat_channels(
+      where: { is_deleted: { _eq: false } }
+      order_by: { created_at: asc }
+      limit: $limit
+      offset: $offset
+    ) {
+      id
+      name
+      description
+      topic
+      type
+      is_private
+      is_archived
+      is_default
+      created_by
+      created_at
+      category_id
+      member_count
+      last_message_at
+      icon
+    }
+  }
+`;
+
+const REINDEX_FILES_QUERY = gql`
+  query ReindexFiles($limit: Int = 500, $offset: Int = 0) {
+    nchat_attachments(
+      order_by: { created_at: asc }
+      limit: $limit
+      offset: $offset
+    ) {
+      id
+      name
+      original_name
+      mime_type
+      size
+      url
+      thumbnail_url
+      channel_id
+      message_id
+      user_id
+      created_at
+      extracted_text
+      channel { id name }
+      user { id username display_name }
+    }
+  }
+`;
+
+// ============================================================================
+// Data Fetchers (paginated bulk pulls via Hasura admin)
+// ============================================================================
+
+async function fetchAllMessages(): Promise<Array<{
+  message: Message;
+  channel?: Pick<Channel, "id" | "name">;
+  author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">;
+}>> {
+  const client = getApolloClient();
+  const PAGE_SIZE = 500;
+  const results: Array<{
+    message: Message;
+    channel?: Pick<Channel, "id" | "name">;
+    author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">;
+  }> = [];
+
+  let offset = 0;
+  while (true) {
+    const { data } = await client.query({
+      query: REINDEX_MESSAGES_QUERY,
+      variables: { limit: PAGE_SIZE, offset },
+    });
+    const rows: any[] = data?.nchat_messages ?? [];
+    for (const r of rows) {
+      results.push({
+        message: r as unknown as Message,
+        channel: r.channel ? { id: r.channel.id, name: r.channel.name } : undefined,
+        author: r.user
+          ? {
+              id: r.user.id,
+              username: r.user.username,
+              displayName: r.user.display_name,
+              avatarUrl: r.user.avatar_url,
+            }
+          : undefined,
+      });
+    }
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+  return results;
+}
+
+async function fetchAllUsers(): Promise<UserInput[]> {
+  const client = getApolloClient();
+  const PAGE_SIZE = 500;
+  const results: UserInput[] = [];
+  let offset = 0;
+  while (true) {
+    const { data } = await client.query({
+      query: REINDEX_USERS_QUERY,
+      variables: { limit: PAGE_SIZE, offset },
+    });
+    const rows: any[] = data?.nchat_users ?? [];
+    for (const r of rows) {
+      results.push({
+        id: r.id,
+        username: r.username,
+        displayName: r.display_name,
+        email: r.email,
+        avatarUrl: r.avatar_url,
+        bio: r.bio,
+        role: r.role ?? "member",
+        isActive: r.is_active ?? true,
+        isBot: r.is_bot ?? false,
+        createdAt: r.created_at,
+        lastSeenAt: r.last_seen_at,
+      });
+    }
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+  return results;
+}
+
+async function fetchAllChannels(): Promise<ChannelInput[]> {
+  const client = getApolloClient();
+  const PAGE_SIZE = 500;
+  const results: ChannelInput[] = [];
+  let offset = 0;
+  while (true) {
+    const { data } = await client.query({
+      query: REINDEX_CHANNELS_QUERY,
+      variables: { limit: PAGE_SIZE, offset },
+    });
+    const rows: any[] = data?.nchat_channels ?? [];
+    for (const r of rows) {
+      results.push({
+        id: r.id,
+        name: r.name,
+        description: r.description,
+        topic: r.topic,
+        type: r.type,
+        isPrivate: r.is_private,
+        isArchived: r.is_archived,
+        isDefault: r.is_default,
+        createdBy: r.created_by,
+        createdAt: r.created_at,
+        categoryId: r.category_id,
+        memberCount: r.member_count ?? 0,
+        lastMessageAt: r.last_message_at,
+        icon: r.icon,
+      });
+    }
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+  return results;
+}
+
+async function fetchAllFiles(): Promise<FileInput[]> {
+  const client = getApolloClient();
+  const PAGE_SIZE = 500;
+  const results: FileInput[] = [];
+  let offset = 0;
+  while (true) {
+    const { data } = await client.query({
+      query: REINDEX_FILES_QUERY,
+      variables: { limit: PAGE_SIZE, offset },
+    });
+    const rows: any[] = data?.nchat_attachments ?? [];
+    for (const r of rows) {
+      results.push({
+        id: r.id,
+        name: r.name ?? r.original_name ?? r.id,
+        originalName: r.original_name,
+        mimeType: r.mime_type ?? "application/octet-stream",
+        size: r.size ?? 0,
+        url: r.url ?? "",
+        thumbnailUrl: r.thumbnail_url,
+        channelId: r.channel_id,
+        channelName: r.channel?.name,
+        messageId: r.message_id ?? "",
+        uploaderId: r.user_id ?? "",
+        uploaderName: r.user?.display_name,
+        uploaderUsername: r.user?.username,
+        createdAt: r.created_at,
+        extractedText: r.extracted_text,
+      });
+    }
+    if (rows.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+  return results;
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,67 +336,58 @@ async function handlePost(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // Trigger reindexing for each index
+    // Trigger reindexing for each index — fetch from Hasura and push to MeiliSearch
     for (const indexName of indexNames) {
-      // REMOVED: console.log(`[Reindex] Starting reindex for ${indexName}...`)
-
       try {
         switch (indexName) {
-          case "messages":
-            // Reindex messages - in production, this would fetch from database
-            // For now, we'll just initialize the index
-            const messageResult = await indexService.initializeIndex(
-              "nchat_messages" as any,
-            );
+          case "messages": {
+            const syncResult = await syncService.reindexMessages(fetchAllMessages);
             results[indexName] = {
-              success: messageResult.success,
-              taskId: messageResult.taskId,
-              error: messageResult.error,
+              success: syncResult.success,
+              indexed: syncResult.indexed,
+              failed: syncResult.failed,
+              errors: syncResult.errors,
             };
             break;
+          }
 
-          case "files":
-            const fileResult = await indexService.initializeIndex(
-              "nchat_files" as any,
-            );
+          case "files": {
+            const files = await fetchAllFiles();
+            const syncResult = await syncService.batchIndexFiles(files);
             results[indexName] = {
-              success: fileResult.success,
-              taskId: fileResult.taskId,
-              error: fileResult.error,
+              success: syncResult.success,
+              indexed: syncResult.indexed,
+              failed: syncResult.failed,
             };
             break;
+          }
 
-          case "users":
-            const userResult = await indexService.initializeIndex(
-              "nchat_users" as any,
-            );
+          case "users": {
+            const users = await fetchAllUsers();
+            const syncResult = await syncService.batchIndexUsers(users);
             results[indexName] = {
-              success: userResult.success,
-              taskId: userResult.taskId,
-              error: userResult.error,
+              success: syncResult.success,
+              indexed: syncResult.indexed,
+              failed: syncResult.failed,
             };
             break;
+          }
 
-          case "channels":
-            const channelResult = await indexService.initializeIndex(
-              "nchat_channels" as any,
-            );
+          case "channels": {
+            const channels = await fetchAllChannels();
+            const syncResult = await syncService.batchIndexChannels(channels);
             results[indexName] = {
-              success: channelResult.success,
-              taskId: channelResult.taskId,
-              error: channelResult.error,
+              success: syncResult.success,
+              indexed: syncResult.indexed,
+              failed: syncResult.failed,
             };
             break;
+          }
         }
       } catch (error) {
         results[indexName] = {
           success: false,
-          error:
-            error instanceof Error
-              ? error instanceof Error
-                ? error.message
-                : String(error)
-              : "Reindex failed",
+          error: error instanceof Error ? error.message : "Reindex failed",
         };
       }
     }

@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getIndexService, getSyncService } from "@/services/search";
+import { getAuthenticatedUser } from "@/lib/api/middleware";
 import { captureError } from "@/lib/sentry-utils";
 
 import { logger } from "@/lib/logger";
@@ -80,10 +81,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // const user = await getAuthenticatedUser(request)
-    // if (!user || user.role !== 'admin' && user.role !== 'owner') {
-    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
-    // }
+    const user = await getAuthenticatedUser(request);
+    if (!user || (user.role !== "admin" && user.role !== "owner")) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized. Admin access required." },
+        { status: 403 },
+      );
+    }
 
     const body: ReindexRequest = await request.json().catch(() => ({}));
     const indexService = getIndexService();
@@ -158,10 +162,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    // const user = await getAuthenticatedUser(request)
-    // if (!user || user.role !== 'admin' && user.role !== 'owner') {
-    //   return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
-    // }
+    const user = await getAuthenticatedUser(request);
+    if (!user || (user.role !== "admin" && user.role !== "owner")) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized. Admin access required." },
+        { status: 403 },
+      );
+    }
 
     const { searchParams } = new URL(request.url);
     const indexName = searchParams.get("indexName");

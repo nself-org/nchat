@@ -1,0 +1,67 @@
+# nchat_search_history — per-user search query log (P3 Wave B2)
+#
+# Convention Wall: source_account_id = Multi-App Isolation (NOT tenant_id)
+# RLS enforced at Postgres level; Hasura permissions mirror PG policies.
+
+- table:
+    schema: public
+    name: nchat_search_history
+  select_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - source_account_id
+          - user_id
+          - query
+          - result_count
+          - filters
+          - created_at
+        filter:
+          _and:
+            - source_account_id:
+                _eq: X-Source-Account
+            - user_id:
+                _eq: X-Hasura-User-Id
+        allow_aggregations: false
+    - role: admin
+      permission:
+        columns: '*'
+        filter: {}
+        allow_aggregations: true
+  insert_permissions:
+    - role: user
+      permission:
+        columns:
+          - source_account_id
+          - user_id
+          - query
+          - result_count
+          - filters
+        check:
+          _and:
+            - source_account_id:
+                _eq: X-Source-Account
+            - user_id:
+                _eq: X-Hasura-User-Id
+    - role: admin
+      permission:
+        columns:
+          - source_account_id
+          - user_id
+          - query
+          - result_count
+          - filters
+        check: {}
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          _and:
+            - source_account_id:
+                _eq: X-Source-Account
+            - user_id:
+                _eq: X-Hasura-User-Id
+    - role: admin
+      permission:
+        filter: {}

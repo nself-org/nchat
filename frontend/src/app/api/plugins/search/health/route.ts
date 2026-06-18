@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 
 const SEARCH_SERVICE_URL =
-  process.env.SEARCH_SERVICE_URL || "http://localhost:3107";
+  process.env.SEARCH_SERVICE_URL || "http://localhost:8050";
 
 export async function GET() {
   try {

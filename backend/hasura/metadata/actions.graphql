@@ -1,0 +1,838 @@
+# nchat Hasura Action type definitions — Wave B2 (P3)
+# Groups: web3 | livekit/meetings | e2ee | search/knowledge | moderation | auth | billing
+# All actions pass X-Source-Account-ID for multi-app isolation.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared scalar / generic output
+# ─────────────────────────────────────────────────────────────────────────────
+
+type StatusOutput {
+  status: String!
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# web3
+# ─────────────────────────────────────────────────────────────────────────────
+
+input Web3VerifyTokenGateInput {
+  gate_id: uuid!
+  user_id: uuid!
+  wallet_address: String!
+  passed: Boolean!
+  expires_at: timestamptz
+}
+
+type Web3VerifyTokenGateOutput {
+  id: uuid!
+}
+
+input Web3CreateTokenGateInput {
+  workspace_id: uuid!
+  created_by: uuid!
+  name: String!
+  gate_type: String!
+  rules: jsonb!
+  target_type: String!
+  target_id: uuid!
+}
+
+type Web3CreateTokenGateOutput {
+  id: uuid!
+}
+
+input Web3RpcCallInput {
+  chainId: String!
+  payload: jsonb!
+}
+
+type Web3RpcCallOutput {
+  result: jsonb
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# livekit / meetings
+# ─────────────────────────────────────────────────────────────────────────────
+
+input LiveKitTokenInput {
+  room_name: String!
+  identity: String!
+  ttl: Int
+  can_publish: Boolean
+  can_subscribe: Boolean
+  can_publish_data: Boolean
+  room_admin: Boolean
+}
+
+type LiveKitTokenOutput {
+  token: String!
+  room: String!
+  identity: String!
+  expires_in: Int!
+}
+
+input CreateMeetingInput {
+  title: String!
+  start_time: timestamptz!
+  end_time: timestamptz!
+  organizer_id: uuid!
+  description: String
+  workspace_id: uuid
+  channel_id: uuid
+  max_attendees: Int
+}
+
+type MeetingOutput {
+  id: uuid!
+  title: String!
+  start_time: timestamptz!
+  end_time: timestamptz!
+  organizer_id: uuid!
+  status: String!
+  created_at: timestamptz!
+}
+
+input JoinMeetingInput {
+  event_id: uuid!
+  user_id: uuid!
+  status: String!
+}
+
+type AttendeeOutput {
+  id: uuid!
+  event_id: uuid!
+  user_id: uuid!
+  status: String!
+  joined_at: timestamptz
+}
+
+input EndMeetingInput {
+  id: uuid!
+  status: String!
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# e2ee (8 actions — http://nself-e2ee:3055)
+# ─────────────────────────────────────────────────────────────────────────────
+
+input E2eeRegisterIdentityInput {
+  user_id: uuid!
+  device_id: String!
+  identity_key_public: String!
+  registration_id: Int!
+}
+
+input E2eeUploadSignedPreKeyInput {
+  user_id: uuid!
+  device_id: String!
+  key_id: Int!
+  public_key: String!
+  signature: String!
+}
+
+type E2eeSignedPreKeyOutput {
+  status: String!
+  key_id: Int!
+}
+
+input E2eeOneTimeKey {
+  key_id: Int!
+  public_key: String!
+}
+
+input E2eeKyberPreKey {
+  key_id: Int!
+  public_key: String!
+  signature: String!
+}
+
+input E2eeUploadOneTimePreKeysInput {
+  user_id: uuid!
+  device_id: String!
+  identity_key_public: String!
+  one_time_keys: [E2eeOneTimeKey!]!
+  kyber_prekeys: [E2eeKyberPreKey!]!
+}
+
+type E2eeUploadOneTimePreKeysOutput {
+  one_time_stored: Int!
+  kyber_stored: Int!
+}
+
+input E2eeGetPreKeyBundleInput {
+  userId: uuid!
+  device_id: String!
+  requested_by: uuid!
+}
+
+type E2eePreKeyBundle {
+  user_id: uuid!
+  device_id: String!
+  registration_id: Int!
+  identity_key_public: String!
+  signed_pre_key_id: Int!
+  signed_pre_key_public: String!
+  signed_pre_key_signature: String!
+  one_time_pre_key_id: Int
+  one_time_pre_key_public: String
+  kyber_pre_key_id: Int
+  kyber_pre_key_public: String
+  kyber_pre_key_signature: String
+}
+
+input E2eeCheckReplenishInput {
+  userId: uuid!
+  device_id: String!
+}
+
+type E2eeReplenishOutput {
+  one_time_remaining: Int!
+  kyber_remaining: Int!
+  needs_replenish: Boolean!
+}
+
+input E2eePostSafetyNumberInput {
+  user_id: uuid!
+  peer_user_id: uuid!
+  safety_number: String!
+  is_verified: Boolean!
+}
+
+type E2eeSafetyNumberOutput {
+  state: String!
+}
+
+input E2eeGetVerificationStateInput {
+  userId: uuid!
+  peerId: uuid!
+}
+
+type E2eeVerificationStateOutput {
+  state: String!
+  updated_at: timestamptz
+}
+
+input E2eeListAuditInput {
+  userId: uuid!
+}
+
+type E2eeAuditEntry {
+  id: uuid!
+  user_id: uuid!
+  event_type: String!
+  device_id: String
+  peer_user_id: uuid
+  created_at: timestamptz!
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# search + knowledge
+# ─────────────────────────────────────────────────────────────────────────────
+
+input SearchQueryInput {
+  q: String!
+  filter: jsonb
+  limit: Int
+  offset: Int
+}
+
+type SearchHit {
+  id: String!
+  score: Float
+  document: jsonb!
+}
+
+type SearchQueryOutput {
+  hits: [SearchHit!]!
+  totalHits: Int!
+  processingTimeMs: Int!
+}
+
+input SearchReindexInput {
+  indexNames: [String!]
+  forceRebuild: Boolean
+}
+
+type SearchReindexOutput {
+  success: Boolean!
+  results: jsonb
+}
+
+input KnowledgeQueryInput {
+  q: String!
+  limit: Int
+  offset: Int
+}
+
+type KnowledgeItem {
+  id: uuid!
+  kind: String!
+  title: String!
+  slug: String!
+  created_at: timestamptz!
+}
+
+type KnowledgeQueryOutput {
+  data: [KnowledgeItem!]!
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# content-safety + moderation
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Moderation queue
+input ModerationEnqueueInput {
+  content_type: String!
+  content_id: uuid!
+  reporter_id: uuid
+  reason: String
+  priority: Int
+}
+
+type ModerationEnqueueOutput {
+  queue_id: uuid!
+  status: String!
+}
+
+input ModerationDecideInput {
+  queue_id: uuid!
+  moderator_id: uuid!
+  action: String!
+  notes: String
+}
+
+type ModerationDecideOutput {
+  decision_id: uuid!
+  action: String!
+}
+
+input ModerationSlowmodeInput {
+  channel_id: uuid!
+  seconds: Int!
+}
+
+type ModerationSlowmodeOutput {
+  channel_id: uuid!
+  seconds: Int!
+}
+
+input ModerationBulkActionInput {
+  content_ids: [uuid!]!
+  action: String!
+  moderator_id: uuid!
+}
+
+type ModerationBulkActionOutput {
+  processed: Int!
+  failed: Int!
+}
+
+input ModerationPenaltyInput {
+  user_id: uuid!
+  penalty_type: String!
+  duration_seconds: Int
+  reason: String
+  moderator_id: uuid!
+}
+
+type ModerationPenaltyOutput {
+  penalty_id: uuid!
+  expires_at: timestamptz
+}
+
+# Content-safety
+input ContentSafetyAnalyzeInput {
+  content: String!
+  content_type: String!
+  context: jsonb
+}
+
+type ContentSafetyAnalyzeOutput {
+  safe: Boolean!
+  score: Float!
+  categories: jsonb!
+  action: String!
+}
+
+input ContentSafetyRaidInput {
+  workspace_id: uuid!
+  lockdown: Boolean!
+  reason: String
+}
+
+type ContentSafetyRaidOutput {
+  workspace_id: uuid!
+  lockdown: Boolean!
+  status: String!
+}
+
+input ContentSafetySpamInput {
+  user_id: uuid!
+  content: String!
+  channel_id: uuid
+}
+
+type ContentSafetySpamOutput {
+  is_spam: Boolean!
+  score: Float!
+  action: String!
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# auth (62 routes — http://auth-plugin:3821)
+# ─────────────────────────────────────────────────────────────────────────────
+
+input AuthSignInInput {
+  email: String!
+  password: String!
+  device_id: String
+}
+
+type AuthSignInOutput {
+  user: jsonb
+  accessToken: String
+  refreshToken: String
+  expiresIn: Int
+  requires2FA: Boolean
+  mfaTicket: String
+}
+
+input AuthSignUpInput {
+  email: String!
+  password: String!
+  display_name: String
+}
+
+type AuthSignUpOutput {
+  user: jsonb!
+  accessToken: String!
+  refreshToken: String!
+  expiresIn: Int!
+}
+
+input AuthSignOutInput {
+  refresh_token: String!
+}
+
+input AuthRefreshInput {
+  refresh_token: String!
+}
+
+type AuthTokenOutput {
+  accessToken: String!
+  refreshToken: String!
+  expiresIn: Int!
+}
+
+input AuthVerifyPasswordInput {
+  user_id: uuid!
+  password: String!
+}
+
+type AuthVerifyPasswordOutput {
+  success: Boolean!
+}
+
+input AuthChangePasswordInput {
+  user_id: uuid!
+  old_password: String!
+  new_password: String!
+}
+
+input AuthResetPasswordInput {
+  email: String!
+}
+
+input AuthVerifyEmailInput {
+  token: String!
+}
+
+input AuthSessionListInput {
+  user_id: uuid!
+}
+
+type AuthSession {
+  session_id: uuid!
+  device_id: String
+  created_at: timestamptz!
+  last_used_at: timestamptz
+  ip_address: String
+}
+
+type AuthSessionListOutput {
+  sessions: [AuthSession!]!
+}
+
+input AuthTrustedDeviceInput {
+  user_id: uuid!
+  device_id: String!
+  device_name: String
+}
+
+type AuthTrustedDeviceOutput {
+  trusted: Boolean!
+  device_id: String!
+}
+
+input AuthBackupCodesInput {
+  user_id: uuid!
+}
+
+type AuthBackupCodesOutput {
+  codes: [String!]!
+}
+
+input AuthRegistrationLockInput {
+  user_id: uuid!
+  locked: Boolean!
+}
+
+type AuthRegistrationLockOutput {
+  locked: Boolean!
+}
+
+input AuthOAuthInitiateInput {
+  provider: String!
+  redirect_uri: String!
+  user_id: uuid
+}
+
+type AuthOAuthInitiateOutput {
+  authorization_url: String!
+  state: String!
+}
+
+input AuthOAuthCallbackInput {
+  provider: String!
+  code: String!
+  state: String!
+}
+
+type AuthOAuthCallbackOutput {
+  user_id: uuid!
+  email: String!
+  name: String
+}
+
+input AuthIdmeVerifyInput {
+  code: String!
+  state: String!
+  redirect_uri: String!
+}
+
+type AuthIdmeOutput {
+  user_id: uuid!
+  verified: Boolean!
+  attributes: jsonb
+}
+
+input AuthSsoCallbackInput {
+  relay_state: String!
+  saml_response: String!
+}
+
+type AuthSsoCallbackOutput {
+  name_id: String!
+  email: String!
+  attributes: jsonb
+}
+
+input AuthSsoInitiateInput {
+  workspace_id: uuid!
+  redirect_uri: String!
+}
+
+type AuthSsoInitiateOutput {
+  redirect_url: String!
+  relay_state: String!
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# billing — stripe (port 3740) + entitlements (port 3735)
+# ─────────────────────────────────────────────────────────────────────────────
+
+input BillingCreateCheckoutInput {
+  user_id: uuid!
+  price_id: String!
+  success_url: String!
+  cancel_url: String!
+  quantity: Int
+}
+
+type BillingCreateCheckoutOutput {
+  session_id: String!
+  url: String!
+}
+
+input BillingCreatePaymentIntentInput {
+  user_id: uuid!
+  amount: Int!
+  currency: String!
+  metadata: jsonb
+}
+
+type BillingPaymentIntentOutput {
+  payment_intent_id: String!
+  client_secret: String!
+  status: String!
+}
+
+input BillingPortalSessionInput {
+  user_id: uuid!
+  return_url: String!
+}
+
+type BillingPortalSessionOutput {
+  url: String!
+}
+
+input BillingRefundInput {
+  payment_intent_id: String!
+  amount: Int
+  reason: String
+}
+
+type BillingRefundOutput {
+  refund_id: String!
+  status: String!
+  amount: Int!
+}
+
+input BillingInvoicePayInput {
+  invoice_id: String!
+  user_id: uuid!
+}
+
+type BillingInvoicePayOutput {
+  invoice_id: String!
+  status: String!
+  amount_paid: Int!
+}
+
+input BillingInvoiceVoidInput {
+  invoice_id: String!
+  user_id: uuid!
+}
+
+type BillingInvoiceVoidOutput {
+  invoice_id: String!
+  status: String!
+}
+
+input BillingInvoiceUpcomingInput {
+  user_id: uuid!
+  subscription_id: String
+}
+
+type BillingInvoiceUpcomingOutput {
+  amount_due: Int!
+  currency: String!
+  period_end: timestamptz!
+  lines: jsonb!
+}
+
+input BillingUsageRecordInput {
+  subscription_item_id: String!
+  quantity: Int!
+  timestamp: Int
+  action: String
+}
+
+type BillingUsageRecordOutput {
+  id: String!
+  quantity: Int!
+}
+
+input SubscriptionPauseInput {
+  subscription_id: String!
+  user_id: uuid!
+  resume_at: timestamptz
+}
+
+type SubscriptionPauseOutput {
+  subscription_id: String!
+  status: String!
+  pause_collection: jsonb
+}
+
+input SubscriptionResumeInput {
+  subscription_id: String!
+  user_id: uuid!
+}
+
+type SubscriptionResumeOutput {
+  subscription_id: String!
+  status: String!
+}
+
+input SubscriptionUpgradeInput {
+  subscription_id: String!
+  user_id: uuid!
+  new_price_id: String!
+  proration_behavior: String
+}
+
+type SubscriptionUpgradeOutput {
+  subscription_id: String!
+  status: String!
+  current_period_end: timestamptz!
+}
+
+input SubscriptionProrationInput {
+  subscription_id: String!
+  user_id: uuid!
+  new_price_id: String!
+}
+
+type SubscriptionProrationOutput {
+  amount: Int!
+  currency: String!
+  credit: Int!
+}
+
+input EntitlementsBatchInput {
+  user_id: uuid!
+  feature_keys: [String!]!
+}
+
+type EntitlementBatchResult {
+  feature_key: String!
+  granted: Boolean!
+  expires_at: timestamptz
+}
+
+type EntitlementsBatchOutput {
+  results: [EntitlementBatchResult!]!
+}
+
+input EntitlementGrantCreateInput {
+  user_id: uuid!
+  feature_key: String!
+  granted_by: uuid
+  expires_at: timestamptz
+  metadata: jsonb
+}
+
+type EntitlementGrantOutput {
+  grant_id: uuid!
+  feature_key: String!
+  granted: Boolean!
+  expires_at: timestamptz
+}
+
+input EntitlementGrantListInput {
+  user_id: uuid!
+  active_only: Boolean
+}
+
+type EntitlementGrantListOutput {
+  grants: [EntitlementGrantOutput!]!
+}
+
+input EntitlementGrantRevokeInput {
+  grant_id: uuid!
+  revoked_by: uuid
+}
+
+type EntitlementGrantRevokeOutput {
+  grant_id: uuid!
+  revoked: Boolean!
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Action mutations / queries (Hasura action operation definitions)
+# ─────────────────────────────────────────────────────────────────────────────
+
+type Mutation {
+  # web3
+  web3VerifyTokenGate(input: Web3VerifyTokenGateInput!): Web3VerifyTokenGateOutput
+  web3CreateTokenGate(input: Web3CreateTokenGateInput!): Web3CreateTokenGateOutput
+  web3RpcCall(input: Web3RpcCallInput!): Web3RpcCallOutput
+
+  # livekit / meetings
+  liveKitToken(input: LiveKitTokenInput!): LiveKitTokenOutput
+  createMeeting(input: CreateMeetingInput!): MeetingOutput
+  joinMeeting(input: JoinMeetingInput!): AttendeeOutput
+  endMeeting(input: EndMeetingInput!): MeetingOutput
+
+  # e2ee
+  e2eeRegisterIdentity(input: E2eeRegisterIdentityInput!): StatusOutput
+  e2eeUploadSignedPreKey(input: E2eeUploadSignedPreKeyInput!): E2eeSignedPreKeyOutput
+  e2eeUploadOneTimePreKeys(input: E2eeUploadOneTimePreKeysInput!): E2eeUploadOneTimePreKeysOutput
+  e2eePostSafetyNumber(input: E2eePostSafetyNumberInput!): E2eeSafetyNumberOutput
+
+  # search
+  searchReindex(input: SearchReindexInput!): SearchReindexOutput
+
+  # moderation
+  moderationEnqueue(input: ModerationEnqueueInput!): ModerationEnqueueOutput
+  moderationDecide(input: ModerationDecideInput!): ModerationDecideOutput
+  moderationSetSlowmode(input: ModerationSlowmodeInput!): ModerationSlowmodeOutput
+  moderationBulkAction(input: ModerationBulkActionInput!): ModerationBulkActionOutput
+  moderationApplyPenalty(input: ModerationPenaltyInput!): ModerationPenaltyOutput
+
+  # content-safety
+  contentSafetyRaid(input: ContentSafetyRaidInput!): ContentSafetyRaidOutput
+
+  # auth
+  authSignIn(input: AuthSignInInput!): AuthSignInOutput
+  authSignUp(input: AuthSignUpInput!): AuthSignUpOutput
+  authSignOut(input: AuthSignOutInput!): StatusOutput
+  authRefreshToken(input: AuthRefreshInput!): AuthTokenOutput
+  authVerifyPassword(input: AuthVerifyPasswordInput!): AuthVerifyPasswordOutput
+  authChangePassword(input: AuthChangePasswordInput!): StatusOutput
+  authResetPassword(input: AuthResetPasswordInput!): StatusOutput
+  authVerifyEmail(input: AuthVerifyEmailInput!): StatusOutput
+  authAddTrustedDevice(input: AuthTrustedDeviceInput!): AuthTrustedDeviceOutput
+  authRevokeTrustedDevice(input: AuthTrustedDeviceInput!): StatusOutput
+  authGenerateBackupCodes(input: AuthBackupCodesInput!): AuthBackupCodesOutput
+  authSetRegistrationLock(input: AuthRegistrationLockInput!): AuthRegistrationLockOutput
+  authOAuthCallback(input: AuthOAuthCallbackInput!): AuthOAuthCallbackOutput
+  authIdmeVerify(input: AuthIdmeVerifyInput!): AuthIdmeOutput
+  authSsoCallback(input: AuthSsoCallbackInput!): AuthSsoCallbackOutput
+  authSsoInitiate(input: AuthSsoInitiateInput!): AuthSsoInitiateOutput
+
+  # billing — stripe
+  billingCreateCheckout(input: BillingCreateCheckoutInput!): BillingCreateCheckoutOutput
+  billingCreatePaymentIntent(input: BillingCreatePaymentIntentInput!): BillingPaymentIntentOutput
+  billingCreatePortalSession(input: BillingPortalSessionInput!): BillingPortalSessionOutput
+  billingRefund(input: BillingRefundInput!): BillingRefundOutput
+  billingInvoicePay(input: BillingInvoicePayInput!): BillingInvoicePayOutput
+  billingInvoiceVoid(input: BillingInvoiceVoidInput!): BillingInvoiceVoidOutput
+  billingRecordUsage(input: BillingUsageRecordInput!): BillingUsageRecordOutput
+
+  # billing — entitlements
+  subscriptionPause(input: SubscriptionPauseInput!): SubscriptionPauseOutput
+  subscriptionResume(input: SubscriptionResumeInput!): SubscriptionResumeOutput
+  subscriptionUpgrade(input: SubscriptionUpgradeInput!): SubscriptionUpgradeOutput
+  subscriptionGetProration(input: SubscriptionProrationInput!): SubscriptionProrationOutput
+  entitlementGrantCreate(input: EntitlementGrantCreateInput!): EntitlementGrantOutput
+  entitlementGrantRevoke(input: EntitlementGrantRevokeInput!): EntitlementGrantRevokeOutput
+}
+
+type Query {
+  # livekit
+  getRecording(room_name: String!, recording_id: String!): jsonb
+
+  # e2ee
+  e2eeGetPreKeyBundle(input: E2eeGetPreKeyBundleInput!): E2eePreKeyBundle
+  e2eeCheckReplenish(input: E2eeCheckReplenishInput!): E2eeReplenishOutput
+  e2eeGetVerificationState(input: E2eeGetVerificationStateInput!): E2eeVerificationStateOutput
+  e2eeListAudit(input: E2eeListAuditInput!): [E2eeAuditEntry!]
+
+  # search
+  searchQuery(input: SearchQueryInput!): SearchQueryOutput
+  knowledgeQuery(input: KnowledgeQueryInput!): KnowledgeQueryOutput
+
+  # content-safety
+  contentSafetyAnalyze(input: ContentSafetyAnalyzeInput!): ContentSafetyAnalyzeOutput
+  contentSafetySpamCheck(input: ContentSafetySpamInput!): ContentSafetySpamOutput
+
+  # auth
+  authListSessions(input: AuthSessionListInput!): AuthSessionListOutput
+  authOAuthInitiate(input: AuthOAuthInitiateInput!): AuthOAuthInitiateOutput
+
+  # billing
+  billingInvoiceUpcoming(input: BillingInvoiceUpcomingInput!): BillingInvoiceUpcomingOutput
+  entitlementsBatch(input: EntitlementsBatchInput!): EntitlementsBatchOutput
+  entitlementGrantList(input: EntitlementGrantListInput!): EntitlementGrantListOutput
+}
