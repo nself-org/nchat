@@ -222,6 +222,7 @@ export default function SettingsProfilePage() {
               <SettingsRow label="Display Name" description="Your name as it appears to others" htmlFor="displayName" vertical>
                 <Input
                   id="displayName"
+                  label="Display name"
                   name="displayName"
                   value={form.displayName}
                   onChange={handleChange}
@@ -242,6 +243,7 @@ export default function SettingsProfilePage() {
                   <span className="text-slate-400">@</span>
                   <Input
                     id="username"
+                    label="Username"
                     name="username"
                     value={form.username}
                     onChange={handleChange}
@@ -255,7 +257,7 @@ export default function SettingsProfilePage() {
               </SettingsRow>
 
               <SettingsRow label="Email" description="Your email address (managed in Account settings)" htmlFor="email" vertical>
-                <Input id="email" name="email" type="email" value={form.email} disabled />
+                <Input id="email" label="Email" name="email" type="email" value={form.email} disabled />
               </SettingsRow>
 
               <SettingsRow label="Bio" description="A short description about yourself (max 160 characters)" htmlFor="bio" vertical>

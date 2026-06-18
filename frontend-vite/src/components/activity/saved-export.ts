@@ -77,7 +77,7 @@ export function buildExport(
     case 'csv':
       return ok({ data: toCsv(messages), filename: `saved-${stamp}.csv`, mimeType: 'text/csv' })
     default:
-      return err({ code: 'validation', message: `Unsupported export format: ${String(format)}` })
+      return err({ code: 'validation_error', status: 422, message: `Unsupported export format: ${String(format)}` })
   }
 }
 

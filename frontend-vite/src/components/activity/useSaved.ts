@@ -33,10 +33,10 @@ import {
 
 function toAppError(error: CombinedError): AppError {
   const status = (error.response as { status?: number } | undefined)?.status
-  if (status === 429) return { code: 'rate_limited', message: error.message }
-  if (status === 401) return { code: 'auth_failed', message: error.message }
-  if (status === 403) return { code: 'forbidden', message: error.message }
-  return { code: 'internal', message: error.message }
+  if (status === 429) return { code: 'rate_limited', status: 429, message: error.message }
+  if (status === 401) return { code: 'auth_failed', status: 401, message: error.message }
+  if (status === 403) return { code: 'forbidden', status: 403, message: error.message }
+  return { code: 'internal', status: 500, message: error.message }
 }
 
 // ─── Raw row shapes (Hasura snake_case) ──────────────────────────────────────────

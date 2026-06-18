@@ -35,7 +35,7 @@ export default function SettingsAccountPage() {
   const user = auth.status === 'authenticated' ? auth.user : null
 
   const [loading, setLoading] = useState<string | null>(null)
-  const [saved, setSaved] = useState<string | null>(null)
+  const [saved] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
   const [email, setEmail] = useState(user?.email ?? '')
@@ -122,10 +122,10 @@ export default function SettingsAccountPage() {
         <SettingsSection title="Email Address" description="Change the email associated with your account">
           <form onSubmit={handleEmailChange} className="space-y-4">
             <SettingsRow label="New email address" htmlFor="new-email" vertical>
-              <Input id="new-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter new email" disabled={loading === 'email'} data-testid="account-email" />
+              <Input id="new-email" label="New email address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter new email" disabled={loading === 'email'} data-testid="account-email" />
             </SettingsRow>
             <SettingsRow label="Current password" description="Enter your password to confirm the change" htmlFor="email-password" vertical>
-              <Input id="email-password" type="password" value={emailPassword} onChange={(e) => setEmailPassword(e.target.value)} placeholder="Enter current password" disabled={loading === 'email'} />
+              <Input id="email-password" label="Current password" type="password" value={emailPassword} onChange={(e) => setEmailPassword(e.target.value)} placeholder="Enter current password" disabled={loading === 'email'} />
             </SettingsRow>
             <div className="flex items-center gap-4">
               <Button type="submit" disabled={loading === 'email' || !email || !emailPassword}>
@@ -144,14 +144,14 @@ export default function SettingsAccountPage() {
         <SettingsSection title="Password" description="Change your password to keep your account secure">
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <SettingsRow label="Current password" htmlFor="current-password" vertical>
-              <Input id="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Enter current password" disabled={loading === 'password'} />
+              <Input id="current-password" label="Current password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Enter current password" disabled={loading === 'password'} />
             </SettingsRow>
             <SettingsRow label="New password" htmlFor="new-password" vertical>
-              <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" disabled={loading === 'password'} minLength={8} />
+              <Input id="new-password" label="New password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" disabled={loading === 'password'} minLength={8} />
               <p className="text-xs text-slate-500">Must be at least 8 characters</p>
             </SettingsRow>
             <SettingsRow label="Confirm new password" htmlFor="confirm-password" vertical>
-              <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password" disabled={loading === 'password'} />
+              <Input id="confirm-password" label="Confirm new password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password" disabled={loading === 'password'} />
             </SettingsRow>
             {passwordError && <p className="text-sm text-red-400">{passwordError}</p>}
             <div className="flex items-center gap-4">
@@ -258,7 +258,7 @@ export default function SettingsAccountPage() {
                     <label htmlFor="delete-confirm" className="block text-sm text-slate-300">
                       Type <strong>DELETE</strong> to confirm
                     </label>
-                    <Input id="delete-confirm" value={deleteConfirmation} onChange={(e) => setDeleteConfirmation(e.target.value)} placeholder="DELETE" />
+                    <Input id="delete-confirm" label='Type "DELETE" to confirm' value={deleteConfirmation} onChange={(e) => setDeleteConfirmation(e.target.value)} placeholder="DELETE" />
                     <div className="flex gap-3">
                       <Button variant="secondary" size="sm" onClick={() => { setShowDelete(false); setDeleteConfirmation('') }}>
                         Cancel

@@ -45,9 +45,10 @@ function toResult<T>(fetching: boolean, error: unknown, data: T | undefined): Re
   if (fetching) return 'loading'
   if (error) {
     return err({
-      code: 'INTERNAL',
+      code: 'internal',
+      status: 500,
       message: error instanceof Error ? error.message : 'Request failed',
-    } as AppError)
+    } satisfies AppError)
   }
   return ok((data ?? ([] as unknown as T)) as T)
 }

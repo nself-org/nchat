@@ -155,7 +155,7 @@ export default function SettingsKeyboardPage() {
 
         <div className="relative">
           <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
-          <Input placeholder="Search shortcuts..." value={query} onChange={(e) => setQuery(e.target.value)} className="ps-10" aria-label="Search shortcuts" />
+          <Input label="Search shortcuts" placeholder="Search shortcuts..." value={query} onChange={(e) => setQuery(e.target.value)} className="ps-10" aria-label="Search shortcuts" />
         </div>
 
         <div className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900 p-3 text-sm text-slate-400">
