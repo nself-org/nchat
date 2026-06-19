@@ -63,32 +63,33 @@ function pluginDocToArticle(d: any): KBArticle {
     excerpt: d.excerpt ?? "",
     content: d.content ?? "",
     contentPlain: (d.content ?? "").replace(/<[^>]*>/g, "").trim(),
-    contentType: "faq",
+    contentType: (d.content_type ?? d.contentType ?? "article") as any,
     status: (d.status as any) ?? "draft",
-    visibility: "public",
-    categoryId: d.collection_id ?? undefined,
-    tags: [],
-    keywords: [],
-    author: { id: d.author_id ?? "", name: "" },
-    relatedArticleIds: [],
-    attachments: [],
-    customFields: {},
-    version: 1,
+    visibility: (d.visibility ?? "public") as any,
+    categoryId: d.collection_id ?? d.categoryId ?? undefined,
+    tags: d.tags ?? [],
+    keywords: d.keywords ?? [],
+    author: { id: d.author_id ?? "", name: d.author_name ?? "" },
+    relatedArticleIds: d.related_article_ids ?? d.relatedArticleIds ?? [],
+    attachments: d.attachments ?? [],
+    customFields: d.custom_fields ?? d.customFields ?? {},
+    version: d.version ?? 1,
     analytics: {
-      viewCount: d.views ?? 0,
-      uniqueViewCount: 0,
+      viewCount: d.views ?? d.view_count ?? 0,
+      uniqueViewCount: d.unique_view_count ?? 0,
       helpfulCount: d.helpful_count ?? 0,
       notHelpfulCount: d.not_helpful_count ?? 0,
-      searchAppearances: 0,
-      avgTimeOnPage: 0,
-      bounceRate: 0,
+      searchAppearances: d.search_appearances ?? 0,
+      avgTimeOnPage: d.avg_time_on_page ?? 0,
+      bounceRate: d.bounce_rate ?? 0,
     },
-    isFeatured: false,
-    isPinned: false,
+    isFeatured: d.is_featured ?? d.isFeatured ?? false,
+    isPinned: d.is_pinned ?? d.isPinned ?? false,
+    publishedAt: d.published_at ? new Date(d.published_at) : undefined,
     createdAt: now,
     updatedAt: d.updated_at ? new Date(d.updated_at) : now,
-    createdBy: d.author_id ?? "",
-    updatedBy: d.author_id ?? "",
+    createdBy: d.created_by ?? d.author_id ?? "",
+    updatedBy: d.updated_by ?? d.author_id ?? "",
   };
 }
 
@@ -99,19 +100,23 @@ function pluginFaqToEntry(f: any): FAQEntry {
     id: f.id,
     question: f.question ?? "",
     answer: f.answer ?? "",
-    alternativeQuestions: [],
-    keywords: [],
-    category: f.collection_id ?? undefined,
-    priority: f.order_index ?? 0,
-    isActive: true,
-    articleId: undefined,
+    alternativeQuestions: f.alternative_questions ?? f.alternativeQuestions ?? [],
+    keywords: f.keywords ?? [],
+    category: f.collection_id ?? f.category ?? undefined,
+    priority: f.order_index ?? f.priority ?? 0,
+    isActive: f.is_active !== undefined ? f.is_active : (f.isActive !== undefined ? f.isActive : true),
+    articleId: f.article_id ?? f.articleId ?? undefined,
     createdAt: now,
     updatedAt: f.updated_at ? new Date(f.updated_at) : now,
   };
 }
 
 async function kbFetch(path: string, init?: RequestInit): Promise<any> {
-  const res = await fetch(`${KB_SERVICE_URL}${path}`, {
+  // Use globalThis.fetch so test environments can override via global.fetch assignment.
+  // JSDOM closes over the built-in fetch at module load; reading from globalThis
+  // allows jest tests to substitute an in-memory mock without module reloading.
+  const fetchFn: typeof fetch = (globalThis as any).fetch ?? fetch;
+  const res = await fetchFn(`${KB_SERVICE_URL}${path}`, {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
@@ -550,14 +555,36 @@ export class KnowledgeBaseService {
     try {
       log.debug("Creating article via KB plugin", { title: input.title });
       const slug = input.slug || generateSlug(input.title);
+      // Check for duplicate slug by scanning existing articles
+      const existingJson = await kbFetch("/api/v1/documents");
+      const existingDocs: any[] = existingJson.data ?? [];
+      if (existingDocs.some((d: any) => d.slug === slug)) {
+        return {
+          success: false,
+          error: { code: "CONFLICT", status: 409, message: `Article with slug "${slug}" already exists` },
+        };
+      }
       const body = {
         title: input.title,
         slug,
+        excerpt: input.excerpt ?? "",
         content: input.content ?? "",
+        content_type: input.contentType ?? "article",
         status: input.status ?? "draft",
+        visibility: input.visibility ?? "public",
         collection_id: input.categoryId ?? null,
         author_id: createdBy,
+        tags: input.tags ?? [],
+        keywords: input.keywords ?? [],
+        is_featured: input.isFeatured ?? false,
+        is_pinned: input.isPinned ?? false,
+        related_article_ids: input.relatedArticleIds ?? [],
+        custom_fields: input.customFields ?? {},
       };
+      // Set publishedAt when creating in published state
+      if (body.status === "published") {
+        (body as any).published_at = new Date().toISOString();
+      }
       const json = await kbFetch("/api/v1/documents", {
         method: "POST",
         body: JSON.stringify(body),
@@ -565,6 +592,8 @@ export class KnowledgeBaseService {
       // Plugin returns { id }; fetch full doc
       const doc = await kbFetch(`/api/v1/documents/${json.id}`);
       const article = pluginDocToArticle(doc);
+      // Cache article locally for version history and store-size tracking
+      articles.set(article.id, article);
       emitEvent("article.created", article, article.id);
       log.info("Article created", { id: article.id, slug });
       return { success: true, data: article };
@@ -587,7 +616,13 @@ export class KnowledgeBaseService {
   async getArticle(id: string): Promise<APIResponse<KBArticle | null>> {
     try {
       const doc = await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`);
-      return { success: true, data: pluginDocToArticle(doc) };
+      const article = pluginDocToArticle(doc);
+      // Overlay analytics from local cache (feedback updates are tracked locally)
+      const cached = articles.get(id);
+      if (cached) {
+        article.analytics = cached.analytics;
+      }
+      return { success: true, data: article };
     } catch (error) {
       const msg = (error as Error).message;
       if (msg.includes("404")) return { success: true, data: null };
@@ -638,18 +673,59 @@ export class KnowledgeBaseService {
       const body: Record<string, unknown> = {};
       if (input.title !== undefined) body.title = input.title;
       if (input.slug !== undefined) body.slug = input.slug;
+      if (input.excerpt !== undefined) body.excerpt = input.excerpt;
       if (input.content !== undefined) body.content = input.content;
+      if (input.contentType !== undefined) body.content_type = input.contentType;
       if (input.status !== undefined) body.status = input.status;
+      if (input.visibility !== undefined) body.visibility = input.visibility;
       if (input.categoryId !== undefined) body.collection_id = input.categoryId;
+      if (input.tags !== undefined) body.tags = input.tags;
+      if (input.keywords !== undefined) body.keywords = input.keywords;
+      if (input.isFeatured !== undefined) body.is_featured = input.isFeatured;
+      if (input.isPinned !== undefined) body.is_pinned = input.isPinned;
+      if (input.relatedArticleIds !== undefined) body.related_article_ids = input.relatedArticleIds;
+      if (input.customFields !== undefined) body.custom_fields = input.customFields;
       body.author_id = updatedBy;
 
+      // Save current version to history before applying update
+      const current = articles.get(id);
+      if (current) {
+        const versionRecord: KBArticleVersion = {
+          id: uuidv4(),
+          articleId: id,
+          version: current.version,
+          title: current.title,
+          content: current.content,
+          changes: "updated",
+          createdAt: new Date(),
+          createdBy: updatedBy,
+        };
+        const history = articleVersions.get(id) || [];
+        history.push(versionRecord);
+        articleVersions.set(id, history);
+        // Increment version counter
+        body.version = current.version + 1;
+      }
+      // Set publishedAt when transitioning to published
+      const wasPublished = current?.status === "published";
+      if (input.status === "published" && !wasPublished) {
+        body.published_at = new Date().toISOString();
+      } else if (current?.publishedAt) {
+        body.published_at = current.publishedAt.toISOString();
+      }
       await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`, {
         method: "PUT",
         body: JSON.stringify(body),
       });
       const doc = await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`);
       const updated = pluginDocToArticle(doc);
+      // Update local cache
+      articles.set(id, updated);
       emitEvent("article.updated", updated, id);
+      // Emit published event when transitioning to published state
+      if (input.status === "published" && !wasPublished) {
+        emitEvent("article.published", updated, id);
+      }
       log.info("Article updated", { id });
       return { success: true, data: updated };
     } catch (error) {
@@ -697,9 +773,35 @@ export class KnowledgeBaseService {
    */
   async deleteArticle(id: string): Promise<APIResponse<{ deleted: boolean }>> {
     try {
+      // Remove references to this article from all other articles' relatedArticleIds
+      try {
+        const allJson = await kbFetch("/api/v1/documents");
+        const allDocs: any[] = allJson.data ?? [];
+        for (const doc of allDocs) {
+          const relatedIds: string[] = doc.related_article_ids ?? [];
+          if (relatedIds.includes(id)) {
+            await kbFetch(`/api/v1/documents/${encodeURIComponent(doc.id)}`, {
+              method: "PUT",
+              body: JSON.stringify({ related_article_ids: relatedIds.filter((r: string) => r !== id) }),
+            });
+            // Update local cache too
+            const cached = articles.get(doc.id);
+            if (cached) {
+              articles.set(doc.id, {
+                ...cached,
+                relatedArticleIds: cached.relatedArticleIds.filter((r: string) => r !== id),
+              });
+            }
+          }
+        }
+      } catch {
+        // Non-fatal: best-effort cleanup of related references
+        log.debug("Could not clean related article references for deleted article", { id });
+      }
       await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`, {
         method: "DELETE",
       });
+      articles.delete(id);
       emitEvent("article.deleted", { id }, id);
       log.info("Article deleted", { id });
       return { success: true, data: { deleted: true } };
@@ -733,6 +835,33 @@ export class KnowledgeBaseService {
       const { limit = 50, offset = 0 } = options;
       const json = await kbFetch("/api/v1/documents");
       let items: KBArticle[] = (json.data ?? []).map(pluginDocToArticle);
+      // Apply filters
+      if (options.status) {
+        items = items.filter((a) => a.status === options.status);
+      }
+      if (options.categoryId) {
+        items = items.filter((a) => a.categoryId === options.categoryId);
+      }
+      if ((options as any).tags && (options as any).tags.length > 0) {
+        const filterTags: string[] = (options as any).tags;
+        items = items.filter((a) =>
+          filterTags.some((t) => a.tags.includes(t)),
+        );
+      }
+      if ((options as any).isFeatured !== undefined) {
+        items = items.filter(
+          (a) => a.isFeatured === (options as any).isFeatured,
+        );
+      }
+      if ((options as any).query) {
+        const q = ((options as any).query as string).toLowerCase();
+        items = items.filter(
+          (a) =>
+            a.title.toLowerCase().includes(q) ||
+            a.content.toLowerCase().includes(q) ||
+            a.excerpt.toLowerCase().includes(q),
+        );
+      }
       const totalCount = items.length;
       items = items.slice(offset, offset + limit);
       return {
@@ -773,20 +902,35 @@ export class KnowledgeBaseService {
         `/api/v1/search?q=${encodeURIComponent(query)}`,
       );
       const raw: any[] = json.data ?? [];
-      // Plugin returns { id, kind, title, slug, created_at }; map to full articles
-      const results: ArticleSearchResult[] = raw
-        .filter((r) => r.kind === "document")
-        .slice(0, limit)
+      const q = query.toLowerCase();
+      // Plugin returns { id, kind, title, slug, ...} — filter articles, skip FAQs
+      // By default, only return published articles unless a status override is given
+      const targetStatus = options?.status ?? "published";
+      const scored = raw
+        .filter((r) => r.kind === "article" || r.kind === "document")
+        .filter((r) => !targetStatus || r.status === targetStatus)
         .map((r) => {
           const article = pluginDocToArticle(r);
-          return { article, score: 1, matchedKeywords: [] };
-        });
+          // Compute relevance score: title exact > title partial > keywords > content
+          let score = 0;
+          const titleLower = article.title.toLowerCase();
+          if (titleLower === q) score += 100;
+          else if (titleLower.includes(q)) score += 50;
+          const kwMatch = article.keywords.filter((k) => k.toLowerCase().includes(q)).length;
+          score += kwMatch * 10;
+          if (article.content.toLowerCase().includes(q)) score += 5;
+          if (article.excerpt.toLowerCase().includes(q)) score += 3;
+          const matchedKeywords = article.keywords.filter((k) => k.toLowerCase().includes(q));
+          return { article, score, matchedKeywords };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit);
 
-      emitEvent("search.performed", { query, resultsCount: results.length });
+      emitEvent("search.performed", { query, resultsCount: scored.length });
 
       return {
         success: true,
-        data: results,
+        data: scored,
       };
     } catch (error) {
       log.error("Failed to search articles", error);
@@ -982,8 +1126,12 @@ export class KnowledgeBaseService {
       const body = {
         question: input.question,
         answer: input.answer,
+        alternative_questions: input.alternativeQuestions ?? [],
+        keywords: input.keywords ?? [],
         collection_id: input.category ?? null,
         order_index: input.priority ?? 0,
+        article_id: input.articleId ?? null,
+        is_active: true,
       };
       const json = await kbFetch("/api/v1/faqs", {
         method: "POST",
@@ -993,6 +1141,8 @@ export class KnowledgeBaseService {
       const listJson = await kbFetch("/api/v1/faqs");
       const raw = (listJson.data ?? []).find((f: any) => f.id === json.id);
       const faq = raw ? pluginFaqToEntry(raw) : pluginFaqToEntry({ ...json, question: input.question, answer: input.answer });
+      // Cache in local store for size tracking
+      faqs.set(faq.id, faq);
       log.info("FAQ created", { id: faq.id });
       return { success: true, data: faq };
     } catch (error) {
@@ -1034,8 +1184,12 @@ export class KnowledgeBaseService {
       const body: Record<string, unknown> = {};
       if (input.question !== undefined) body.question = input.question;
       if (input.answer !== undefined) body.answer = input.answer;
+      if (input.alternativeQuestions !== undefined) body.alternative_questions = input.alternativeQuestions;
+      if (input.keywords !== undefined) body.keywords = input.keywords;
       if (input.category !== undefined) body.collection_id = input.category;
       if (input.priority !== undefined) body.order_index = input.priority;
+      if (input.isActive !== undefined) body.is_active = input.isActive;
+      if (input.articleId !== undefined) body.article_id = input.articleId;
 
       await kbFetch(`/api/v1/faqs/${encodeURIComponent(id)}`, {
         method: "PUT",
@@ -1048,6 +1202,8 @@ export class KnowledgeBaseService {
         return { success: false, error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" } };
       }
       const updated = pluginFaqToEntry(raw);
+      // Update local cache
+      faqs.set(id, updated);
       log.info("FAQ updated", { id });
       return { success: true, data: updated };
     } catch (error) {
@@ -1069,6 +1225,7 @@ export class KnowledgeBaseService {
   async deleteFAQ(id: string): Promise<APIResponse<{ deleted: boolean }>> {
     try {
       await kbFetch(`/api/v1/faqs/${encodeURIComponent(id)}`, { method: "DELETE" });
+      faqs.delete(id);
       log.info("FAQ deleted", { id });
       return { success: true, data: { deleted: true } };
     } catch (error) {
@@ -1097,6 +1254,11 @@ export class KnowledgeBaseService {
       if (options?.category) {
         results = results.filter((f) => f.category === options.category);
       }
+      if (options?.isActive !== undefined) {
+        results = results.filter((f) => f.isActive === options.isActive);
+      }
+      // Sort by priority descending
+      results.sort((a, b) => b.priority - a.priority);
       return { success: true, data: results };
     } catch (error) {
       log.error("Failed to list FAQs", error);
@@ -1122,7 +1284,9 @@ export class KnowledgeBaseService {
       const json = await kbFetch(`/api/v1/search?q=${encodeURIComponent(query)}`);
       let results: FAQEntry[] = (json.data ?? [])
         .filter((r: any) => r.kind === "faq")
-        .map(pluginFaqToEntry);
+        .map(pluginFaqToEntry)
+        // By default only return active FAQs
+        .filter((f: FAQEntry) => f.isActive);
       if (options?.category) {
         results = results.filter((f) => f.category === options.category);
       }

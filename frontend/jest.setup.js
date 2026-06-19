@@ -460,6 +460,23 @@ if (typeof global.MediaStream === 'undefined') {
 }
 
 // ============================================================================
+// Global fetch mock (service tests call real fetch; polyfill for JSDOM env)
+// Tests that need specific responses should override with jest.spyOn(global, 'fetch').
+// ============================================================================
+
+if (typeof global.fetch === 'undefined') {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: () => Promise.resolve({}),
+      text: () => Promise.resolve(''),
+    })
+  )
+}
+
+// ============================================================================
 // Console Error Suppression for Expected Errors
 // ============================================================================
 
