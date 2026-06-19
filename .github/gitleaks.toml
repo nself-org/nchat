@@ -44,6 +44,12 @@ paths = [
   '''\.github/docs/''',
   '''\.github/workflows/''',
   '''\.claude/''',
+  # Hasura metadata — action handler URLs contain port numbers matching generic-api-key
+  '''backend/hasura/metadata/actions\.yaml''',
+  # Devtools example bot API call with placeholder auth header (curl example, not a real secret)
+  '''frontend-vite/src/components/devtools/''',
+  # Storybook static build — gitignored artifact, findings are from minified React source
+  '''packages/ui/storybook-static/''',
 ]
 regexes = [
   # Crockford Base32 alphabet constant used in token generation (not a secret)
