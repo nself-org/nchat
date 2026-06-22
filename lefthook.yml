@@ -9,8 +9,8 @@ pre-commit:
       run: pnpm lint
     secrets-scan:
       run: |
-        if [ -f .github/gitleaks.toml ]; then
-          gitleaks protect --staged --config .github/gitleaks.toml
+        if [ -f .gitleaks.toml ]; then
+          gitleaks protect --staged --config .gitleaks.toml
         else
           gitleaks protect --staged
         fi
