@@ -17,21 +17,16 @@
 import { useMemo, useState } from 'react'
 import { useQuery, useMutation } from 'urql'
 import { Button, AsyncScreen, EmptyState } from '@nself/ui'
-import { ok, err, type Result, type AppError } from '@nself/errors'
 import { PricingTable } from '@/components/billing/PricingTable'
 import { UsageTracker } from '@/components/billing/UsageTracker'
 import { CryptoPayment } from '@/components/billing/CryptoPayment'
-import {
-  PLANS,
-  type PlanTier,
-  type BillingInterval,
-  type UsageLimits,
-  type UsageWarning,
-} from '@/components/billing/billing-types'
+import { PLANS, type PlanTier, type BillingInterval } from '@/components/billing/billing-types'
 import {
   USAGE_QUERY,
   INVOICES_QUERY,
   CREATE_CHECKOUT_MUTATION,
+  toResult,
+  buildUsageLimits,
   type UsageQueryData,
   type InvoicesQueryData,
   type InvoiceRow,
@@ -40,62 +35,6 @@ import {
 } from '@/components/billing/billing-gql'
 
 type Tab = 'usage' | 'plans' | 'history'
-
-function toResult<T>(fetching: boolean, error: unknown, data: T | undefined): Result<T, AppError> | 'loading' {
-  if (fetching) return 'loading'
-  if (error) {
-    return err({
-      code: 'internal',
-      status: 500,
-      message: error instanceof Error ? error.message : 'Request failed',
-    } satisfies AppError)
-  }
-  return ok((data ?? ([] as unknown as T)) as T)
-}
-
-/** Build UsageLimits (warnings + exceeded) from a usage row against the plan's features. */
-function buildUsageLimits(data: UsageQueryData | undefined): UsageLimits | null {
-  const row = data?.np_billing_usage?.[0]
-  if (!row) return null
-  const limits = PLANS[row.plan].features
-  const current = {
-    userId: '',
-    period: row.period,
-    users: row.users,
-    channels: row.channels,
-    messages: row.messages,
-    storageGB: row.storage_gb,
-    integrations: row.integrations,
-    bots: row.bots,
-    aiMinutes: row.ai_minutes,
-    aiQueries: row.ai_queries,
-    callMinutes: row.call_minutes,
-    recordingGB: row.recording_gb,
-  }
-  const checks: ReadonlyArray<[string, number, number | null]> = [
-    ['Users', current.users, limits.maxUsers],
-    ['Channels', current.channels, limits.maxChannels],
-    ['Messages', current.messages, limits.maxMessagesPerMonth],
-    ['Storage', current.storageGB, limits.maxStorageGB],
-  ]
-  const warnings: UsageWarning[] = []
-  let exceeded = false
-  for (const [feature, used, limit] of checks) {
-    if (limit === null || limit === 0) continue
-    const pct = (used / limit) * 100
-    if (pct >= 100) exceeded = true
-    if (pct >= 75) {
-      warnings.push({
-        feature,
-        current: used,
-        limit,
-        percentage: pct,
-        severity: pct >= 100 ? 'critical' : pct >= 90 ? 'warning' : 'info',
-      })
-    }
-  }
-  return { plan: row.plan, current, limits, warnings, exceeded }
-}
 
 export default function BillingPage() {
   const [tab, setTab] = useState<Tab>('usage')
@@ -140,7 +79,6 @@ export default function BillingPage() {
         <p className="mt-2 text-slate-400">Manage your subscription, usage, and payment methods</p>
       </header>
 
-      {/* Tabs */}
       <div role="tablist" className="flex gap-2 border-b border-slate-800">
         {TABS.map((tabItem) => (
           <button
@@ -159,7 +97,6 @@ export default function BillingPage() {
         ))}
       </div>
 
-      {/* Usage */}
       {tab === 'usage' && (
         <AsyncScreen<UsageQueryData>
           result={toResult(usageRes.fetching, usageRes.error, usageRes.data)}
@@ -183,12 +120,10 @@ export default function BillingPage() {
         />
       )}
 
-      {/* Plans */}
       {tab === 'plans' && (
         <PricingTable currentPlan={currentPlan} onSelectPlan={handleSelectPlan} />
       )}
 
-      {/* History */}
       {tab === 'history' && (
         <AsyncScreen<InvoicesQueryData>
           result={toResult(invoiceRes.fetching, invoiceRes.error, invoiceRes.data)}
@@ -213,19 +148,12 @@ export default function BillingPage() {
                     <tr key={inv.id} className="border-t border-slate-800 text-slate-300">
                       <td className="px-4 py-2">{new Date(inv.created_at).toLocaleDateString()}</td>
                       <td className="px-4 py-2">
-                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: inv.currency }).format(
-                          inv.amount,
-                        )}
+                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: inv.currency }).format(inv.amount)}
                       </td>
                       <td className="px-4 py-2 capitalize">{inv.status}</td>
                       <td className="px-4 py-2 text-right">
                         {inv.download_url && (
-                          <a
-                            href={inv.download_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sky-400 hover:underline"
-                          >
+                          <a href={inv.download_url} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">
                             Download
                           </a>
                         )}
@@ -239,7 +167,6 @@ export default function BillingPage() {
         />
       )}
 
-      {/* Checkout dialog */}
       {showCheckout && selectedPlan && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
@@ -257,15 +184,12 @@ export default function BillingPage() {
                 Subscribe to {PLANS[selectedPlan].name} — choose your payment method
               </p>
             </div>
-
             <div role="tablist" className="grid grid-cols-2 gap-2 rounded-md border border-slate-800 p-1">
               <button
                 role="tab"
                 aria-selected={payMethod === 'card'}
                 onClick={() => setPayMethod('card')}
-                className={`rounded px-3 py-2 text-sm ${
-                  payMethod === 'card' ? 'bg-sky-500 text-white' : 'text-slate-300'
-                }`}
+                className={`rounded px-3 py-2 text-sm ${payMethod === 'card' ? 'bg-sky-500 text-white' : 'text-slate-300'}`}
               >
                 Credit Card (Stripe)
               </button>
@@ -273,14 +197,11 @@ export default function BillingPage() {
                 role="tab"
                 aria-selected={payMethod === 'crypto'}
                 onClick={() => setPayMethod('crypto')}
-                className={`rounded px-3 py-2 text-sm ${
-                  payMethod === 'crypto' ? 'bg-sky-500 text-white' : 'text-slate-300'
-                }`}
+                className={`rounded px-3 py-2 text-sm ${payMethod === 'crypto' ? 'bg-sky-500 text-white' : 'text-slate-300'}`}
               >
                 Cryptocurrency
               </button>
             </div>
-
             {payMethod === 'card' ? (
               <div className="space-y-4">
                 <p className="text-sm text-slate-400">
@@ -291,11 +212,7 @@ export default function BillingPage() {
                     Checkout is not available yet: {checkoutState.error.message}
                   </p>
                 )}
-                <Button
-                  variant="primary"
-                  loading={checkoutState.fetching}
-                  onClick={() => void handleStripeCheckout()}
-                >
+                <Button variant="primary" loading={checkoutState.fetching} onClick={() => void handleStripeCheckout()}>
                   Continue to Stripe
                 </Button>
               </div>
@@ -306,11 +223,8 @@ export default function BillingPage() {
                 onPaymentComplete={() => setShowCheckout(false)}
               />
             )}
-
             <div className="text-right">
-              <Button variant="ghost" onClick={() => setShowCheckout(false)}>
-                Close
-              </Button>
+              <Button variant="ghost" onClick={() => setShowCheckout(false)}>Close</Button>
             </div>
           </div>
         </div>
