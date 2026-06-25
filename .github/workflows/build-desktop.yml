@@ -37,6 +37,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Dependency audit
+        # P4-E5-W3-S05-T17: fail on HIGH/CRITICAL advisories.
+        run: pnpm audit --audit-level=high
+
       - name: Build web assets
         run: pnpm build
         env:
