@@ -3,7 +3,16 @@
  *
  * Centralized configuration for all 11 OAuth providers.
  * Includes endpoints, scopes, and metadata for each provider.
+ *
+ * SECURITY: This file reads OAuth clientSecret values from server-side env vars.
+ * The 'server-only' import below causes a build error if this module is ever
+ * imported from a 'use client' component, preventing secret leakage to the
+ * browser bundle.
  */
+
+// Prevent this module from being included in any client bundle.
+// Any 'use client' file that imports this will fail at build time.
+import 'server-only';
 
 export interface OAuthProviderMetadata {
   name: string;
