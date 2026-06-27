@@ -91,7 +91,8 @@ jobs:
 
   build-windows:
     name: Build Windows
-    runs-on: windows-latest
+    runs-on: windows-2022
+    # pinned windows-2022: windows-latest = VS2026 breaks Flutter/Tauri (see project memory)
     if: inputs.platform == 'all' || inputs.platform == 'windows'
     defaults:
       run:

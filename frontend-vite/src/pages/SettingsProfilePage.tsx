@@ -4,13 +4,11 @@
  *             parity (avatar block, basic-info fields, read-only role, regional settings, save flow).
  *             Next patterns -> Vite: @/contexts/auth-context useAuth -> @nself/auth-core useAuth;
  *             updateProfile() server call -> Hasura mutation via urql (@nself/graphql-client).
+ *             GraphQL documents + static helpers extracted to settings-profile-gql.ts.
  * Inputs:     none (current user from auth + Hasura). Outputs: profile editor.
- * Constraints:Profile READ maps to N-2-S2c (auth session/profile CRUD via Hasura). The current-user
- *             profile query (np_users by JWT id) + update_users_by_pk mutation are wired but the
- *             Hasura permission/row-filter + extended columns (username/bio/timezone/language) are
- *             NOT yet provisioned backend-side — see backend_pending. Until then the query errors
- *             gracefully (AsyncScreen) and we seed the form from the JWT UserProfile so the page is
- *             fully usable. Save reports a pending-backend notice rather than silently dropping data.
+ * Constraints:Profile READ maps to N-2-S2c (auth session/profile CRUD via Hasura). Extended columns
+ *             are NOT yet provisioned backend-side — query errors gracefully (AsyncScreen) and
+ *             form seeds from the JWT UserProfile. Save reports a pending-backend notice.
  * SOT:        F-NCHAT-VITE-ROUTE — /settings/profile  ·  api ticket N-2-S2c
  */
 import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react'
@@ -27,81 +25,15 @@ import {
   Textarea,
   SavedNotice,
 } from '@/components/settings'
-
-// ─── Hasura contract (N-2-S2c) ──────────────────────────────────────────────
-// Read the current user's profile row. `id` comes from the JWT (X-Hasura-User-Id),
-// so Hasura's row filter restricts the result to the caller. Extended profile
-// columns are listed in backend_pending until the schema lands.
-const CURRENT_USER_QUERY = /* GraphQL */ `
-  query CurrentUserProfile($id: uuid!) {
-    users_by_pk(id: $id) {
-      id
-      email
-      displayName: display_name
-      username
-      bio
-      timezone
-      locale
-      avatarUrl: avatar_url
-      defaultRole: default_role
-    }
-  }
-`
-
-const UPDATE_PROFILE_MUTATION = /* GraphQL */ `
-  mutation UpdateProfile($id: uuid!, $set: users_set_input!) {
-    update_users_by_pk(pk_columns: { id: $id }, _set: $set) {
-      id
-    }
-  }
-`
-
-interface ProfileRow {
-  id: string
-  email: string
-  displayName: string | null
-  username: string | null
-  bio: string | null
-  timezone: string | null
-  locale: string | null
-  avatarUrl: string | null
-  defaultRole: string | null
-}
-
-interface FormData {
-  displayName: string
-  username: string
-  email: string
-  bio: string
-  timezone: string
-  language: string
-}
-
-const TIMEZONES = [
-  'America/New_York',
-  'America/Chicago',
-  'America/Denver',
-  'America/Los_Angeles',
-  'Europe/London',
-  'Europe/Berlin',
-  'Asia/Dubai',
-  'Asia/Tokyo',
-  'UTC',
-].map((tz) => ({ value: tz, label: tz }))
-
-const LANGUAGES = [{ value: 'en', label: 'English' }]
-
-function roleDescription(role: string): string {
-  const map: Record<string, string> = {
-    owner: 'Full access to all settings and user management',
-    admin: 'Can manage users and channels, moderate content',
-    moderator: 'Can moderate content and manage channels',
-    member: 'Standard member with full chat access',
-    user: 'Standard member with full chat access',
-    guest: 'Limited access to specific channels',
-  }
-  return map[role] ?? 'Standard member'
-}
+import {
+  CURRENT_USER_QUERY,
+  UPDATE_PROFILE_MUTATION,
+  TIMEZONES,
+  LANGUAGES,
+  roleDescription,
+  type ProfileRow,
+  type FormData,
+} from '@/components/settings/settings-profile-gql'
 
 export default function SettingsProfilePage() {
   const auth = useAuth()
@@ -172,7 +104,6 @@ export default function SettingsProfilePage() {
     })
     setSaving(false)
     if (res.error) {
-      // Backend Action/columns not yet live — surface honestly, do not pretend success.
       setSaveError('Profile saving is not available yet — the backend profile mutation is pending.')
       return
     }
@@ -198,7 +129,6 @@ export default function SettingsProfilePage() {
 
         {auth.status === 'authenticated' && (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Avatar */}
             <SettingsSection title="Profile Photo" description="Upload a photo to personalize your account">
               <div className="flex items-center gap-4">
                 {row?.avatarUrl ? (
@@ -209,74 +139,45 @@ export default function SettingsProfilePage() {
                   </div>
                 )}
                 <div className="space-y-1">
-                  <Button type="button" disabled>
-                    Upload photo
-                  </Button>
+                  <Button type="button" disabled>Upload photo</Button>
                   <p className="text-xs text-slate-500">Avatar upload requires the storage upload Action (pending).</p>
                 </div>
               </div>
             </SettingsSection>
 
-            {/* Basic info */}
             <SettingsSection title="Basic Information" description="This information will be visible to other users">
               <SettingsRow label="Display Name" description="Your name as it appears to others" htmlFor="displayName" vertical>
                 <Input
-                  id="displayName"
-                  label="Display name"
-                  name="displayName"
-                  value={form.displayName}
-                  onChange={handleChange}
-                  placeholder="Enter your display name"
-                  disabled={saving}
-                  maxLength={50}
+                  id="displayName" label="Display name" name="displayName"
+                  value={form.displayName} onChange={handleChange}
+                  placeholder="Enter your display name" disabled={saving} maxLength={50}
                   data-testid="profile-display-name"
                 />
               </SettingsRow>
-
-              <SettingsRow
-                label="Username"
-                description="Your unique identifier. Letters, numbers, and underscores only."
-                htmlFor="username"
-                vertical
-              >
+              <SettingsRow label="Username" description="Your unique identifier. Letters, numbers, and underscores only." htmlFor="username" vertical>
                 <div className="flex items-center gap-2">
                   <span className="text-slate-400">@</span>
                   <Input
-                    id="username"
-                    label="Username"
-                    name="username"
-                    value={form.username}
-                    onChange={handleChange}
-                    placeholder="username"
-                    disabled={saving}
-                    pattern="^[a-zA-Z0-9_]+$"
-                    maxLength={30}
+                    id="username" label="Username" name="username"
+                    value={form.username} onChange={handleChange}
+                    placeholder="username" disabled={saving}
+                    pattern="^[a-zA-Z0-9_]+$" maxLength={30}
                     data-testid="profile-username"
                   />
                 </div>
               </SettingsRow>
-
               <SettingsRow label="Email" description="Your email address (managed in Account settings)" htmlFor="email" vertical>
                 <Input id="email" label="Email" name="email" type="email" value={form.email} disabled />
               </SettingsRow>
-
               <SettingsRow label="Bio" description="A short description about yourself (max 160 characters)" htmlFor="bio" vertical>
                 <Textarea
-                  id="bio"
-                  name="bio"
-                  value={form.bio}
-                  onChange={handleChange}
-                  placeholder="Tell others about yourself..."
-                  disabled={saving}
-                  maxLength={160}
-                  rows={3}
-                  testId="profile-bio"
+                  id="bio" name="bio" value={form.bio} onChange={handleChange}
+                  placeholder="Tell others about yourself..." disabled={saving} maxLength={160} rows={3} testId="profile-bio"
                 />
                 <p className="text-xs text-slate-500">{form.bio.length}/160 characters</p>
               </SettingsRow>
             </SettingsSection>
 
-            {/* Role (read-only) */}
             {role && (
               <SettingsSection title="Role" description="Your role determines your permissions in the workspace">
                 <div className="flex items-center justify-between rounded-lg border border-slate-700 p-4">
@@ -289,29 +190,21 @@ export default function SettingsProfilePage() {
               </SettingsSection>
             )}
 
-            {/* Regional */}
             <SettingsSection title="Regional Settings" description="Configure your timezone and language preferences">
               <SettingsRow label="Timezone" description="Used for displaying times and scheduling" htmlFor="timezone" vertical>
                 <Select
-                  id="timezone"
-                  value={form.timezone}
-                  options={TIMEZONES}
-                  onChange={(v) => setForm((prev) => ({ ...prev, timezone: v }))}
-                  disabled={saving}
+                  id="timezone" value={form.timezone} options={TIMEZONES}
+                  onChange={(v) => setForm((prev) => ({ ...prev, timezone: v }))} disabled={saving}
                 />
               </SettingsRow>
               <SettingsRow label="Language" description="The language used throughout the application" htmlFor="language" vertical>
                 <Select
-                  id="language"
-                  value={form.language}
-                  options={LANGUAGES}
-                  onChange={(v) => setForm((prev) => ({ ...prev, language: v }))}
-                  disabled={saving}
+                  id="language" value={form.language} options={LANGUAGES}
+                  onChange={(v) => setForm((prev) => ({ ...prev, language: v }))} disabled={saving}
                 />
               </SettingsRow>
             </SettingsSection>
 
-            {/* Profile fetch error — non-blocking (form still usable from JWT identity) */}
             {error && !fetching && (
               <p className="text-sm text-amber-400" role="status">
                 Could not load extended profile from the server yet — showing your account identity. Saving is pending backend support.
@@ -323,11 +216,7 @@ export default function SettingsProfilePage() {
                 {saving ? 'Saving…' : 'Save Changes'}
               </Button>
               <SavedNotice show={saved} />
-              {saveError && (
-                <p role="status" className="text-sm text-amber-400">
-                  {saveError}
-                </p>
-              )}
+              {saveError && <p role="status" className="text-sm text-amber-400">{saveError}</p>}
             </div>
           </form>
         )}

@@ -97,6 +97,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+
       - name: Run ESLint
         run: HASURA_ADMIN_SECRET=ci-lint-placeholder-not-a-real-secret pnpm lint
         # next lint loads next.config.js which has a build gate requiring this env var.

@@ -1,131 +1,23 @@
 /**
- * Purpose:    Presentational views for the saved pages — SavedFilters (search + sort + starred /
- *             attachment toggles + tag chips), SavedMessageCard + SavedMessageList, CollectionList
- *             (sidebar), and SavedCollectionsGrid. Ported from the legacy SavedFilters /
- *             SavedMessageList / CollectionList / SavedCollections components.
- * Inputs:     see each component's props.
- * Outputs:    JSX for the saved sub-views.
- * Constraints:Purely presentational — no fetching, no business logic (canonical §4). All actions
- *             are callbacks. RTL-safe spacing (ms-/me-).
+ * Purpose:    SavedMessageCard and SavedMessageList — presentational components for the
+ *             saved-messages list view. SavedFilters, CollectionList, and SavedCollectionsGrid
+ *             were split into SavedFiltersBar.tsx and SavedCollections.tsx to stay within
+ *             the 300-line file cap. All split exports are re-exported here for backward compat.
+ * Inputs:     SavedMessage objects and action callbacks (onJump, onUnsave, onToggleStar, onAddToCollection).
+ * Outputs:    SavedMessageCard renders one saved item card; SavedMessageList maps over the array.
+ * Constraints:Purely presentational — no fetching, no business logic. RTL-safe (ms-/me-).
  * SOT:        F-NCHAT-VITE-SAVED-VIEWS-01
  */
-import {
-  BookmarkIcon,
-  FolderIcon,
-  MoreIcon,
-  PaperclipIcon,
-  PlusIcon,
-  ShareIcon,
-  StarIcon,
-  TrashIcon,
-} from './SavedIcons'
-import type {
-  SavedCollection,
-  SavedFilters as SavedFiltersValue,
-  SavedMessage,
-  SavedSortBy,
-  SavedSortOrder,
-} from './saved-types'
+import { FolderIcon, PaperclipIcon, StarIcon, TrashIcon } from './SavedIcons'
+import type { SavedMessage } from './saved-types'
 
-// ─── Filters ──────────────────────────────────────────────────────────────────────
-
-export function SavedFilters({
-  filters,
-  sortBy,
-  sortOrder,
-  searchQuery,
-  availableTags,
-  selectedTags,
-  onFiltersChange,
-  onSortChange,
-  onSearchChange,
-  onTagsChange,
-}: {
-  filters: SavedFiltersValue
-  sortBy: SavedSortBy
-  sortOrder: SavedSortOrder
-  searchQuery: string
-  availableTags: string[]
-  selectedTags: string[]
-  onFiltersChange: (f: SavedFiltersValue) => void
-  onSortChange: (by: SavedSortBy, order: SavedSortOrder) => void
-  onSearchChange: (q: string) => void
-  onTagsChange: (tags: string[]) => void
-}) {
-  const toggleTag = (tag: string) =>
-    onTagsChange(
-      selectedTags.includes(tag) ? selectedTags.filter((t) => t !== tag) : [...selectedTags, tag],
-    )
-
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          type="search"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search saved messages…"
-          className="min-w-[14rem] flex-1 rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
-        />
-        <select
-          value={`${sortBy}:${sortOrder}`}
-          onChange={(e) => {
-            const [by, order] = e.target.value.split(':') as [SavedSortBy, SavedSortOrder]
-            onSortChange(by, order)
-          }}
-          className="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
-          aria-label="Sort saved messages"
-        >
-          <option value="savedAt:desc">Newest saved</option>
-          <option value="savedAt:asc">Oldest saved</option>
-          <option value="channel:asc">Channel A→Z</option>
-          <option value="channel:desc">Channel Z→A</option>
-        </select>
-        <label className="flex items-center gap-1.5 text-sm text-slate-300">
-          <input
-            type="checkbox"
-            checked={Boolean(filters.starredOnly)}
-            onChange={(e) => onFiltersChange({ ...filters, starredOnly: e.target.checked })}
-            className="h-4 w-4 accent-amber-400"
-          />
-          Starred
-        </label>
-        <label className="flex items-center gap-1.5 text-sm text-slate-300">
-          <input
-            type="checkbox"
-            checked={Boolean(filters.hasAttachments)}
-            onChange={(e) => onFiltersChange({ ...filters, hasAttachments: e.target.checked })}
-            className="h-4 w-4 accent-sky-400"
-          />
-          Has files
-        </label>
-      </div>
-      {availableTags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {availableTags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => toggleTag(tag)}
-              aria-pressed={selectedTags.includes(tag)}
-              className={[
-                'rounded-full px-2.5 py-1 text-xs',
-                selectedTags.includes(tag)
-                  ? 'bg-sky-500 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700',
-              ].join(' ')}
-            >
-              #{tag}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
+// Re-export split components so callers keep working without import changes.
+export { SavedFilters } from './SavedFiltersBar'
+export { CollectionList, SavedCollectionsGrid } from './SavedCollections'
 
 // ─── Message card + list ────────────────────────────────────────────────────────────
 
+/** Single saved-message card with star, add-to-collection, and remove actions. */
 export function SavedMessageCard({
   saved,
   onJump,
@@ -207,6 +99,7 @@ export function SavedMessageCard({
   )
 }
 
+/** Renders a SavedMessageCard for each message in the array. */
 export function SavedMessageList({
   messages,
   onJump,
@@ -236,124 +129,3 @@ export function SavedMessageList({
   )
 }
 
-// ─── Collection sidebar list ─────────────────────────────────────────────────────────
-
-export function CollectionList({
-  collections,
-  selectedId,
-  onSelect,
-  onCreate,
-  uncategorizedCount,
-}: {
-  collections: SavedCollection[]
-  selectedId: string | null
-  onSelect: (id: string | null) => void
-  onCreate: () => void
-  uncategorizedCount: number
-}) {
-  const rowClass = (active: boolean) =>
-    [
-      'flex w-full items-center gap-2 rounded-md px-3 py-2 text-start text-sm',
-      active ? 'bg-sky-500/15 text-sky-200' : 'text-slate-300 hover:bg-slate-800',
-    ].join(' ')
-
-  return (
-    <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2" aria-label="Collections">
-      <button type="button" onClick={() => onSelect(null)} className={rowClass(selectedId === null)}>
-        <BookmarkIcon className="h-4 w-4" />
-        <span className="flex-1">All saved</span>
-      </button>
-      <button
-        type="button"
-        onClick={() => onSelect('__uncategorized__')}
-        className={rowClass(selectedId === '__uncategorized__')}
-      >
-        <FolderIcon className="h-4 w-4" />
-        <span className="flex-1">Uncategorized</span>
-        {uncategorizedCount > 0 && <span className="text-xs text-slate-500">{uncategorizedCount}</span>}
-      </button>
-      <div className="my-1 h-px bg-slate-800" />
-      {collections.map((c) => (
-        <button key={c.id} type="button" onClick={() => onSelect(c.id)} className={rowClass(selectedId === c.id)}>
-          <span className="text-base" style={c.color ? { color: c.color } : undefined}>
-            {c.icon ?? '📁'}
-          </span>
-          <span className="flex-1 truncate">{c.name}</span>
-          <span className="text-xs text-slate-500">{c.itemCount}</span>
-        </button>
-      ))}
-      <button
-        type="button"
-        onClick={onCreate}
-        className="mt-1 flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sky-400 hover:bg-slate-800"
-      >
-        <PlusIcon className="h-4 w-4" />
-        New collection
-      </button>
-    </nav>
-  )
-}
-
-// ─── Collections grid (collections index page) ────────────────────────────────────────
-
-export function SavedCollectionsGrid({
-  collections,
-  onSelect,
-  onEdit,
-  onDelete,
-  onShare,
-}: {
-  collections: SavedCollection[]
-  onSelect: (c: SavedCollection) => void
-  onEdit?: (c: SavedCollection) => void
-  onDelete: (c: SavedCollection) => void
-  onShare?: (c: SavedCollection) => void
-}) {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {collections.map((c) => (
-        <div
-          key={c.id}
-          className="group flex flex-col rounded-xl border border-slate-800 bg-slate-900/40 p-4 transition-colors hover:border-slate-700"
-        >
-          <div className="mb-3 flex items-start justify-between">
-            <button
-              type="button"
-              onClick={() => onSelect(c)}
-              className="flex h-11 w-11 items-center justify-center rounded-lg text-xl"
-              style={c.color ? { backgroundColor: `${c.color}20`, color: c.color } : undefined}
-              aria-label={`Open ${c.name}`}
-            >
-              {c.icon ?? '📁'}
-            </button>
-            <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-              {onShare && (
-                <button type="button" onClick={() => onShare(c)} aria-label="Share" className="text-slate-500 hover:text-sky-300">
-                  <ShareIcon className="h-4 w-4" />
-                </button>
-              )}
-              {onEdit && (
-                <button type="button" onClick={() => onEdit(c)} aria-label="Edit" className="text-slate-500 hover:text-slate-200">
-                  <MoreIcon className="h-4 w-4" />
-                </button>
-              )}
-              <button type="button" onClick={() => onDelete(c)} aria-label="Delete" className="text-slate-500 hover:text-red-400">
-                <TrashIcon className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          <button type="button" onClick={() => onSelect(c)} className="text-start">
-            <h3 className="flex items-center gap-1.5 font-medium text-slate-100">
-              {c.name}
-              {c.isShared && <ShareIcon className="h-3.5 w-3.5 text-slate-500" />}
-            </h3>
-            {c.description && <p className="mt-0.5 text-sm text-slate-400">{c.description}</p>}
-            <p className="mt-2 text-xs text-slate-500">
-              {c.itemCount} {c.itemCount === 1 ? 'message' : 'messages'}
-            </p>
-          </button>
-        </div>
-      ))}
-    </div>
-  )
-}

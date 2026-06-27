@@ -3,6 +3,7 @@
  *             useSavedStore with urql against Hasura, while preserving the same derived views
  *             the pages need: filtered+sorted list, collections, per-collection lookups, tags,
  *             stats, and CRUD actions. Exposes a Result so pages drive AsyncScreen.
+ *             Raw row shapes and normalizers extracted to saved-normalizers.ts.
  * Inputs:     none (filter/sort/search/collection selection are internal state + setters).
  * Outputs:    rich object — see UseSaved interface below.
  * Constraints:Server data in urql cache (canonical §6); filtering/sorting computed client-side.
@@ -30,6 +31,7 @@ import {
   type SavedSortOrder,
   type SavedStats,
 } from './saved-types'
+import { normCollection, normSaved, type SavedData } from './saved-normalizers'
 
 function toAppError(error: CombinedError): AppError {
   const status = (error.response as { status?: number } | undefined)?.status
@@ -37,77 +39,6 @@ function toAppError(error: CombinedError): AppError {
   if (status === 401) return { code: 'auth_failed', status: 401, message: error.message }
   if (status === 403) return { code: 'forbidden', status: 403, message: error.message }
   return { code: 'internal', status: 500, message: error.message }
-}
-
-// ─── Raw row shapes (Hasura snake_case) ──────────────────────────────────────────
-
-interface RawCollection {
-  id: string
-  name: string
-  description?: string | null
-  icon?: string | null
-  color?: string | null
-  item_count: number
-  created_at: string
-  updated_at: string
-  position: number
-  is_shared: boolean
-}
-interface RawSaved {
-  id: string
-  message_id: string
-  channel_id: string
-  channel_name: string
-  saved_at: string
-  content: string
-  note?: string | null
-  tags?: string[] | null
-  is_starred: boolean
-  has_attachments: boolean
-  reminder_at?: string | null
-  author: { id: string; display_name: string; avatar_url?: string | null }
-  collection_items: { collection_id: string }[]
-}
-interface SavedData {
-  collections: RawCollection[]
-  saved: RawSaved[]
-  starred: { aggregate: { count: number } | null }
-}
-
-function normCollection(r: RawCollection): SavedCollection {
-  return {
-    id: r.id,
-    name: r.name,
-    description: r.description ?? undefined,
-    icon: r.icon ?? undefined,
-    color: r.color ?? undefined,
-    itemCount: r.item_count,
-    createdAt: new Date(r.created_at),
-    updatedAt: new Date(r.updated_at),
-    position: r.position,
-    isShared: r.is_shared,
-  }
-}
-function normSaved(r: RawSaved): SavedMessage {
-  return {
-    id: r.id,
-    messageId: r.message_id,
-    channelId: r.channel_id,
-    channelName: r.channel_name,
-    collectionIds: r.collection_items.map((c) => c.collection_id),
-    savedAt: new Date(r.saved_at),
-    content: r.content,
-    note: r.note ?? undefined,
-    tags: r.tags ?? [],
-    isStarred: r.is_starred,
-    hasAttachments: r.has_attachments,
-    reminderAt: r.reminder_at ? new Date(r.reminder_at) : null,
-    author: {
-      id: r.author.id,
-      displayName: r.author.display_name,
-      avatarUrl: r.author.avatar_url ?? null,
-    },
-  }
 }
 
 // ─── Pure filter/sort ─────────────────────────────────────────────────────────────
@@ -269,15 +200,11 @@ export function useSaved(): UseSaved {
       [runCreate, collections.length, refresh],
     ),
     deleteCollection: useCallback(
-      (id: string) => {
-        void runDelete({ id }).then(refresh)
-      },
+      (id: string) => { void runDelete({ id }).then(refresh) },
       [runDelete, refresh],
     ),
     removeSaved: useCallback(
-      (id: string) => {
-        void runRemove({ id }).then(refresh)
-      },
+      (id: string) => { void runRemove({ id }).then(refresh) },
       [runRemove, refresh],
     ),
     toggleStar: useCallback(
@@ -289,10 +216,7 @@ export function useSaved(): UseSaved {
     ),
     setMembership: useCallback(
       (savedId: string, collectionIds: string[]) => {
-        const objects = collectionIds.map((cid) => ({
-          saved_message_id: savedId,
-          collection_id: cid,
-        }))
+        const objects = collectionIds.map((cid) => ({ saved_message_id: savedId, collection_id: cid }))
         void runMembership({ savedId, collectionIds: objects }).then(refresh)
       },
       [runMembership, refresh],
