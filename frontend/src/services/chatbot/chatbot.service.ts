@@ -230,7 +230,12 @@ function createStandardQuickReplies(
 
 export class ChatbotService {
   private intentMatcher: IntentMatcher;
-  private kbService = getKnowledgeBaseService();
+
+  // Resolved lazily so that test resets (resetKnowledgeBaseService) are
+  // reflected correctly rather than capturing a stale singleton at construction.
+  private get kbService() {
+    return getKnowledgeBaseService();
+  }
 
   constructor() {
     this.intentMatcher = getIntentMatcher();
@@ -463,7 +468,10 @@ export class ChatbotService {
       // Update state
       if (shouldHandoff) {
         context.state = "handoff_pending";
-      } else if (detectedIntent.intent === "faq" && response.matchedFAQ) {
+      } else if (
+        (detectedIntent.intent === "faq" || detectedIntent.intent === "help") &&
+        response.matchedFAQ
+      ) {
         context.state = "answering";
       } else if (
         detectedIntent.intent === "thanks" ||
