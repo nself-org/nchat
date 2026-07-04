@@ -69,8 +69,18 @@ jobs:
 
       # T17: EV code-signing via SSL.com eSigner — gated on org secret presence.
       # DPI is handled automatically by Tauri 2's Windows manifest (T23 — no custom manifest needed).
+      # secrets context is not allowed in step `if:` — it invalidates the whole
+      # workflow at parse time (0-job startup failure on every push). Gate via an
+      # output check instead.
+      - name: Check EV signing secret presence
+        id: evcheck
+        shell: bash
+        env:
+          SSL_USER: ${{ secrets.SSL_COM_USERNAME }}
+        run: echo "present=$([ -n "$SSL_USER" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
       - name: Sign Windows MSI (EV, SSL.com eSigner)
-        if: ${{ secrets.SSL_COM_USERNAME != '' }}
+        if: steps.evcheck.outputs.present == 'true' 
         uses: SSLcom/esigner-codesign@v1.3.2
         with:
           command: sign
