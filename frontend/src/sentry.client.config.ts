@@ -73,7 +73,9 @@ if (SENTRY_DSN) {
             "creditCard",
             "ssn",
           ];
-          const filtered = { ...event.request.data };
+          const filtered: Record<string, unknown> = {
+            ...(event.request.data as Record<string, unknown>),
+          };
 
           sensitiveFields.forEach((field) => {
             if (filtered[field]) {

@@ -18,6 +18,12 @@ out/
 build/
 dist/
 *.tsbuildinfo
+# Stray compiled output that has landed inside package src/ dirs (outDir
+# misconfiguration) — packages/*/tsconfig.json always emit to dist/, these
+# should never be tracked. Fixed 2026-07-04 (Windows Tauri build TS5011).
+packages/*/src/index.js
+packages/*/src/index.d.ts
+packages/*/src/index.d.ts.map
 
 # -----------------------------------------------------------------------------
 # Testing

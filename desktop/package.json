@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@nself-chat/ui": "workspace:*",
-    "@nself-chat/web": "workspace:*",
     "@nself/auth-core": "workspace:*",
     "@nself/graphql-client": "workspace:*",
     "@nself/i18n": "workspace:*",

@@ -51,9 +51,14 @@ jobs:
           workspaces: desktop/src-tauri -> target
           key: windows-x64-${{ hashFiles('desktop/src-tauri/Cargo.lock') }}
 
-      - name: Install pnpm deps
+      # Scoped install: --filter ...desktop pulls in only the workspace
+      # packages the Tauri build actually needs (ui/core/state/config/api +
+      # @nself/* deps), skipping `frontend`'s test-only native deps (canvas,
+      # appium, @wdio/*, detox) that have no Windows prebuilds and fail
+      # node-gyp compilation on windows-2022 runners.
+      - name: Install pnpm deps (desktop + workspace deps only)
         working-directory: .
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --filter "...@nself-chat/desktop"
 
       - name: Build workspace packages (@nself-chat/ui etc.)
         working-directory: .

@@ -152,7 +152,7 @@ class PerformanceMonitor {
       // Send to Sentry
       Sentry.metrics.distribution(metric.name, metric.value, {
         unit: "millisecond",
-        tags: { rating },
+        attributes: { rating },
       });
 
       // Check for poor vitals
@@ -423,7 +423,7 @@ class PerformanceMonitor {
     // Send to Sentry
     Sentry.metrics.distribution(metric.name, metric.value, {
       unit: metric.unit,
-      tags: metric.tags,
+      attributes: metric.tags,
     });
 
     this.saveMetrics();

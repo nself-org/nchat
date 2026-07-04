@@ -326,12 +326,6 @@ importers:
       clsx:
         specifier: ^2
         version: 2.1.1
-      react:
-        specifier: ^19.2.0
-        version: 19.2.6
-      react-dom:
-        specifier: ^19.2.0
-        version: 19.2.6(react@19.2.6)
       tailwind-merge:
         specifier: ^2
         version: 2.6.1
@@ -378,6 +372,12 @@ importers:
       jsdom:
         specifier: ^25
         version: 25.0.1(canvas@2.11.2(encoding@0.1.13))
+      react:
+        specifier: ^19.2.0
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.6(react@19.2.6)
       storybook:
         specifier: ^8
         version: 8.6.18(prettier@3.9.4)
@@ -396,9 +396,6 @@ importers:
       '@nself-chat/ui':
         specifier: workspace:*
         version: link:../packages/ui
-      '@nself-chat/web':
-        specifier: workspace:*
-        version: link:../frontend
       '@nself/auth-core':
         specifier: workspace:*
         version: link:../../packages/@nself/auth-core

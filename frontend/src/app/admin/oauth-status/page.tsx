@@ -4,16 +4,15 @@
  * OAuth Provider Status Dashboard
  *
  * Admin page showing configuration status and statistics for all OAuth providers.
+ *
+ * NOTE: This client component MUST NOT import "@/config/oauth-providers"
+ * directly — that module is 'server-only' (it reads clientSecret env vars)
+ * and importing it here breaks the Next.js build. Status data is fetched
+ * from GET /api/admin/oauth-status, which returns a sanitized subset with
+ * clientSecret always omitted.
  */
 
 import { useState, useEffect } from "react";
-import {
-  getAllOAuthProviderNames,
-  validateOAuthProvider,
-  getOAuthProvider,
-  type OAuthProviderValidation,
-  type OAuthProviderMetadata,
-} from "@/config/oauth-providers";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +27,16 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+/** Client-safe provider metadata — mirrors the server route's response shape. */
+interface PublicProviderMetadata {
+  name: string;
+  displayName: string;
+  enabled: boolean;
+  scopes: string[];
+  icon?: string;
+  color?: string;
+}
+
 interface ProviderStats {
   provider: string;
   totalUsers: number;
@@ -35,8 +44,12 @@ interface ProviderStats {
   enabled: boolean;
 }
 
-interface ProviderStatus extends OAuthProviderValidation {
-  config: OAuthProviderMetadata;
+interface ProviderStatus {
+  provider: string;
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  config: PublicProviderMetadata;
   stats: ProviderStats;
   routesExist: boolean;
 }
@@ -55,34 +68,18 @@ export default function OAuthStatusPage() {
   const loadProviderStatuses = async () => {
     setLoading(true);
 
-    const providers = getAllOAuthProviderNames();
-    const statuses: ProviderStatus[] = [];
-
-    for (const providerName of providers) {
-      const validation = validateOAuthProvider(providerName);
-      const config = getOAuthProvider(providerName)!;
-
-      // In production, fetch stats from API
-      // For now, use mock data
-      const stats: ProviderStats = {
-        provider: providerName,
-        totalUsers: 0,
-        lastLogin: null,
-        enabled: config.enabled,
-      };
-
-      // Check if routes exist (simplified check)
-      const routesExist = true; // Assume they exist since we generated them
-
-      statuses.push({
-        ...validation,
-        config,
-        stats,
-        routesExist,
-      });
+    try {
+      const response = await fetch("/api/admin/oauth-status");
+      if (!response.ok) {
+        throw new Error(`Failed to load OAuth status: ${response.status}`);
+      }
+      const data: { providers: ProviderStatus[] } = await response.json();
+      setProviderStatuses(data.providers);
+    } catch (error) {
+      console.error("Failed to load OAuth provider statuses", error);
+      setProviderStatuses([]);
     }
 
-    setProviderStatuses(statuses);
     setLoading(false);
     setLastRefresh(new Date());
   };
