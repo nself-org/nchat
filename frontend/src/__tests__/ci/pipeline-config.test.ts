@@ -427,9 +427,12 @@ describe("CI Pipeline Configuration", () => {
         s.name.includes("Install dependencies"),
       );
       expect(installStep).toBeDefined();
-      expect(installStep.run).toBe(
-        "pnpm install --frozen-lockfile --ignore-scripts",
-      );
+      // --ignore-scripts was removed: it silently skipped postinstall for
+      // every native module (canvas, sharp, @node-rs/argon2), causing
+      // "No native build was found" crashes at prerender time instead of
+      // install time. Scripts are now scoped via pnpm.onlyBuiltDependencies
+      // in the root package.json instead of blocked wholesale.
+      expect(installStep.run).toBe("pnpm install --frozen-lockfile");
     });
 
     it("should setup pnpm before Node.js", () => {
