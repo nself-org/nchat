@@ -426,8 +426,13 @@ jobs:
           NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
           HASURA_ADMIN_SECRET: 'ci-build-placeholder-not-a-real-secret'
 
+      # Use pnpm dlx (ephemeral, no workspace mutation) instead of `pnpm add`:
+      # `pnpm add` re-resolves the whole workspace graph, including the
+      # `../packages/@nself/*` sibling-repo glob in the root pnpm-workspace.yaml
+      # which isn't checked out in CI, breaking on frontend-vite's
+      # `@nself/auth-core: workspace:*` dependency.
       - name: Install Capacitor CLI
-        run: pnpm add -D @capacitor/cli --ignore-scripts
+        run: pnpm dlx --ignore-scripts @capacitor/cli@^6.2.0 --version
 
       - name: Sync Capacitor Android
         working-directory: frontend/platforms/mobile
