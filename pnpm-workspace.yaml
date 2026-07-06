@@ -1,6 +1,7 @@
 packages:
   - 'frontend'
   - 'frontend-vite'
+  - 'frontend/platforms/mobile'
   - 'packages/*'
   - 'desktop'
   - '../packages/@nself/*'
