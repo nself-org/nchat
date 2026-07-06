@@ -30,7 +30,7 @@
     "lighthouse": "lhci autorun"
   },
   "dependencies": {
-    "@aparajita/capacitor-biometric-auth": "^9.1.2",
+    "@aparajita/capacitor-biometric-auth": "^8.0.2",
     "@apollo/client": "^3.14.0",
     "@aws-sdk/client-s3": "^3.1009.0",
     "@aws-sdk/s3-request-presigner": "^3.1009.0",
