@@ -426,17 +426,17 @@ jobs:
           NEXT_PUBLIC_AUTH_URL: 'http://localhost:4000'
           HASURA_ADMIN_SECRET: 'ci-build-placeholder-not-a-real-secret'
 
-      # Use pnpm dlx (ephemeral, no workspace mutation) instead of `pnpm add`:
-      # `pnpm add` re-resolves the whole workspace graph, including the
-      # `../packages/@nself/*` sibling-repo glob in the root pnpm-workspace.yaml
-      # which isn't checked out in CI, breaking on frontend-vite's
-      # `@nself/auth-core: workspace:*` dependency.
-      - name: Install Capacitor CLI
-        run: pnpm dlx --ignore-scripts @capacitor/cli@^6.2.0 --version
-
+      # `npx cap sync android` below fetches @capacitor/cli on demand via npm's
+      # cache, so no separate install step is needed. A prior `pnpm add -D
+      # @capacitor/cli` here re-resolved the whole workspace graph, including
+      # the `../packages/@nself/*` sibling-repo glob in the root
+      # pnpm-workspace.yaml (not checked out in this repo's CI), breaking on
+      # frontend-vite's `@nself/auth-core: workspace:*` dependency. A `pnpm dlx`
+      # replacement also failed (`--ignore-scripts` blocks the CLI's own bin
+      # link). npx sidesteps both: it does not touch the pnpm workspace.
       - name: Sync Capacitor Android
         working-directory: frontend/platforms/mobile
-        run: npx cap sync android
+        run: npx --yes @capacitor/cli@^6.2.0 sync android
 
       # setup-java's gradle cache keys off gradle-wrapper.properties / build.gradle
       # files, which do not exist until Capacitor generates the native android/
