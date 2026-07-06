@@ -85,7 +85,7 @@ jobs:
           echo "Deploying version $VERSION ($VERSION_CODE)"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Build web assets
         run: pnpm build

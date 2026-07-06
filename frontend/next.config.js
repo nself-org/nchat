@@ -58,21 +58,22 @@ const nextConfig = {
           return callback()
         },
       ]
-    } else {
-      // @signalapp/libsignal-client is a Node-native N-API module (no
-      // browser/WASM build exists upstream) pulled in transitively by
-      // src/lib/e2ee/signal-client.ts -> e2ee-context.tsx ->
-      // settings/security/page.tsx. E2EEProvider is already commented out
-      // app-wide in providers/index.tsx ("temporarily disabled - uses
-      // Node.js native modules"), but this one remaining direct import
-      // still breaks the client webpack build (UnhandledSchemeError on
-      // node:crypto / node:buffer). Alias it out of the client bundle to
-      // match the already-disabled E2EE feature state; re-enable together
-      // when E2EE ships with a real browser-compatible crypto backend.
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@signalapp/libsignal-client': false,
-      }
+    }
+    // @signalapp/libsignal-client is a Node-native N-API module (no
+    // browser/WASM build exists upstream, and the checked-in prebuild ABI
+    // doesn't match every CI runner's Node version) pulled in transitively
+    // by src/lib/e2ee/signal-client.ts -> e2ee-context.tsx ->
+    // settings/security/page.tsx. E2EEProvider is already commented out
+    // app-wide in providers/index.tsx ("temporarily disabled - uses
+    // Node.js native modules"), but this one remaining direct import still
+    // breaks both the client bundle (UnhandledSchemeError on node:crypto /
+    // node:buffer) and server-side prerendering of /settings/security
+    // (native binary ABI mismatch). Alias it out of BOTH bundles to match
+    // the already-disabled E2EE feature state; re-enable together when
+    // E2EE ships with a real browser-compatible crypto backend.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@signalapp/libsignal-client': false,
     }
     return config
   },

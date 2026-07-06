@@ -34,7 +34,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Run ESLint with jsx-a11y rules
         run: HASURA_ADMIN_SECRET=ci-lint-placeholder-not-a-real-secret pnpm lint
@@ -65,7 +65,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Run accessibility unit tests
         run: pnpm --filter @nself-chat/web exec jest --testPathPattern="a11y|accessibility" --passWithNoTests --forceExit
@@ -179,7 +179,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
         # All browser projects (chromium, firefox, webkit, mobile-chrome, mobile-safari, tablet)
@@ -237,7 +237,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Build application
         run: HASURA_ADMIN_SECRET=ci-test-placeholder-not-a-real-secret NEXT_PUBLIC_USE_DEV_AUTH=true NEXT_PUBLIC_ENV=test pnpm build
@@ -297,7 +297,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Validate translation coverage
         working-directory: frontend

@@ -72,8 +72,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pnpm install --frozen-lockfile --ignore-scripts
-          cd platforms/react-native && pnpm install --frozen-lockfile --ignore-scripts
+          pnpm install --frozen-lockfile
+          cd platforms/react-native && pnpm install --frozen-lockfile
 
       - name: Install CocoaPods
         run: |
@@ -166,8 +166,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pnpm install --frozen-lockfile --ignore-scripts
-          cd platforms/react-native && pnpm install --frozen-lockfile --ignore-scripts
+          pnpm install --frozen-lockfile
+          cd platforms/react-native && pnpm install --frozen-lockfile
 
       - name: Build Android (Debug)
         if: inputs.build_type == 'debug'

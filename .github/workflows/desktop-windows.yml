@@ -53,12 +53,18 @@ jobs:
 
       # Scoped install: --filter ...desktop pulls in only the workspace
       # packages the Tauri build actually needs (ui/core/state/config/api +
-      # @nself/* deps), skipping `frontend`'s test-only native deps (canvas,
-      # appium, @wdio/*, detox) that have no Windows prebuilds and fail
-      # node-gyp compilation on windows-2022 runners.
+      # @nself/* deps). `--filter ...desktop` alone does NOT stop pnpm from
+      # resolving/building every workspace project's own deps against the
+      # shared lockfile+store (shamefully-hoist=true in .npmrc hoists
+      # everything to the root node_modules regardless of filter), so
+      # `frontend`'s test-only native dep `canvas` was still attempted and
+      # failed node-gyp compilation on windows-2022 (no GTK/cairo dev
+      # headers on the runner, no Windows prebuilt binary for this version).
+      # Explicitly excluding @nself-chat/web (frontend) from the install
+      # graph is what actually skips it.
       - name: Install pnpm deps (desktop + workspace deps only)
         working-directory: .
-        run: pnpm install --frozen-lockfile --filter "...@nself-chat/desktop"
+        run: pnpm install --frozen-lockfile --filter "...@nself-chat/desktop" --filter "!@nself-chat/web"
 
       - name: Build workspace packages (@nself-chat/ui etc.)
         working-directory: .

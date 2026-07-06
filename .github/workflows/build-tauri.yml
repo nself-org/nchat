@@ -66,7 +66,7 @@ jobs:
           workspaces: frontend/platforms/tauri
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Build Tauri (Universal)
         run: pnpm tauri build --target universal-apple-darwin
@@ -120,7 +120,7 @@ jobs:
           workspaces: frontend/platforms/tauri
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Build Tauri
         run: pnpm tauri build
@@ -179,7 +179,7 @@ jobs:
           workspaces: frontend/platforms/tauri
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Build Tauri
         run: pnpm tauri build

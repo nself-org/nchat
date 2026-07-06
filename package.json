@@ -11,6 +11,12 @@
     "ci:local": "pnpm lint && pnpm type-check && pnpm test && pnpm build"
   },
   "pnpm": {
+    "onlyBuiltDependencies": [
+      "canvas",
+      "sharp",
+      "@node-rs/argon2",
+      "@signalapp/libsignal-client"
+    ],
     "overrides": {
       "protobufjs@<7.6.3": ">=7.6.3",
       "protobufjs@8.3.0": "8.6.4",
