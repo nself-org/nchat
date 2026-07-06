@@ -431,6 +431,18 @@ jobs:
       # installed its @capacitor/* deps — no separate CLI install/npx
       # fetch needed here.
       #
+      # capacitor.config.json's webDir ("dist") is relative to this mobile
+      # package, not the Next.js app built above — it is its own Vite SPA
+      # shell. `cap add`/`cap sync` silently no-op ("sync could not run--
+      # missing dist directory") without it, which then skips the plugin +
+      # gradle settings sync (capacitor.settings.gradle never gets written,
+      # failing the later gradle build). `vite build` directly, not
+      # `pnpm build` (= `tsc && vite build`): this package's tsc config has
+      # a pre-existing unrelated TS5101 error that isn't this job's concern.
+      - name: Build mobile web assets (Vite)
+        working-directory: frontend/platforms/mobile
+        run: npx vite build
+
       # `cap add android`, not `cap sync android`: the native android/
       # project is gitignored (never committed) and does not exist on a
       # fresh checkout, so there is nothing for `sync` to sync into yet.
