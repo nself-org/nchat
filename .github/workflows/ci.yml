@@ -404,12 +404,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
-
       - uses: android-actions/setup-android@v4
 
       - uses: pnpm/action-setup@v6
@@ -438,6 +432,17 @@ jobs:
       - name: Sync Capacitor Android
         working-directory: frontend/platforms/mobile
         run: npx cap sync android
+
+      # setup-java's gradle cache keys off gradle-wrapper.properties / build.gradle
+      # files, which do not exist until Capacitor generates the native android/
+      # project above (it is gitignored, not committed) — so this step must run
+      # after "Sync Capacitor Android", not before.
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+          cache-dependency-path: frontend/platforms/mobile/android/**/*.gradle*
 
       - name: Build debug APK
         working-directory: frontend/platforms/mobile/android
