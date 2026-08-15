@@ -105,10 +105,7 @@ export interface WorkflowVariable {
  * A workflow trigger defines when and how a workflow starts.
  */
 export type WorkflowTrigger =
-  | EventTrigger
-  | ScheduleTrigger
-  | WebhookTrigger
-  | ManualTrigger;
+  EventTrigger | ScheduleTrigger | WebhookTrigger | ManualTrigger;
 
 /**
  * Base trigger interface.
@@ -239,12 +236,7 @@ export interface WorkflowStep {
  * Step type.
  */
 export type StepType =
-  | "action"
-  | "condition"
-  | "approval"
-  | "delay"
-  | "parallel"
-  | "loop";
+  "action" | "condition" | "approval" | "delay" | "parallel" | "loop";
 
 /**
  * Per-step settings.
@@ -462,11 +454,7 @@ export interface ChannelAction extends BaseAction {
   type: "channel_action";
   /** Sub-action */
   subAction:
-    | "create"
-    | "archive"
-    | "add_member"
-    | "remove_member"
-    | "update_topic";
+    "create" | "archive" | "add_member" | "remove_member" | "update_topic";
   /** Target channel ID (for non-create actions) */
   channelId?: string;
   /** Channel name (for create) */
@@ -685,11 +673,7 @@ export interface ApprovalResponse {
  * Approval request status.
  */
 export type ApprovalStatus =
-  | "pending"
-  | "approved"
-  | "rejected"
-  | "expired"
-  | "escalated";
+  "pending" | "approved" | "rejected" | "expired" | "escalated";
 
 // ============================================================================
 // SCHEDULING

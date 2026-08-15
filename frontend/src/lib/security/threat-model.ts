@@ -121,12 +121,7 @@ export type CapabilityLevel = "low" | "medium" | "high" | "very_high";
  * Threat actor persistence levels
  */
 export type PersistenceLevel =
-  | "low"
-  | "medium"
-  | "high"
-  | "very_high"
-  | "event_driven"
-  | "na";
+  "low" | "medium" | "high" | "very_high" | "event_driven" | "na";
 
 /**
  * Threat actor definition
@@ -252,11 +247,7 @@ export const THREAT_ACTORS: Record<ThreatActorType, ThreatActor> = {
  * Likelihood levels
  */
 export type LikelihoodLevel =
-  | "very_low"
-  | "low"
-  | "medium"
-  | "high"
-  | "very_high";
+  "very_low" | "low" | "medium" | "high" | "very_high";
 
 /**
  * Impact levels
@@ -272,10 +263,7 @@ export type RiskLevel = "low" | "medium" | "high" | "critical";
  * Mitigation status
  */
 export type MitigationStatus =
-  | "implemented"
-  | "partial"
-  | "planned"
-  | "not_addressed";
+  "implemented" | "partial" | "planned" | "not_addressed";
 
 /**
  * Risk matrix for computing risk level
@@ -423,11 +411,7 @@ export const CRITICAL_ASSETS: Asset[] = [
  * Attack vector categories
  */
 export type AttackVectorCategory =
-  | "client_side"
-  | "server_side"
-  | "network"
-  | "insider"
-  | "state_legal";
+  "client_side" | "server_side" | "network" | "insider" | "state_legal";
 
 /**
  * Attack vector definition

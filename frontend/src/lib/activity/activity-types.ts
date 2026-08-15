@@ -698,12 +698,7 @@ export interface DateGroupedActivities {
  * Activity date group labels
  */
 export type ActivityDateGroup =
-  | "today"
-  | "yesterday"
-  | "this_week"
-  | "last_week"
-  | "this_month"
-  | "older";
+  "today" | "yesterday" | "this_week" | "last_week" | "this_month" | "older";
 
 // =============================================================================
 // Socket Event Types

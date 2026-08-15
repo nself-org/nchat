@@ -26,21 +26,13 @@ const log = createLogger("PrivacySettings");
  * Privacy level presets
  */
 export type PrivacyLevel =
-  | "minimal"
-  | "balanced"
-  | "strict"
-  | "maximum"
-  | "custom";
+  "minimal" | "balanced" | "strict" | "maximum" | "custom";
 
 /**
  * Data collection category
  */
 export type DataCollectionCategory =
-  | "essential"
-  | "analytics"
-  | "personalization"
-  | "marketing"
-  | "third_party";
+  "essential" | "analytics" | "personalization" | "marketing" | "third_party";
 
 /**
  * Analytics mode

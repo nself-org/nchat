@@ -33,11 +33,7 @@ export interface User {
  */
 export type ChannelType = "public" | "private" | "direct" | "group";
 export type ChannelCategory =
-  | "general"
-  | "announcements"
-  | "support"
-  | "random"
-  | "custom";
+  "general" | "announcements" | "support" | "random" | "custom";
 
 export interface Channel {
   id: UUID;
@@ -59,18 +55,9 @@ export interface Channel {
  * Message Types
  */
 export type MessageType =
-  | "text"
-  | "file"
-  | "image"
-  | "video"
-  | "audio"
-  | "system";
+  "text" | "file" | "image" | "video" | "audio" | "system";
 export type MessageStatus =
-  | "sending"
-  | "sent"
-  | "delivered"
-  | "read"
-  | "failed";
+  "sending" | "sent" | "delivered" | "read" | "failed";
 
 export interface Message {
   id: UUID;

@@ -26,18 +26,10 @@ export interface StorageConfig {
 // ============================================================================
 
 export type ProcessingStatus =
-  | "pending"
-  | "uploading"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "uploading" | "processing" | "completed" | "failed" | "cancelled";
 
 export type ProcessingOperation =
-  | "thumbnail"
-  | "optimize"
-  | "scan"
-  | "metadata";
+  "thumbnail" | "optimize" | "scan" | "metadata";
 
 export type ScanStatus = "clean" | "infected" | "error" | "timeout";
 

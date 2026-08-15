@@ -68,14 +68,7 @@ export type EvictionPolicy = "lru" | "lfu" | "fifo" | "ttl";
  * Cache event types
  */
 export type CacheEventType =
-  | "set"
-  | "get"
-  | "delete"
-  | "clear"
-  | "hit"
-  | "miss"
-  | "evict"
-  | "expire";
+  "set" | "get" | "delete" | "clear" | "hit" | "miss" | "evict" | "expire";
 
 /**
  * Cache event

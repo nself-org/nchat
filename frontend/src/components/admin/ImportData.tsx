@@ -51,12 +51,7 @@ import type {
 import { logger } from "@/lib/logger";
 
 type WizardStep =
-  | "source"
-  | "upload"
-  | "options"
-  | "preview"
-  | "importing"
-  | "completed";
+  "source" | "upload" | "options" | "preview" | "importing" | "completed";
 
 export default function ImportData() {
   const [step, setStep] = useState<WizardStep>("source");

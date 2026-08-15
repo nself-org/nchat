@@ -670,10 +670,7 @@ export function validateManifest(manifest: unknown): ManifestValidationResult {
  * Possible states for a registered app.
  */
 export type AppStatus =
-  | "pending_review"
-  | "approved"
-  | "rejected"
-  | "suspended";
+  "pending_review" | "approved" | "rejected" | "suspended";
 
 /**
  * Installation status for an app within a workspace.
@@ -810,10 +807,7 @@ export interface AppEventPayload {
  * Delivery status for tracking event delivery attempts.
  */
 export type EventDeliveryStatus =
-  | "pending"
-  | "delivered"
-  | "failed"
-  | "retrying";
+  "pending" | "delivered" | "failed" | "retrying";
 
 /**
  * Event delivery record.

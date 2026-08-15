@@ -142,10 +142,7 @@ export interface ChannelResult {
 }
 
 export type SearchResult =
-  | MessageResult
-  | FileResult
-  | UserResult
-  | ChannelResult;
+  MessageResult | FileResult | UserResult | ChannelResult;
 
 export interface SearchResponse {
   results: SearchResult[];

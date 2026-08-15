@@ -28,11 +28,7 @@ export type ExportScope =
 export type MediaHandling = "embed" | "link" | "exclude";
 
 export type ExportStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "processing" | "completed" | "failed" | "cancelled";
 
 export interface ExportOptions {
   format: ExportFormat;

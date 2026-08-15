@@ -510,10 +510,7 @@ export function detectHighContrastMode(): boolean {
  * Gets the preferred contrast level
  */
 export function getPreferredContrast():
-  | "no-preference"
-  | "more"
-  | "less"
-  | "custom" {
+  "no-preference" | "more" | "less" | "custom" {
   if (typeof window === "undefined" || !window.matchMedia) {
     return "no-preference";
   }

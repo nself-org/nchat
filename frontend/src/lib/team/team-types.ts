@@ -8,11 +8,7 @@
 // ============================================================================
 
 export type PlanTier =
-  | "free"
-  | "starter"
-  | "professional"
-  | "enterprise"
-  | "custom";
+  "free" | "starter" | "professional" | "enterprise" | "custom";
 
 export type BillingInterval = "monthly" | "yearly";
 

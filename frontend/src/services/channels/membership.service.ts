@@ -703,8 +703,7 @@ export class MembershipService {
               .display_name as string,
             email: (raw.user as Record<string, unknown>).email as string,
             avatarUrl: (raw.user as Record<string, unknown>).avatar_url as
-              | string
-              | undefined,
+              string | undefined,
           }
         : undefined,
     };

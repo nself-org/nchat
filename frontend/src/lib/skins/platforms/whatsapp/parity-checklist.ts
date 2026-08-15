@@ -42,10 +42,7 @@ export type ParityCategory =
  * Implementation status.
  */
 export type ParityStatus =
-  | "implemented"
-  | "partial"
-  | "not-implemented"
-  | "not-applicable";
+  "implemented" | "partial" | "not-implemented" | "not-applicable";
 
 /**
  * A single parity checklist item.

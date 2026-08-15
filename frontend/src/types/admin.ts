@@ -608,11 +608,7 @@ export type ExportDataType =
  * Export status.
  */
 export type ExportStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "processing" | "completed" | "failed" | "cancelled";
 
 /**
  * Export request configuration.
@@ -758,11 +754,7 @@ export interface ChannelExportRecord {
  * GDPR request types.
  */
 export type GDPRRequestType =
-  | "access"
-  | "export"
-  | "rectification"
-  | "erasure"
-  | "portability";
+  "access" | "export" | "rectification" | "erasure" | "portability";
 
 /**
  * GDPR request status.

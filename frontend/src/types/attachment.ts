@@ -18,11 +18,7 @@ export type AttachmentType = "image" | "video" | "audio" | "file";
  * Attachment categories for filtering and display.
  */
 export type AttachmentCategory =
-  | "media"
-  | "documents"
-  | "archives"
-  | "code"
-  | "other";
+  "media" | "documents" | "archives" | "code" | "other";
 
 /**
  * MIME type categories for file type detection.
@@ -282,10 +278,7 @@ export interface FileAttachment extends Omit<Attachment, "type" | "metadata"> {
  * Union type for all attachment types.
  */
 export type AnyAttachment =
-  | ImageAttachment
-  | VideoAttachment
-  | AudioAttachment
-  | FileAttachment;
+  ImageAttachment | VideoAttachment | AudioAttachment | FileAttachment;
 
 // ============================================================================
 // Upload Types

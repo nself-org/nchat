@@ -23,11 +23,7 @@ import type { SubscriptionState } from "./subscription-types";
  * Granularity for analytics time series.
  */
 export type AnalyticsGranularity =
-  | "daily"
-  | "weekly"
-  | "monthly"
-  | "quarterly"
-  | "yearly";
+  "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 
 /**
  * Date range for analytics queries.
@@ -354,11 +350,7 @@ export interface CustomerAnalyticsReport {
  * Severity of entitlement drift.
  */
 export type DriftSeverity =
-  | "none"
-  | "minor"
-  | "moderate"
-  | "severe"
-  | "critical";
+  "none" | "minor" | "moderate" | "severe" | "critical";
 
 /**
  * Drift direction.

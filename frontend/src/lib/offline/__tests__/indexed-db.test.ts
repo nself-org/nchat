@@ -207,8 +207,7 @@ describe("IndexedDBWrapper", () => {
           onsuccess: null as ((event: Event) => void) | null,
           onerror: null as ((event: Event) => void) | null,
           onupgradeneeded: null as
-            | ((event: IDBVersionChangeEvent) => void)
-            | null,
+            ((event: IDBVersionChangeEvent) => void) | null,
         } as unknown as IDBOpenDBRequest;
 
         setTimeout(() => {

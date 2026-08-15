@@ -8,7 +8,13 @@
  */
 
 import * as React from "react";
-import { render, screen, act, waitFor, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  act,
+  waitFor,
+  fireEvent,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AsyncScreen } from "../AsyncScreen";
 import type { AsyncState } from "../AsyncScreen";
@@ -22,7 +28,9 @@ import type { AsyncState } from "../AsyncScreen";
 // Individual test suites override via mockImplementation.
 jest.mock("@apollo/client", () => ({
   useApolloClient: jest.fn(() => ({ link: null })),
-  ApolloProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  ApolloProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
 }));
 
 // Wrapper that provides ApolloProvider to components that call useApolloClient internally.
@@ -35,7 +43,10 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 // Test helper: renders AsyncScreen in a given state and returns the container
 // =============================================================================
 
-function renderState(state: AsyncState, overrides: Partial<Parameters<typeof AsyncScreen>[0]> = {}) {
+function renderState(
+  state: AsyncState,
+  overrides: Partial<Parameters<typeof AsyncScreen>[0]> = {},
+) {
   return render(
     <AsyncScreen
       state={state}
@@ -102,9 +113,13 @@ describe("AsyncScreen — 7-state contract (7 surfaces × 7 states = 49 assertio
       it(`[${surface}] loading — renders loading indicator`, () => {
         renderState("loading");
         // Loading spinner has role=status with label "Loading"
-        expect(screen.getByRole("status", { name: /loading/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("status", { name: /loading/i }),
+        ).toBeInTheDocument();
         // Children must NOT be shown
-        expect(screen.queryByTestId("connected-children")).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId("connected-children"),
+        ).not.toBeInTheDocument();
         expect(getRoot().dataset.asyncState).toBe("loading");
       });
 
@@ -118,7 +133,9 @@ describe("AsyncScreen — 7-state contract (7 surfaces × 7 states = 49 assertio
         });
         expect(screen.getByText(`${surface} is empty`)).toBeInTheDocument();
         expect(screen.getByText("No items found.")).toBeInTheDocument();
-        expect(screen.queryByTestId("connected-children")).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId("connected-children"),
+        ).not.toBeInTheDocument();
         expect(getRoot().dataset.asyncState).toBe("empty");
       });
 
@@ -133,7 +150,9 @@ describe("AsyncScreen — 7-state contract (7 surfaces × 7 states = 49 assertio
         });
         expect(screen.getByRole("alert")).toBeInTheDocument();
         expect(screen.getByText(`${surface} error`)).toBeInTheDocument();
-        expect(screen.queryByTestId("connected-children")).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId("connected-children"),
+        ).not.toBeInTheDocument();
         expect(getRoot().dataset.asyncState).toBe("error");
       });
 
@@ -150,11 +169,15 @@ describe("AsyncScreen — 7-state contract (7 surfaces × 7 states = 49 assertio
         // Must show channel name in the copy
         expect(screen.getByText(/secret-channel/i)).toBeInTheDocument();
         // Must show access request CTA button (not a sign-in button)
-        expect(screen.getByRole("button", { name: /request access/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /request access/i }),
+        ).toBeInTheDocument();
         // Must NOT show the sign-in copy
         expect(screen.queryByText(/sign in/i)).not.toBeInTheDocument();
         // data attribute
-        expect(screen.getByTestId("async-screen-unauthorized")).toBeInTheDocument();
+        expect(
+          screen.getByTestId("async-screen-unauthorized"),
+        ).toBeInTheDocument();
         expect(getRoot().dataset.asyncState).toBe("permission-denied");
       });
 
@@ -170,9 +193,13 @@ describe("AsyncScreen — 7-state contract (7 surfaces × 7 states = 49 assertio
         // Must show sign-in copy (button or heading)
         expect(screen.getAllByText(/sign in/i).length).toBeGreaterThan(0);
         // Must NOT show access-request CTA button
-        expect(screen.queryByRole("button", { name: /request access/i })).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: /request access/i }),
+        ).not.toBeInTheDocument();
         // data attribute
-        expect(screen.getByTestId("async-screen-unauthenticated")).toBeInTheDocument();
+        expect(
+          screen.getByTestId("async-screen-unauthenticated"),
+        ).toBeInTheDocument();
       });
 
       // -----------------------------------------------------------------------
@@ -182,11 +209,15 @@ describe("AsyncScreen — 7-state contract (7 surfaces × 7 states = 49 assertio
         renderState("rate-limited", {
           rateLimitRetryAfterMs: 5000,
         });
-        expect(screen.getByTestId("async-screen-rate-limited")).toBeInTheDocument();
+        expect(
+          screen.getByTestId("async-screen-rate-limited"),
+        ).toBeInTheDocument();
         expect(screen.getByText(/slow down/i)).toBeInTheDocument();
         // Countdown text present
         expect(screen.getByText(/try in/i)).toBeInTheDocument();
-        expect(screen.queryByTestId("connected-children")).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId("connected-children"),
+        ).not.toBeInTheDocument();
         expect(getRoot().dataset.asyncState).toBe("rate-limited");
       });
 
@@ -214,7 +245,9 @@ describe("AsyncScreen — 7-state contract (7 surfaces × 7 states = 49 assertio
           isNetworkOffline: false,
           isReconnecting: true,
         });
-        expect(screen.getByTestId("async-screen-reconnecting")).toBeInTheDocument();
+        expect(
+          screen.getByTestId("async-screen-reconnecting"),
+        ).toBeInTheDocument();
         expect(screen.getByText(/reconnecting/i)).toBeInTheDocument();
         expect(getRoot().dataset.asyncState).toBe("offline");
       });
@@ -226,10 +259,16 @@ describe("AsyncScreen — 7-state contract (7 surfaces × 7 states = 49 assertio
         renderState("connected");
         expect(screen.getByTestId("connected-children")).toBeInTheDocument();
         // None of the state-specific elements should be present
-        expect(screen.queryByRole("status", { name: /loading/i })).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("status", { name: /loading/i }),
+        ).not.toBeInTheDocument();
         expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-        expect(screen.queryByTestId("async-screen-offline")).not.toBeInTheDocument();
-        expect(screen.queryByTestId("async-screen-reconnecting")).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId("async-screen-offline"),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId("async-screen-reconnecting"),
+        ).not.toBeInTheDocument();
         expect(getRoot().dataset.asyncState).toBe("connected");
       });
     });
@@ -256,7 +295,12 @@ describe("MessageThread — pagination and optimistic send", () => {
     let cursorFetchSignal: AbortSignal | null = null;
 
     const fetchImpl = jest.fn(
-      (_channelId: string, cursor: string | null, _limit: number, signal: AbortSignal) => {
+      (
+        _channelId: string,
+        cursor: string | null,
+        _limit: number,
+        signal: AbortSignal,
+      ) => {
         if (cursor === null) {
           // Initial load: one message + cursor
           return Promise.resolve({
@@ -271,13 +315,19 @@ describe("MessageThread — pagination and optimistic send", () => {
         cursorFetchSignal = signal;
         return new Promise((resolve) => {
           signal.addEventListener("abort", () =>
-            resolve({ ok: false, error: { code: "network_error", message: "aborted" } }),
+            resolve({
+              ok: false,
+              error: { code: "network_error", message: "aborted" },
+            }),
           );
           setTimeout(() => {
             if (!signal.aborted) {
               resolve({
                 ok: true,
-                value: { messages: [baseMsg("earlier-1", "old message")], nextCursor: null },
+                value: {
+                  messages: [baseMsg("earlier-1", "old message")],
+                  nextCursor: null,
+                },
               });
             }
           }, 500);
@@ -293,13 +343,17 @@ describe("MessageThread — pagination and optimistic send", () => {
           jwt="valid-jwt"
           isMember={true}
           _fetchMessages={fetchImpl}
-          _sendMessage={jest.fn().mockResolvedValue({ ok: true, value: baseMsg("new", "new") })}
+          _sendMessage={jest
+            .fn()
+            .mockResolvedValue({ ok: true, value: baseMsg("new", "new") })}
         />
       </Wrapper>,
     );
 
     // Wait for initial load
-    const loadBtn = await screen.findByRole("button", { name: /load earlier/i });
+    const loadBtn = await screen.findByRole("button", {
+      name: /load earlier/i,
+    });
     expect(loadBtn).toBeInTheDocument();
 
     // First click starts a load
@@ -372,9 +426,12 @@ describe("MessageThread — pagination and optimistic send", () => {
     expect(sendImpl).toHaveBeenCalled();
 
     // Toast must fire with failure message
-    await waitFor(() => {
-      expect(onToast).toHaveBeenCalledWith("Failed — tap to retry");
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(onToast).toHaveBeenCalledWith("Failed — tap to retry");
+      },
+      { timeout: 3000 },
+    );
 
     // Optimistic message must be REMOVED from DOM (NOT hidden with display:none)
     await waitFor(() => {
@@ -406,7 +463,8 @@ describe("useSubscriptionStatus — Hasura disconnection", () => {
 
     const mockWsClient = {
       on: jest.fn((event: string, handler: () => void) => {
-        if (event === "closed" || event === "error") disconnectHandlers.push(handler);
+        if (event === "closed" || event === "error")
+          disconnectHandlers.push(handler);
         // Return an unsubscribe function
         return () => {};
       }),
@@ -418,7 +476,8 @@ describe("useSubscriptionStatus — Hasura disconnection", () => {
       link: { client: mockWsClient },
     }));
 
-    const { useSubscriptionStatus } = await import("@/hooks/useSubscriptionStatus");
+    const { useSubscriptionStatus } =
+      await import("@/hooks/useSubscriptionStatus");
 
     let result!: { current: ReturnType<typeof useSubscriptionStatus> };
 

@@ -63,12 +63,7 @@ export enum ChainNetwork {
  * Supported crypto currencies.
  */
 export type FlowCryptoCurrency =
-  | "ETH"
-  | "BTC"
-  | "MATIC"
-  | "USDC"
-  | "USDT"
-  | "DAI";
+  "ETH" | "BTC" | "MATIC" | "USDC" | "USDT" | "DAI";
 
 /**
  * Chain-specific configuration.

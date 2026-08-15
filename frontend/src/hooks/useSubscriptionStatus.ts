@@ -22,10 +22,7 @@ import type { ApolloClient, NormalizedCacheObject } from "@apollo/client";
 // Types
 // =============================================================================
 
-export type HasuraLinkState =
-  | "connected"
-  | "reconnecting"
-  | "disconnected";
+export type HasuraLinkState = "connected" | "reconnecting" | "disconnected";
 
 export interface SubscriptionStatus {
   /** Hasura WS link state */
@@ -71,7 +68,8 @@ function attachWsListeners(
     const l = link as Record<string, unknown>;
 
     // graphql-ws shape: GraphQLWsLink exposes .client
-    const wsClient = (l["client"] ?? l["subscriptionClient"]) as Record<string, unknown> | undefined;
+    const wsClient = (l["client"] ?? l["subscriptionClient"]) as
+      Record<string, unknown> | undefined;
     if (wsClient && typeof wsClient["on"] === "function") {
       // graphql-ws client
       const unsubs: Array<() => void> = [];
@@ -185,7 +183,10 @@ export function useSubscriptionStatus(): SubscriptionStatus {
 
   // isOffline: true when network is down OR Hasura is not fully connected (reconnecting or disconnected).
   // Both "reconnecting" and "disconnected" block sending and show the offline UI.
-  const isOffline = !networkOnline || hasuraState === "disconnected" || hasuraState === "reconnecting";
+  const isOffline =
+    !networkOnline ||
+    hasuraState === "disconnected" ||
+    hasuraState === "reconnecting";
   const isReconnecting = hasuraState === "reconnecting";
   const isConnected = networkOnline && hasuraState === "connected";
 

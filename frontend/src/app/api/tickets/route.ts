@@ -31,11 +31,7 @@ export async function GET(request: NextRequest) {
       limit: parseInt(searchParams.get("limit") || "50", 10),
       offset: parseInt(searchParams.get("offset") || "0", 10),
       sortBy: (searchParams.get("sortBy") || "createdAt") as
-        | "createdAt"
-        | "updatedAt"
-        | "priority"
-        | "status"
-        | "dueAt",
+        "createdAt" | "updatedAt" | "priority" | "status" | "dueAt",
       sortOrder: (searchParams.get("sortOrder") || "desc") as "asc" | "desc",
       query: searchParams.get("query") || undefined,
       status: searchParams.get("status") as TicketStatus | undefined,

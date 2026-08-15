@@ -6,11 +6,7 @@ import { cn } from "@/lib/utils";
 import { ShieldX, Home, ArrowLeft, Mail, Lock, UserX, Ban } from "lucide-react";
 
 type DenialReason =
-  | "unauthorized"
-  | "forbidden"
-  | "suspended"
-  | "banned"
-  | "generic";
+  "unauthorized" | "forbidden" | "suspended" | "banned" | "generic";
 
 interface PermissionDeniedProps {
   /**

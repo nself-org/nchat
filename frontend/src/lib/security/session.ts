@@ -24,12 +24,7 @@ export interface LockState {
   isLocked: boolean;
   lockedAt: string | null;
   lockReason:
-    | "timeout"
-    | "manual"
-    | "close"
-    | "background"
-    | "failed_attempts"
-    | null;
+    "timeout" | "manual" | "close" | "background" | "failed_attempts" | null;
 }
 
 export interface SessionActivity {

@@ -57,12 +57,7 @@ export interface Message {
 }
 
 export type MessageType =
-  | "text"
-  | "image"
-  | "video"
-  | "audio"
-  | "file"
-  | "system";
+  "text" | "image" | "video" | "audio" | "file" | "system";
 
 export interface Attachment {
   id: string;

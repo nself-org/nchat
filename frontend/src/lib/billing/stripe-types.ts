@@ -359,11 +359,7 @@ export type RefundReason =
  * Refund status.
  */
 export type RefundStatus =
-  | "pending"
-  | "succeeded"
-  | "failed"
-  | "canceled"
-  | "requires_action";
+  "pending" | "succeeded" | "failed" | "canceled" | "requires_action";
 
 /**
  * Create refund input.
@@ -424,11 +420,7 @@ export interface BulkRefundResult {
  * Invoice status.
  */
 export type StripeInvoiceStatus =
-  | "draft"
-  | "open"
-  | "paid"
-  | "uncollectible"
-  | "void";
+  "draft" | "open" | "paid" | "uncollectible" | "void";
 
 /**
  * Invoice collection method.
@@ -547,11 +539,7 @@ export interface VoidInvoiceInput {
  * Payment reconciliation status.
  */
 export type ReconciliationStatus =
-  | "matched"
-  | "unmatched"
-  | "partial"
-  | "disputed"
-  | "refunded";
+  "matched" | "unmatched" | "partial" | "disputed" | "refunded";
 
 /**
  * Payment reconciliation entry.

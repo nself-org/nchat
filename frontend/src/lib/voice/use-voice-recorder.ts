@@ -29,10 +29,7 @@ import {
 // ============================================================================
 
 export type MicrophonePermission =
-  | "granted"
-  | "denied"
-  | "prompt"
-  | "unavailable";
+  "granted" | "denied" | "prompt" | "unavailable";
 
 export interface VoiceRecorderState {
   /** Current recording state */

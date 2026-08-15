@@ -36,13 +36,7 @@ export type CommandCategory =
  * Type of argument a command accepts
  */
 export type CommandArgType =
-  | "text"
-  | "user"
-  | "channel"
-  | "duration"
-  | "emoji"
-  | "options"
-  | "none";
+  "text" | "user" | "channel" | "duration" | "emoji" | "options" | "none";
 
 /**
  * Command argument definition

@@ -206,8 +206,7 @@ export function useChannelGovernance(
 
   // Load persisted config if enabled
   const loadPersistedConfig = useCallback(():
-    | Partial<GovernanceConfig>
-    | undefined => {
+    Partial<GovernanceConfig> | undefined => {
     if (!persistConfig || typeof window === "undefined") return undefined;
 
     try {

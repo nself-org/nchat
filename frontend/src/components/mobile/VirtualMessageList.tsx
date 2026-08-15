@@ -435,8 +435,7 @@ export const VirtualMessageList = forwardRef<
 // ============================================================================
 
 type DisplayItem =
-  | { type: "message"; message: Message }
-  | { type: "separator"; date: Date };
+  { type: "message"; message: Message } | { type: "separator"; date: Date };
 
 function processMessagesWithDates(
   messages: Message[],

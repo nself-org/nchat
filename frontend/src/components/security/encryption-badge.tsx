@@ -22,11 +22,7 @@ import {
 // ============================================================================
 
 export type EncryptionLevel =
-  | "none"
-  | "initializing"
-  | "encrypted"
-  | "verified"
-  | "error";
+  "none" | "initializing" | "encrypted" | "verified" | "error";
 
 export interface EncryptionBadgeProps extends VariantProps<
   typeof badgeVariants

@@ -25,12 +25,7 @@ import { logger } from "@/lib/logger";
  * Supported platform types
  */
 export type Platform =
-  | "web"
-  | "ios"
-  | "android"
-  | "electron"
-  | "tauri"
-  | "unknown";
+  "web" | "ios" | "android" | "electron" | "tauri" | "unknown";
 
 /**
  * Storage security level

@@ -45,24 +45,13 @@ export interface PermissionContext {
  * Condition types for permission rules
  */
 export type ConditionType =
-  | "role"
-  | "permission"
-  | "owner"
-  | "custom"
-  | "time"
-  | "resource";
+  "role" | "permission" | "owner" | "custom" | "time" | "resource";
 
 /**
  * Resource types that can have permissions
  */
 export type ResourceType =
-  | "message"
-  | "channel"
-  | "user"
-  | "role"
-  | "file"
-  | "thread"
-  | "reaction";
+  "message" | "channel" | "user" | "role" | "file" | "thread" | "reaction";
 
 /**
  * A single permission condition

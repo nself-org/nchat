@@ -66,21 +66,13 @@ export type RetentionAction = "delete" | "archive" | "archive_then_delete";
  * Status of a retention policy
  */
 export type RetentionPolicyStatus =
-  | "active"
-  | "inactive"
-  | "pending"
-  | "suspended";
+  "active" | "inactive" | "pending" | "suspended";
 
 /**
  * Status of a retention job execution
  */
 export type RetentionJobStatus =
-  | "pending"
-  | "running"
-  | "completed"
-  | "failed"
-  | "cancelled"
-  | "paused";
+  "pending" | "running" | "completed" | "failed" | "cancelled" | "paused";
 
 // ============================================================================
 // RETENTION PERIOD TYPES

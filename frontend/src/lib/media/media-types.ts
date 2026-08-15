@@ -10,12 +10,7 @@
 // ============================================================================
 
 export type MediaType =
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "archive"
-  | "other";
+  "image" | "video" | "audio" | "document" | "archive" | "other";
 
 export type MediaViewMode = "grid" | "list" | "masonry";
 
@@ -29,11 +24,7 @@ export type MediaSortBy =
   | "type";
 
 export type MediaFilterTab =
-  | "all"
-  | "images"
-  | "videos"
-  | "audio"
-  | "documents";
+  "all" | "images" | "videos" | "audio" | "documents";
 
 // ============================================================================
 // Media Item

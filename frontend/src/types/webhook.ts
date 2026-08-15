@@ -59,11 +59,7 @@ export type WebhookEventType =
  * Webhook authentication methods.
  */
 export type WebhookAuthMethod =
-  | "none"
-  | "token"
-  | "basic"
-  | "signature"
-  | "oauth2";
+  "none" | "token" | "basic" | "signature" | "oauth2";
 
 // ============================================================================
 // Main Webhook Interface
@@ -422,10 +418,7 @@ export interface IncomingWebhookEmbed {
  * Webhook delivery status.
  */
 export type WebhookDeliveryStatus =
-  | "pending"
-  | "success"
-  | "failed"
-  | "retrying";
+  "pending" | "success" | "failed" | "retrying";
 
 /**
  * Webhook delivery record.

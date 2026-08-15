@@ -9,13 +9,7 @@
 // ============================================================================
 
 export type FileCategory =
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "archive"
-  | "code"
-  | "other";
+  "image" | "video" | "audio" | "document" | "archive" | "code" | "other";
 
 export interface FileTypeInfo {
   category: FileCategory;

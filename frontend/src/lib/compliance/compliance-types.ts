@@ -171,12 +171,7 @@ export interface LegalHoldNotification {
  * Data export request status
  */
 export type ExportRequestStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "expired"
-  | "cancelled";
+  "pending" | "processing" | "completed" | "failed" | "expired" | "cancelled";
 
 /**
  * Data categories for export
@@ -322,11 +317,7 @@ export type DeletionRequestStatus =
  * Deletion scope options
  */
 export type DeletionScope =
-  | "full_account"
-  | "messages_only"
-  | "files_only"
-  | "activity_only"
-  | "partial";
+  "full_account" | "messages_only" | "files_only" | "activity_only" | "partial";
 
 /**
  * Data deletion request
@@ -422,10 +413,7 @@ export interface ConsentConfig {
   defaultValue: boolean;
   category: "essential" | "functional" | "analytics" | "marketing";
   legalBasis:
-    | "consent"
-    | "contract"
-    | "legal_obligation"
-    | "legitimate_interest";
+    "consent" | "contract" | "legal_obligation" | "legitimate_interest";
   dataProcessed: string[];
   thirdParties?: string[];
   retentionPeriod?: string;
@@ -479,11 +467,7 @@ export interface PrivacySettings {
  * Data classification levels
  */
 export type ClassificationLevel =
-  | "public"
-  | "internal"
-  | "confidential"
-  | "restricted"
-  | "top_secret";
+  "public" | "internal" | "confidential" | "restricted" | "top_secret";
 
 /**
  * Data classification policy
@@ -560,12 +544,7 @@ export interface AccessControlEntry {
  * Access permissions
  */
 export type AccessPermission =
-  | "read"
-  | "write"
-  | "delete"
-  | "admin"
-  | "export"
-  | "share";
+  "read" | "write" | "delete" | "admin" | "export" | "share";
 
 /**
  * Conditional access
@@ -650,13 +629,7 @@ export interface ReportSchedule {
  * Compliance standards
  */
 export type ComplianceStandard =
-  | "gdpr"
-  | "ccpa"
-  | "hipaa"
-  | "soc2"
-  | "iso27001"
-  | "pci_dss"
-  | "fedramp";
+  "gdpr" | "ccpa" | "hipaa" | "soc2" | "iso27001" | "pci_dss" | "fedramp";
 
 /**
  * Compliance badge/certification

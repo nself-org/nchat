@@ -20,13 +20,7 @@ export type CallType = "voice" | "video" | "screen_share";
  * Call status throughout its lifecycle
  */
 export type CallStatus =
-  | "ringing"
-  | "active"
-  | "ended"
-  | "missed"
-  | "declined"
-  | "busy"
-  | "failed";
+  "ringing" | "active" | "ended" | "missed" | "declined" | "busy" | "failed";
 
 /**
  * Reason for call ending
@@ -133,11 +127,7 @@ export interface IncomingCall {
  * WebRTC signaling message types
  */
 export type SignalType =
-  | "offer"
-  | "answer"
-  | "ice-candidate"
-  | "hangup"
-  | "renegotiate";
+  "offer" | "answer" | "ice-candidate" | "hangup" | "renegotiate";
 
 /**
  * Call signaling message
@@ -224,12 +214,7 @@ export interface CallState {
  * Call connection states
  */
 export type CallConnectionState =
-  | "idle"
-  | "connecting"
-  | "connected"
-  | "reconnecting"
-  | "failed"
-  | "closed";
+  "idle" | "connecting" | "connected" | "reconnecting" | "failed" | "closed";
 
 // ============================================================================
 // Call Configuration
@@ -582,12 +567,7 @@ export interface CallControlState {
  * Grid layout for group call participants
  */
 export type CallGridLayout =
-  | "1x1"
-  | "2x1"
-  | "2x2"
-  | "3x2"
-  | "3x3"
-  | "spotlight";
+  "1x1" | "2x1" | "2x2" | "3x2" | "3x3" | "spotlight";
 
 /**
  * Video tile display mode

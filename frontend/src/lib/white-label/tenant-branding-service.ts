@@ -232,12 +232,7 @@ export interface BrandingAsset {
   id: string;
   tenantId: string;
   assetType:
-    | "logo"
-    | "logo_dark"
-    | "favicon"
-    | "email_header"
-    | "og_image"
-    | "custom";
+    "logo" | "logo_dark" | "favicon" | "email_header" | "og_image" | "custom";
   fileName: string;
   fileUrl: string;
   fileSize?: number;

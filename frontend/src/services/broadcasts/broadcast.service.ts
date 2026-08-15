@@ -626,8 +626,7 @@ export class BroadcastService {
               ((raw.owner as Record<string, unknown>).display_name as string) ||
               ((raw.owner as Record<string, unknown>).username as string),
             avatarUrl: (raw.owner as Record<string, unknown>).avatar_url as
-              | string
-              | undefined,
+              string | undefined,
           }
         : undefined,
     };
@@ -656,8 +655,7 @@ export class BroadcastService {
                 .display_name as string) ||
               ((raw.sender as Record<string, unknown>).username as string),
             avatarUrl: (raw.sender as Record<string, unknown>).avatar_url as
-              | string
-              | undefined,
+              string | undefined,
           }
         : undefined,
       list: raw.list

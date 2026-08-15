@@ -33,11 +33,7 @@ export type RaidType =
 
 export type RaidSeverity = "low" | "medium" | "high" | "critical";
 export type RaidStatus =
-  | "detected"
-  | "active"
-  | "mitigated"
-  | "resolved"
-  | "escalated";
+  "detected" | "active" | "mitigated" | "resolved" | "escalated";
 
 export type LockdownLevel = "none" | "partial" | "full" | "emergency";
 

@@ -235,7 +235,9 @@ function E2EEFingerprintPanel() {
       const raw = await generateSafetyNumber(user.id, new Uint8Array(32));
       setMyFingerprint(formatSafetyNumber(raw));
     } catch {
-      toast.error("Could not load your E2EE fingerprint. Try reinitializing E2EE.");
+      toast.error(
+        "Could not load your E2EE fingerprint. Try reinitializing E2EE.",
+      );
     } finally {
       setLoading(false);
     }
@@ -261,17 +263,23 @@ function E2EEFingerprintPanel() {
       setContactFingerprint(formatted);
       // Auto-mark as verified if fingerprint derivation succeeded (user confirms visually).
       setVerificationStatus("verified");
-      toast.success("Contact key processed. Confirm the fingerprint matches out-of-band.");
+      toast.success(
+        "Contact key processed. Confirm the fingerprint matches out-of-band.",
+      );
     } catch {
       setVerificationStatus("mismatch");
-      toast.error("Could not derive fingerprint. Check the key format and try again.");
+      toast.error(
+        "Could not derive fingerprint. Check the key format and try again.",
+      );
     } finally {
       setLoading(false);
     }
   }, [contactId, contactKey, generateSafetyNumber, formatSafetyNumber]);
 
   const copyFingerprint = useCallback((fp: string) => {
-    navigator.clipboard.writeText(fp).then(() => toast.success("Fingerprint copied."));
+    navigator.clipboard
+      .writeText(fp)
+      .then(() => toast.success("Fingerprint copied."));
   }, []);
 
   if (!isInitialized) {
@@ -279,8 +287,8 @@ function E2EEFingerprintPanel() {
       <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4 text-sm text-yellow-700">
         <p className="font-medium">E2EE not initialized</p>
         <p className="mt-1 text-xs opacity-80">
-          Set up end-to-end encryption to view your identity fingerprint.
-          Go to the chat window and enable E2EE when prompted.
+          Set up end-to-end encryption to view your identity fingerprint. Go to
+          the chat window and enable E2EE when prompted.
         </p>
       </div>
     );
@@ -325,7 +333,8 @@ function E2EEFingerprintPanel() {
         <h3 className="text-sm font-semibold">Verify a Contact's Key</h3>
         <p className="text-xs text-muted-foreground">
           Paste a contact's user ID and their public key (hex) to compute a
-          shared safety number. Confirm it matches what they see on their device.
+          shared safety number. Confirm it matches what they see on their
+          device.
         </p>
         <div className="space-y-2">
           <input
@@ -366,14 +375,20 @@ function E2EEFingerprintPanel() {
               {verificationStatus === "verified" ? (
                 <>
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <Badge variant="outline" className="border-green-500 text-green-600">
+                  <Badge
+                    variant="outline"
+                    className="border-green-500 text-green-600"
+                  >
                     Verified
                   </Badge>
                 </>
               ) : (
                 <>
                   <XCircle className="h-4 w-4 text-red-500" />
-                  <Badge variant="outline" className="border-red-500 text-red-600">
+                  <Badge
+                    variant="outline"
+                    className="border-red-500 text-red-600"
+                  >
                     Unverified
                   </Badge>
                 </>
@@ -413,10 +428,20 @@ function E2EEFingerprintPanel() {
 
       {/* E2EE status info */}
       <div className="border-t pt-4 text-xs text-muted-foreground space-y-1">
-        <p>E2EE initialized: <span className="font-mono">{status.initialized ? "yes" : "no"}</span></p>
-        <p>Device keys: <span className="font-mono">{status.deviceKeysGenerated ? "generated" : "not generated"}</span></p>
+        <p>
+          E2EE initialized:{" "}
+          <span className="font-mono">{status.initialized ? "yes" : "no"}</span>
+        </p>
+        <p>
+          Device keys:{" "}
+          <span className="font-mono">
+            {status.deviceKeysGenerated ? "generated" : "not generated"}
+          </span>
+        </p>
         {status.deviceId && (
-          <p>Device ID: <span className="font-mono">{status.deviceId}</span></p>
+          <p>
+            Device ID: <span className="font-mono">{status.deviceId}</span>
+          </p>
         )}
       </div>
     </div>

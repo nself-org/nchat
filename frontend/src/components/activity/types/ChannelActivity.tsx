@@ -18,9 +18,7 @@ import type {
 } from "@/lib/activity/activity-types";
 
 type ChannelActivityType =
-  | ChannelCreatedActivity
-  | ChannelArchivedActivity
-  | ChannelUnarchivedActivity;
+  ChannelCreatedActivity | ChannelArchivedActivity | ChannelUnarchivedActivity;
 
 interface ChannelActivityProps {
   activity: ChannelActivityType;

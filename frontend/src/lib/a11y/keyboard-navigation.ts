@@ -67,13 +67,7 @@ export interface NavigationResult {
   handled: boolean;
   /** The action that was performed */
   action:
-    | "next"
-    | "previous"
-    | "first"
-    | "last"
-    | "activate"
-    | "escape"
-    | "none";
+    "next" | "previous" | "first" | "last" | "activate" | "escape" | "none";
 }
 
 // ============================================================================

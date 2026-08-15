@@ -51,11 +51,7 @@ export interface EntityFilter {
 }
 
 export type EntitySortBy =
-  | "recent"
-  | "name"
-  | "unread"
-  | "memberCount"
-  | "created";
+  "recent" | "name" | "unread" | "memberCount" | "created";
 export type SortOrder = "asc" | "desc";
 
 export interface EntityListOptions {

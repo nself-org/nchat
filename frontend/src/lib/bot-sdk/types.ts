@@ -33,11 +33,7 @@ export interface BotCredentials {
  * Bot status types
  */
 export type BotStatus =
-  | "online"
-  | "offline"
-  | "error"
-  | "initializing"
-  | "rate_limited";
+  "online" | "offline" | "error" | "initializing" | "rate_limited";
 
 /**
  * Bot permission levels
@@ -61,12 +57,7 @@ export type BotPermission =
 // ============================================================================
 
 export type BlockType =
-  | "text"
-  | "image"
-  | "button"
-  | "divider"
-  | "actions"
-  | "context";
+  "text" | "image" | "button" | "divider" | "actions" | "context";
 
 export interface TextBlock {
   type: "text";
@@ -129,11 +120,7 @@ export interface RichMessage {
 // ============================================================================
 
 export type ParameterType =
-  | "string"
-  | "number"
-  | "user"
-  | "channel"
-  | "boolean";
+  "string" | "number" | "user" | "channel" | "boolean";
 
 export interface CommandParameter {
   name: string;
@@ -182,10 +169,7 @@ export interface ParsedCommand {
 // ============================================================================
 
 export type InteractionType =
-  | "button_click"
-  | "form_submit"
-  | "select_change"
-  | "message_action";
+  "button_click" | "form_submit" | "select_change" | "message_action";
 
 export interface BaseInteraction {
   id: string;
@@ -434,5 +418,4 @@ export interface ApiError {
 }
 
 export type Result<T, E = ApiError> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+  { success: true; data: T } | { success: false; error: E };

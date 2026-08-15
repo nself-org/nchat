@@ -11,15 +11,9 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const direction = searchParams.get("direction") as
-      | "incoming"
-      | "outgoing"
-      | null;
+      "incoming" | "outgoing" | null;
     const status = searchParams.get("status") as
-      | "active"
-      | "paused"
-      | "disabled"
-      | "error"
-      | null;
+      "active" | "paused" | "disabled" | "error" | null;
     const channelId = searchParams.get("channelId");
 
     // In a real implementation, this would query the database

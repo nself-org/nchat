@@ -30,13 +30,7 @@ import * as crypto from "crypto";
  * Link preview content type
  */
 export type LinkPreviewType =
-  | "article"
-  | "video"
-  | "image"
-  | "website"
-  | "audio"
-  | "product"
-  | "profile";
+  "article" | "video" | "image" | "website" | "audio" | "product" | "profile";
 
 /**
  * Link preview data structure

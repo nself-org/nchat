@@ -29,11 +29,7 @@ export type AuditAction =
   | "import.complete";
 
 export type AuditTargetType =
-  | "user"
-  | "channel"
-  | "message"
-  | "settings"
-  | "integration";
+  "user" | "channel" | "message" | "settings" | "integration";
 
 export interface AuditLogEntry {
   id: string;

@@ -168,11 +168,7 @@ export interface PermissionGroup {
 // ============================================================================
 
 export type InstallationStatus =
-  | "active"
-  | "paused"
-  | "pending"
-  | "failed"
-  | "uninstalled";
+  "active" | "paused" | "pending" | "failed" | "uninstalled";
 
 export interface AppInstallation {
   id: string;
@@ -296,13 +292,7 @@ export interface AppEvent {
 // ============================================================================
 
 export type AppSettingType =
-  | "text"
-  | "number"
-  | "boolean"
-  | "select"
-  | "multiselect"
-  | "channel"
-  | "user";
+  "text" | "number" | "boolean" | "select" | "multiselect" | "channel" | "user";
 
 export interface AppSettingOption {
   value: string;

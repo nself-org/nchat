@@ -24,11 +24,7 @@ export type InitializationStatus =
   | "error";
 
 export type ConnectionStatus =
-  | "disconnected"
-  | "connecting"
-  | "connected"
-  | "reconnecting"
-  | "error";
+  "disconnected" | "connecting" | "connected" | "reconnecting" | "error";
 
 export interface AppError {
   code: string;

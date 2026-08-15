@@ -121,14 +121,11 @@ function transformMember(raw: Record<string, unknown>): ChannelMember {
           displayName: (raw.user as Record<string, unknown>)
             .display_name as string,
           email: (raw.user as Record<string, unknown>).email as
-            | string
-            | undefined,
+            string | undefined,
           avatarUrl: (raw.user as Record<string, unknown>).avatar_url as
-            | string
-            | undefined,
+            string | undefined,
           status: (raw.user as Record<string, unknown>).status as
-            | string
-            | undefined,
+            string | undefined,
         }
       : undefined,
   };

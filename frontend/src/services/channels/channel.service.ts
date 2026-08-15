@@ -527,13 +527,11 @@ export class ChannelService {
             displayName: (raw.creator as Record<string, unknown>)
               .display_name as string,
             avatarUrl: (raw.creator as Record<string, unknown>).avatar_url as
-              | string
-              | undefined,
+              string | undefined,
           }
         : undefined,
       membersAggregate: raw.members_aggregate as
-        | { aggregate: { count: number } }
-        | undefined,
+        { aggregate: { count: number } } | undefined,
     };
   }
 

@@ -15,12 +15,7 @@ import type { Message, MessageUser } from "@/types/message";
  * Available star colors for prioritization.
  */
 export type StarColor =
-  | "yellow"
-  | "red"
-  | "green"
-  | "blue"
-  | "purple"
-  | "orange";
+  "yellow" | "red" | "green" | "blue" | "purple" | "orange";
 
 /**
  * Star priority levels.
@@ -173,11 +168,7 @@ export interface StarFilters {
  * Sort options for starred messages.
  */
 export type StarSortBy =
-  | "starredAt"
-  | "messageDate"
-  | "priority"
-  | "channel"
-  | "color";
+  "starredAt" | "messageDate" | "priority" | "channel" | "color";
 export type StarSortOrder = "asc" | "desc";
 
 /**

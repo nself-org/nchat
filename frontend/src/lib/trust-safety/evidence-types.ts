@@ -386,11 +386,7 @@ export type ExportFormat = "json" | "pdf" | "csv" | "eml" | "zip";
  * Export status
  */
 export type ExportStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "expired";
+  "pending" | "processing" | "completed" | "failed" | "expired";
 
 /**
  * Evidence export request

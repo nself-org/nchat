@@ -251,22 +251,15 @@ function transformMeetingFromGraphQL(data: Record<string, unknown>): Meeting {
       userId: p.user_id as string,
       role: p.role as "host" | "co-host" | "presenter" | "participant",
       status: p.status as
-        | "invited"
-        | "accepted"
-        | "declined"
-        | "tentative"
-        | "joined"
-        | "left",
+        "invited" | "accepted" | "declined" | "tentative" | "joined" | "left",
       invitedAt: p.invited_at as string,
       respondedAt: p.responded_at as string | null,
       joinedAt: p.joined_at as string | null,
       leftAt: p.left_at as string | null,
       displayName: (p.user as Record<string, unknown>)?.display_name as
-        | string
-        | undefined,
+        string | undefined,
       avatarUrl: (p.user as Record<string, unknown>)?.avatar_url as
-        | string
-        | undefined,
+        string | undefined,
       email: (p.user as Record<string, unknown>)?.email as string | undefined,
     })),
     participantCount: data.participant_count as number,

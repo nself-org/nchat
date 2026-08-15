@@ -15,11 +15,7 @@ import { logger } from "@/lib/logger";
  * Optimistic update state
  */
 export type OptimisticState =
-  | "pending"
-  | "syncing"
-  | "confirmed"
-  | "failed"
-  | "rolledback";
+  "pending" | "syncing" | "confirmed" | "failed" | "rolledback";
 
 /**
  * Optimistic update record

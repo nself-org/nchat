@@ -1228,8 +1228,7 @@ function transformWorkspace(raw: Record<string, unknown>): Workspace {
           displayName: (raw.owner as Record<string, unknown>)
             .display_name as string,
           avatarUrl: (raw.owner as Record<string, unknown>).avatar_url as
-            | string
-            | undefined,
+            string | undefined,
         }
       : undefined,
     defaultChannel: raw.default_channel
@@ -1257,18 +1256,14 @@ function transformMember(raw: Record<string, unknown>): WorkspaceMember {
           displayName: (raw.user as Record<string, unknown>)
             .display_name as string,
           email: (raw.user as Record<string, unknown>).email as
-            | string
-            | undefined,
+            string | undefined,
           avatarUrl: (raw.user as Record<string, unknown>).avatar_url as
-            | string
-            | undefined,
+            string | undefined,
           bio: (raw.user as Record<string, unknown>).bio as string | undefined,
           status: (raw.user as Record<string, unknown>).status as
-            | string
-            | undefined,
+            string | undefined,
           createdAt: (raw.user as Record<string, unknown>).created_at as
-            | string
-            | undefined,
+            string | undefined,
         }
       : undefined,
   };
@@ -1291,8 +1286,7 @@ function transformInvite(raw: Record<string, unknown>): WorkspaceInvite {
           displayName: (raw.creator as Record<string, unknown>)
             .display_name as string,
           avatarUrl: (raw.creator as Record<string, unknown>).avatar_url as
-            | string
-            | undefined,
+            string | undefined,
         }
       : undefined,
   };

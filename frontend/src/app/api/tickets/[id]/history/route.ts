@@ -28,8 +28,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       limit: parseInt(searchParams.get("limit") || "50", 10),
       offset: parseInt(searchParams.get("offset") || "0", 10),
       eventTypes: searchParams.get("eventTypes")?.split(",").filter(Boolean) as
-        | TicketHistoryEventType[]
-        | undefined,
+        TicketHistoryEventType[] | undefined,
     };
 
     const result = await historyService.getHistory(id, options);

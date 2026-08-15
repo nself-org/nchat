@@ -33,11 +33,7 @@ export type PermissionId = RBACPermission | string;
  * Built-in role identifiers
  */
 export type BuiltInRoleId =
-  | "owner"
-  | "admin"
-  | "moderator"
-  | "member"
-  | "guest";
+  "owner" | "admin" | "moderator" | "member" | "guest";
 
 /**
  * Override action - allow or deny
@@ -48,11 +44,7 @@ export type OverrideAction = "allow" | "deny" | "inherit";
  * Inheritance level for permissions
  */
 export type InheritanceLevel =
-  | "workspace"
-  | "category"
-  | "channel"
-  | "role"
-  | "user";
+  "workspace" | "category" | "channel" | "role" | "user";
 
 /**
  * Platform preset style

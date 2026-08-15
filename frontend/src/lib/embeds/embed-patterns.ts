@@ -21,13 +21,7 @@
 // ============================================================================
 
 export type EmbedType =
-  | "twitter"
-  | "youtube"
-  | "github"
-  | "spotify"
-  | "image"
-  | "video"
-  | "generic";
+  "twitter" | "youtube" | "github" | "spotify" | "image" | "video" | "generic";
 
 export interface ParsedTwitterUrl {
   type: "twitter";

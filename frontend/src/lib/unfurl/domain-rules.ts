@@ -20,12 +20,7 @@ import { UrlProvider } from "./url-parser";
 export type UnfurlBehavior = "allow" | "block" | "minimal" | "full" | "player";
 
 export type EmbedStyle =
-  | "card"
-  | "compact"
-  | "inline"
-  | "player"
-  | "full"
-  | "custom";
+  "card" | "compact" | "inline" | "player" | "full" | "custom";
 
 export interface DomainRule {
   /** Domain pattern (supports wildcards) */

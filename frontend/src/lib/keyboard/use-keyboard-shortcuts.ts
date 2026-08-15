@@ -129,8 +129,7 @@ export function useKeyboardShortcuts(
       for (const [id, callback] of Object.entries(bindingsRef.current)) {
         const shortcutKey = id as ShortcutKey;
         const shortcut = SHORTCUTS[shortcutKey] as
-          | ShortcutDefinition
-          | undefined;
+          ShortcutDefinition | undefined;
 
         if (!shortcut) continue;
 

@@ -149,9 +149,7 @@ export async function POST(
         layout: config.layout,
         audioOnly: config.audioOnly,
         resolution: qualityToResolution[config.quality] as
-          | "720p"
-          | "1080p"
-          | "4k",
+          "720p" | "1080p" | "4k",
         outputFormat: config.format,
       });
     } catch (livekitError) {

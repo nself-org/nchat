@@ -17,13 +17,7 @@ import {
 // ============================================================================
 
 export type FileType =
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "archive"
-  | "code"
-  | "other";
+  "image" | "video" | "audio" | "document" | "archive" | "code" | "other";
 
 export type FileCategory =
   | "image/jpeg"

@@ -13,11 +13,7 @@
  * Connection state enumeration
  */
 export type ConnectionState =
-  | "online"
-  | "offline"
-  | "connecting"
-  | "reconnecting"
-  | "error";
+  "online" | "offline" | "connecting" | "reconnecting" | "error";
 
 /**
  * Network quality levels
@@ -41,11 +37,7 @@ export type ConnectionType =
  * Effective connection type (from Network Information API)
  */
 export type EffectiveConnectionType =
-  | "slow-2g"
-  | "2g"
-  | "3g"
-  | "4g"
-  | "unknown";
+  "slow-2g" | "2g" | "3g" | "4g" | "unknown";
 
 /**
  * Connection information
@@ -276,11 +268,7 @@ export type SyncOperationType =
  * Sync status
  */
 export type SyncStatus =
-  | "idle"
-  | "syncing"
-  | "completed"
-  | "failed"
-  | "partial";
+  "idle" | "syncing" | "completed" | "failed" | "partial";
 
 /**
  * Sync operation state

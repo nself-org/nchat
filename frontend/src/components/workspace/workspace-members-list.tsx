@@ -284,13 +284,7 @@ function InviteLinkDialog({
   const handleCreateInvite = async () => {
     const result = await createInvite({
       expiresIn: expiresIn as
-        | "30m"
-        | "1h"
-        | "6h"
-        | "12h"
-        | "1d"
-        | "7d"
-        | "never",
+        "30m" | "1h" | "6h" | "12h" | "1d" | "7d" | "never",
     });
     if (result) {
       setInviteUrl(result.url);

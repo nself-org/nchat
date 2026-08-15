@@ -43,12 +43,7 @@ export interface CustomStatus {
 }
 
 export type ClearAfterOption =
-  | "never"
-  | "30min"
-  | "1hour"
-  | "4hours"
-  | "today"
-  | "tomorrow";
+  "never" | "30min" | "1hour" | "4hours" | "today" | "tomorrow";
 
 export interface UserStatusSelectorProps {
   currentPresence: PresenceStatus;

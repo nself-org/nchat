@@ -40,12 +40,7 @@ import type { Channel } from "@/stores/channel-store";
 // ============================================================================
 
 export type SortField =
-  | "name"
-  | "activity"
-  | "members"
-  | "created"
-  | "custom"
-  | "unread";
+  "name" | "activity" | "members" | "created" | "custom" | "unread";
 export type SortDirection = "asc" | "desc";
 
 export interface SortOption {

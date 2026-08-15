@@ -22,12 +22,7 @@ export type PreviewType =
   | "oembed";
 
 export type PreviewStatus =
-  | "pending"
-  | "loading"
-  | "success"
-  | "error"
-  | "blocked"
-  | "removed";
+  "pending" | "loading" | "success" | "error" | "blocked" | "removed";
 
 export type OEmbedType = "photo" | "video" | "link" | "rich";
 
@@ -127,10 +122,7 @@ export interface OpenGraphData {
 // ============================================================================
 
 export type TwitterCardType =
-  | "summary"
-  | "summary_large_image"
-  | "app"
-  | "player";
+  "summary" | "summary_large_image" | "app" | "player";
 
 export interface TwitterCardData {
   card?: TwitterCardType;

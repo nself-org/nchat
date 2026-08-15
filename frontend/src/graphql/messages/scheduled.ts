@@ -13,10 +13,7 @@ import { USER_BASIC_FRAGMENT } from "../fragments";
 // ============================================================================
 
 export type ScheduledMessageStatus =
-  | "pending"
-  | "sent"
-  | "failed"
-  | "cancelled";
+  "pending" | "sent" | "failed" | "cancelled";
 
 export interface ScheduledMessage {
   id: string;

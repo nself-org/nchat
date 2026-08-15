@@ -26,8 +26,7 @@ export async function GET(request: NextRequest) {
     const gateId = searchParams.get("gateId");
     const includeEvents = searchParams.get("includeEvents") === "true";
     const eventTypes = searchParams.get("eventTypes")?.split(",") as
-      | TokenGateEventType[]
-      | undefined;
+      TokenGateEventType[] | undefined;
     const eventLimit = parseInt(searchParams.get("eventLimit") || "100", 10);
     const sinceParam = searchParams.get("since");
     const since = sinceParam ? new Date(sinceParam) : undefined;

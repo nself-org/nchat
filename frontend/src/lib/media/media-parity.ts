@@ -16,11 +16,7 @@ import type {
 // ============================================================================
 
 export type PlatformPreset =
-  | "whatsapp"
-  | "telegram"
-  | "discord"
-  | "slack"
-  | "default";
+  "whatsapp" | "telegram" | "discord" | "slack" | "default";
 
 export interface PlatformLimits {
   /** Platform name */
@@ -235,12 +231,7 @@ export const PLATFORM_PRESETS: Record<PlatformPreset, PlatformLimits> = {
 // ============================================================================
 
 export type FileCategory =
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "archive"
-  | "other";
+  "image" | "video" | "audio" | "document" | "archive" | "other";
 
 export const MIME_TYPE_CATEGORIES: Record<string, FileCategory> = {
   // Images

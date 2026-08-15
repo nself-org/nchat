@@ -144,13 +144,7 @@ export function formatLocalDateTime(
  * Relative time units
  */
 export type RelativeTimeUnit =
-  | "second"
-  | "minute"
-  | "hour"
-  | "day"
-  | "week"
-  | "month"
-  | "year";
+  "second" | "minute" | "hour" | "day" | "week" | "month" | "year";
 
 /**
  * Relative time thresholds in seconds

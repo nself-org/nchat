@@ -33,11 +33,7 @@ export const USER_STATUSES: readonly UserStatus[] = [
  * Real-time status indicator for user availability.
  */
 export type PresenceStatus =
-  | "online"
-  | "away"
-  | "dnd"
-  | "offline"
-  | "invisible";
+  "online" | "away" | "dnd" | "offline" | "invisible";
 
 /**
  * Array of all valid presence statuses for validation.
@@ -70,11 +66,7 @@ export const PRESENCE_STATUS_LABELS: Record<PresenceStatus, string> = {
  * Determines the behavior and visibility of a channel.
  */
 export type ChannelType =
-  | "public"
-  | "private"
-  | "direct"
-  | "group"
-  | "announcement";
+  "public" | "private" | "direct" | "group" | "announcement";
 
 /**
  * Array of all valid channel types for validation.
@@ -107,13 +99,7 @@ export const CHANNEL_TYPE_LABELS: Record<ChannelType, string> = {
  * Determines how the message content should be rendered.
  */
 export type MessageType =
-  | "text"
-  | "system"
-  | "bot"
-  | "file"
-  | "voice"
-  | "video"
-  | "embed";
+  "text" | "system" | "bot" | "file" | "voice" | "video" | "embed";
 
 /**
  * Array of all valid message types for validation.
@@ -208,12 +194,7 @@ export const NOTIFICATION_TYPES: readonly NotificationType[] = [
  * Determines how attachments are processed and displayed.
  */
 export type AttachmentType =
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "archive"
-  | "other";
+  "image" | "video" | "audio" | "document" | "archive" | "other";
 
 /**
  * Array of all valid attachment types for validation.
@@ -254,11 +235,7 @@ export const MIME_TYPE_CATEGORIES: Record<string, AttachmentType> = {
  * Tracks the lifecycle state of a subscription.
  */
 export type SubscriptionStatus =
-  | "trialing"
-  | "active"
-  | "past_due"
-  | "canceled"
-  | "unpaid";
+  "trialing" | "active" | "past_due" | "canceled" | "unpaid";
 
 /**
  * Array of all valid subscription statuses for validation.

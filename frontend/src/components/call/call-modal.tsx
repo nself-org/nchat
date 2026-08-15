@@ -31,11 +31,7 @@ export interface CallModalProps {
   onOpenChange?: (open: boolean) => void;
   callType: "voice" | "video";
   callState:
-    | "initiating"
-    | "ringing"
-    | "connecting"
-    | "connected"
-    | "reconnecting";
+    "initiating" | "ringing" | "connecting" | "connected" | "reconnecting";
   callDuration: number;
   participants: Participant[];
   localStream?: MediaStream;

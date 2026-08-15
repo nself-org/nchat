@@ -12,11 +12,7 @@
 // ============================================================================
 
 export type StreamStatus =
-  | "scheduled"
-  | "preparing"
-  | "live"
-  | "ended"
-  | "cancelled";
+  "scheduled" | "preparing" | "live" | "ended" | "cancelled";
 export type StreamQuality = "auto" | "1080p" | "720p" | "480p" | "360p";
 export type ChatMode = "open" | "followers" | "subscribers" | "disabled";
 export type StreamSource = "camera" | "screen" | "external" | "multi-source";
@@ -243,11 +239,7 @@ export interface RealTimeAnalytics {
 // ============================================================================
 
 export type ModerationAction =
-  | "warn"
-  | "timeout"
-  | "ban"
-  | "unban"
-  | "delete_message";
+  "warn" | "timeout" | "ban" | "unban" | "delete_message";
 
 export interface StreamModerator {
   id: string;

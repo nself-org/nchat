@@ -16,11 +16,7 @@ import { logger } from "@/lib/logger";
 export type CallHistoryType = "voice" | "video";
 export type CallHistoryDirection = "incoming" | "outgoing";
 export type CallHistoryStatus =
-  | "completed"
-  | "missed"
-  | "declined"
-  | "cancelled"
-  | "failed";
+  "completed" | "missed" | "declined" | "cancelled" | "failed";
 
 export interface CallHistoryEntry {
   id: string;

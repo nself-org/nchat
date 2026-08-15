@@ -42,12 +42,7 @@ export interface TextSelectionActionData {
 }
 
 export type TextSelectionAction =
-  | "copy"
-  | "quote"
-  | "reply-quote"
-  | "search"
-  | "define"
-  | "translate";
+  "copy" | "quote" | "reply-quote" | "search" | "define" | "translate";
 
 export type SearchEngine = "google" | "duckduckgo" | "bing";
 

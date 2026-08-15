@@ -88,13 +88,7 @@ export interface ChannelDiscoveryActions {
 }
 
 export type QuickFilterType =
-  | "all"
-  | "public"
-  | "private"
-  | "active"
-  | "new"
-  | "popular"
-  | "trending";
+  "all" | "public" | "private" | "active" | "new" | "popular" | "trending";
 
 // ============================================================================
 // Hook Implementation

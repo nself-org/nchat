@@ -187,12 +187,7 @@ export interface TelegramChatMemberUpdated {
  */
 export interface TelegramChatMember {
   status:
-    | "creator"
-    | "administrator"
-    | "member"
-    | "restricted"
-    | "left"
-    | "kicked";
+    "creator" | "administrator" | "member" | "restricted" | "left" | "kicked";
   user: TelegramUser;
   is_anonymous?: boolean;
   custom_title?: string;

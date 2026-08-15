@@ -37,14 +37,7 @@ export interface VisualizationData {
 }
 
 export type AudioFormat =
-  | "mp3"
-  | "wav"
-  | "ogg"
-  | "flac"
-  | "aac"
-  | "m4a"
-  | "webm"
-  | "unknown";
+  "mp3" | "wav" | "ogg" | "flac" | "aac" | "m4a" | "webm" | "unknown";
 
 export interface AudioValidationResult {
   valid: boolean;

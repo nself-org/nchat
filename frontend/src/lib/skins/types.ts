@@ -146,10 +146,7 @@ export interface BehaviorMessaging {
   showEditedIndicator: boolean;
   /** Reaction style */
   reactionStyle:
-    | "emoji-bar"
-    | "quick-reactions"
-    | "full-picker"
-    | "limited-set";
+    "emoji-bar" | "quick-reactions" | "full-picker" | "limited-set";
   /** Maximum reactions per message per user */
   maxReactionsPerMessage: number;
   /** Threading model */

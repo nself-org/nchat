@@ -13,11 +13,7 @@ import { logger } from "@/lib/logger";
 // ============================================================================
 
 export type PermissionType =
-  | "camera"
-  | "photos"
-  | "microphone"
-  | "storage"
-  | "notifications";
+  "camera" | "photos" | "microphone" | "storage" | "notifications";
 
 export type PermissionStatus = "granted" | "denied" | "prompt" | "unknown";
 

@@ -46,11 +46,7 @@ export function meetsRoleRequirement(
  * Supported argument types for plugin commands.
  */
 export type PluginArgType =
-  | "string"
-  | "number"
-  | "boolean"
-  | "user"
-  | "channel";
+  "string" | "number" | "boolean" | "user" | "channel";
 
 /**
  * Runtime argument value (parsed from user input).

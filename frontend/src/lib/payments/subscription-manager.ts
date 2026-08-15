@@ -59,12 +59,7 @@ export interface UserSubscription {
 }
 
 export type SubscriptionStatus =
-  | "active"
-  | "trialing"
-  | "past_due"
-  | "canceled"
-  | "incomplete"
-  | "paused";
+  "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "paused";
 
 export interface BillingCycle {
   startDate: Date;

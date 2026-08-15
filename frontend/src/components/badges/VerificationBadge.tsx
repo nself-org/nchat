@@ -17,11 +17,7 @@ import { UserBadge, BadgeSize } from "./UserBadge";
 import type { IdMeGroup } from "@/services/auth/providers/idme.provider";
 
 export type VerificationLevel =
-  | "none"
-  | "email"
-  | "phone"
-  | "idme"
-  | "government";
+  "none" | "email" | "phone" | "idme" | "government";
 
 export interface VerificationBadgeProps {
   level: VerificationLevel;

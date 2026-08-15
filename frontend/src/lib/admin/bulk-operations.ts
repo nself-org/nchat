@@ -26,11 +26,7 @@ export type BulkOperationType =
   | "message.archive";
 
 export type BulkOperationStatus =
-  | "pending"
-  | "running"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "running" | "completed" | "failed" | "cancelled";
 
 export interface BulkOperation {
   id: string;

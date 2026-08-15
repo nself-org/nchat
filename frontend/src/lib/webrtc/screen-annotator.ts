@@ -10,13 +10,7 @@
 // =============================================================================
 
 export type AnnotationTool =
-  | "pen"
-  | "arrow"
-  | "line"
-  | "rectangle"
-  | "circle"
-  | "text"
-  | "eraser";
+  "pen" | "arrow" | "line" | "rectangle" | "circle" | "text" | "eraser";
 
 export type AnnotationColor = string;
 

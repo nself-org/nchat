@@ -12,11 +12,7 @@
  * Core presence status values
  */
 export type PresenceStatus =
-  | "online"
-  | "away"
-  | "dnd"
-  | "invisible"
-  | "offline";
+  "online" | "away" | "dnd" | "invisible" | "offline";
 
 /**
  * Status colors for UI display
@@ -129,14 +125,7 @@ export const getPresetActivity = (
  * Status duration options
  */
 export type StatusDuration =
-  | "30m"
-  | "1h"
-  | "2h"
-  | "4h"
-  | "today"
-  | "this_week"
-  | "indefinite"
-  | "custom";
+  "30m" | "1h" | "2h" | "4h" | "today" | "this_week" | "indefinite" | "custom";
 
 /**
  * Duration option with label and calculation

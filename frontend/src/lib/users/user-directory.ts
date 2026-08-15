@@ -27,12 +27,7 @@ export interface DirectoryFilters {
 
 export interface SortOptions {
   field:
-    | "displayName"
-    | "username"
-    | "role"
-    | "presence"
-    | "lastSeen"
-    | "createdAt";
+    "displayName" | "username" | "role" | "presence" | "lastSeen" | "createdAt";
   direction: "asc" | "desc";
 }
 

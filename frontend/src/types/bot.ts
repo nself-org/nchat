@@ -375,11 +375,7 @@ export interface InstallBotInput {
  * Bot interaction types.
  */
 export type BotInteractionType =
-  | "command"
-  | "button"
-  | "select_menu"
-  | "modal_submit"
-  | "autocomplete";
+  "command" | "button" | "select_menu" | "modal_submit" | "autocomplete";
 
 /**
  * Bot interaction.
@@ -448,11 +444,7 @@ export type BotMessageComponentType = "button" | "select_menu" | "text_input";
  * Button styles.
  */
 export type BotButtonStyle =
-  | "primary"
-  | "secondary"
-  | "success"
-  | "danger"
-  | "link";
+  "primary" | "secondary" | "success" | "danger" | "link";
 
 /**
  * Bot button component.

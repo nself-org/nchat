@@ -317,8 +317,7 @@ class NativeBridgeImpl {
    */
   getPluginAPI<T>(pluginId: string): T | undefined {
     const plugin = this.plugins.get(pluginId) as
-      | NativeBridgePlugin<T>
-      | undefined;
+      NativeBridgePlugin<T> | undefined;
     if (!plugin) {
       return undefined;
     }

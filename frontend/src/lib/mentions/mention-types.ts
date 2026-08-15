@@ -185,10 +185,7 @@ export interface ParsedMention {
   end: number;
   /** Resolved data (user, channel, etc.) - may be undefined if unresolved */
   data?:
-    | UserMentionData
-    | ChannelMentionData
-    | GroupMentionData
-    | RoleMentionData;
+    UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData;
 }
 
 /**
@@ -233,10 +230,7 @@ export interface MentionSuggestion {
   color?: string;
   presence?: "online" | "away" | "dnd" | "offline";
   data:
-    | MentionableUser
-    | MentionableChannel
-    | GroupMentionInfo
-    | MentionableRole;
+    MentionableUser | MentionableChannel | GroupMentionInfo | MentionableRole;
 }
 
 // ============================================================================
@@ -417,10 +411,7 @@ export type MentionRenderMode = "chip" | "inline" | "link";
 export interface MentionRenderProps {
   type: MentionType;
   data:
-    | UserMentionData
-    | ChannelMentionData
-    | GroupMentionData
-    | RoleMentionData;
+    UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData;
   mode: MentionRenderMode;
   isCurrentUser: boolean;
   onClick?: () => void;
@@ -436,10 +427,7 @@ export interface MentionRenderProps {
  */
 export function isUserMention(
   data:
-    | UserMentionData
-    | ChannelMentionData
-    | GroupMentionData
-    | RoleMentionData,
+    UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData,
 ): data is UserMentionData {
   return data.type === "user";
 }
@@ -449,10 +437,7 @@ export function isUserMention(
  */
 export function isChannelMention(
   data:
-    | UserMentionData
-    | ChannelMentionData
-    | GroupMentionData
-    | RoleMentionData,
+    UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData,
 ): data is ChannelMentionData {
   return data.type === "channel";
 }
@@ -462,10 +447,7 @@ export function isChannelMention(
  */
 export function isGroupMention(
   data:
-    | UserMentionData
-    | ChannelMentionData
-    | GroupMentionData
-    | RoleMentionData,
+    UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData,
 ): data is GroupMentionData {
   return (
     data.type === "everyone" || data.type === "here" || data.type === "channel"
@@ -477,10 +459,7 @@ export function isGroupMention(
  */
 export function isRoleMention(
   data:
-    | UserMentionData
-    | ChannelMentionData
-    | GroupMentionData
-    | RoleMentionData,
+    UserMentionData | ChannelMentionData | GroupMentionData | RoleMentionData,
 ): data is RoleMentionData {
   return data.type === "role";
 }

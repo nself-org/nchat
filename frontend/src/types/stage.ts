@@ -35,10 +35,7 @@ export type HandRaiseStatus = "pending" | "accepted" | "declined" | "lowered";
  * Stage participant connection state
  */
 export type StageConnectionState =
-  | "connecting"
-  | "connected"
-  | "disconnected"
-  | "reconnecting";
+  "connecting" | "connected" | "disconnected" | "reconnecting";
 
 // =============================================================================
 // Stage Channel Types

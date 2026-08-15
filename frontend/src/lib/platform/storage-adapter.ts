@@ -42,12 +42,7 @@ export interface StorageAdapter {
  * Storage backend type
  */
 export type StorageBackend =
-  | "localStorage"
-  | "indexedDB"
-  | "capacitor"
-  | "electron"
-  | "tauri"
-  | "memory";
+  "localStorage" | "indexedDB" | "capacitor" | "electron" | "tauri" | "memory";
 
 /**
  * Storage configuration
@@ -589,8 +584,7 @@ export class TauriStorageAdapter implements StorageAdapter {
   }
 
   private getTauriInvoke():
-    | ((cmd: string, args?: Record<string, unknown>) => Promise<unknown>)
-    | null {
+    ((cmd: string, args?: Record<string, unknown>) => Promise<unknown>) | null {
     const win =
       typeof window !== "undefined" ? (window as StorageWindow) : null;
     return win?.__TAURI__?.core?.invoke ?? null;

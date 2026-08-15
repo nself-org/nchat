@@ -294,11 +294,7 @@ export interface BillingPeriodUsage {
  * Alert severity levels.
  */
 export type UsageAlertLevel =
-  | "normal"
-  | "info"
-  | "warning"
-  | "critical"
-  | "exceeded";
+  "normal" | "info" | "warning" | "critical" | "exceeded";
 
 /**
  * Threshold configuration for alerts.
@@ -382,10 +378,7 @@ export interface AlertHistoryEntry {
   transitionAt: Date;
   /** Trigger reason */
   reason:
-    | "threshold_crossed"
-    | "usage_decreased"
-    | "limit_changed"
-    | "period_reset";
+    "threshold_crossed" | "usage_decreased" | "limit_changed" | "period_reset";
 }
 
 // ============================================================================

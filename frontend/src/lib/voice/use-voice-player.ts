@@ -14,12 +14,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 // ============================================================================
 
 export type PlaybackState =
-  | "idle"
-  | "loading"
-  | "playing"
-  | "paused"
-  | "ended"
-  | "error";
+  "idle" | "loading" | "playing" | "paused" | "ended" | "error";
 
 export type PlaybackSpeed = 0.5 | 0.75 | 1 | 1.25 | 1.5 | 1.75 | 2;
 

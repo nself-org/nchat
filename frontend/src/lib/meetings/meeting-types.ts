@@ -15,29 +15,15 @@ export type MeetingStatus = "scheduled" | "live" | "ended" | "cancelled";
 export type ParticipantRole = "host" | "co-host" | "presenter" | "participant";
 
 export type ParticipantStatus =
-  | "invited"
-  | "accepted"
-  | "declined"
-  | "tentative"
-  | "joined"
-  | "left";
+  "invited" | "accepted" | "declined" | "tentative" | "joined" | "left";
 
 export type RoomType = "video" | "audio" | "screenshare";
 
 export type RecurrencePattern =
-  | "daily"
-  | "weekly"
-  | "biweekly"
-  | "monthly"
-  | "custom";
+  "daily" | "weekly" | "biweekly" | "monthly" | "custom";
 
 export type ReminderTiming =
-  | "5min"
-  | "10min"
-  | "15min"
-  | "30min"
-  | "1hour"
-  | "1day";
+  "5min" | "10min" | "15min" | "30min" | "1hour" | "1day";
 
 // ============================================================================
 // Core Types
@@ -338,8 +324,5 @@ export interface MeetingFilters {
 }
 
 export type MeetingSortBy =
-  | "scheduledStartAt"
-  | "createdAt"
-  | "title"
-  | "participantCount";
+  "scheduledStartAt" | "createdAt" | "title" | "participantCount";
 export type SortOrder = "asc" | "desc";

@@ -67,14 +67,7 @@ export interface DetectedIssue {
 }
 
 export type AutoAction =
-  | "none"
-  | "flag"
-  | "hide"
-  | "warn"
-  | "mute"
-  | "delete"
-  | "ban"
-  | "shadowban";
+  "none" | "flag" | "hide" | "warn" | "mute" | "delete" | "ban" | "shadowban";
 
 export interface ModerationThresholds {
   // Detection thresholds (0-1)

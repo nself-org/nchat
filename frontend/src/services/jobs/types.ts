@@ -103,10 +103,7 @@ export type NchatJobType =
  * Queue names for organizing jobs
  */
 export type QueueName =
-  | "default"
-  | "high-priority"
-  | "low-priority"
-  | "scheduled";
+  "default" | "high-priority" | "low-priority" | "scheduled";
 
 // ============================================================================
 // Job Payload Types

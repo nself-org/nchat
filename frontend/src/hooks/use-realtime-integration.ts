@@ -375,11 +375,7 @@ export function useRealtimeIntegration(): UseRealtimeIntegrationReturn {
             integration.getOfflineQueue().queueMessage({
               ...message,
               type: (message.type || "text") as
-                | "text"
-                | "file"
-                | "image"
-                | "voice"
-                | "system",
+                "text" | "file" | "image" | "voice" | "system",
             });
           } catch (error) {
             logger.error(

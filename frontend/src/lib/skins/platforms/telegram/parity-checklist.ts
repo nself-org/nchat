@@ -43,10 +43,7 @@ export type TelegramParityCategory =
  * Implementation status.
  */
 export type TelegramParityStatus =
-  | "implemented"
-  | "partial"
-  | "not-implemented"
-  | "not-applicable";
+  "implemented" | "partial" | "not-implemented" | "not-applicable";
 
 /**
  * A single parity checklist item.

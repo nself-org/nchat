@@ -30,19 +30,13 @@ export type VoiceChatStatus =
  * Hand raise request status
  */
 export type VoiceChatHandStatus =
-  | "pending"
-  | "accepted"
-  | "declined"
-  | "lowered";
+  "pending" | "accepted" | "declined" | "lowered";
 
 /**
  * Participant connection state
  */
 export type VoiceChatConnectionState =
-  | "connecting"
-  | "connected"
-  | "disconnected"
-  | "reconnecting";
+  "connecting" | "connected" | "disconnected" | "reconnecting";
 
 /**
  * Push-to-talk mode

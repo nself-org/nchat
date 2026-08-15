@@ -67,14 +67,7 @@ export interface AdvancedSearchBuilderProps {
 export type BooleanOperator = "AND" | "OR" | "NOT";
 
 export type QueryField =
-  | "text"
-  | "from"
-  | "in"
-  | "has"
-  | "is"
-  | "before"
-  | "after"
-  | "on";
+  "text" | "from" | "in" | "has" | "is" | "before" | "after" | "on";
 
 export interface QueryPart {
   id: string;

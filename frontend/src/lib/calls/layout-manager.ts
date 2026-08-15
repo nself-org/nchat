@@ -10,11 +10,7 @@
 // =============================================================================
 
 export type LayoutMode =
-  | "grid"
-  | "speaker"
-  | "pinned"
-  | "sidebar"
-  | "spotlight";
+  "grid" | "speaker" | "pinned" | "sidebar" | "spotlight";
 
 export interface ParticipantTile {
   participantId: string;

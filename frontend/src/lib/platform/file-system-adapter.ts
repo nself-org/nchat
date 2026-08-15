@@ -26,12 +26,7 @@ export type FileEncoding = "utf8" | "base64" | "binary";
  * Directory types for mobile platforms
  */
 export type Directory =
-  | "documents"
-  | "data"
-  | "cache"
-  | "external"
-  | "library"
-  | "temp";
+  "documents" | "data" | "cache" | "external" | "library" | "temp";
 
 /**
  * File info structure
@@ -1036,11 +1031,7 @@ export class NoopFileSystemAdapter implements FileSystemAdapter {
  * Detect the best file system backend for the current platform
  */
 export function detectFileSystemBackend():
-  | "web"
-  | "capacitor"
-  | "electron"
-  | "tauri"
-  | "none" {
+  "web" | "capacitor" | "electron" | "tauri" | "none" {
   const platform = detectPlatform();
   const win =
     typeof window !== "undefined" ? (window as FileSystemWindow) : null;

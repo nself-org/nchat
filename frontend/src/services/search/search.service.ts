@@ -100,10 +100,7 @@ export interface ChannelSearchHit extends SearchHit<MeiliChannelDocument> {
 }
 
 export type AnySearchHit =
-  | MessageSearchHit
-  | FileSearchHit
-  | UserSearchHit
-  | ChannelSearchHit;
+  MessageSearchHit | FileSearchHit | UserSearchHit | ChannelSearchHit;
 
 export interface SearchResults {
   hits: AnySearchHit[];

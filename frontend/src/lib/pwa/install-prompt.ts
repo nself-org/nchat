@@ -27,10 +27,7 @@ export interface BeforeInstallPromptEvent extends Event {
  * Install state
  */
 export type InstallState =
-  | "unknown"
-  | "installable"
-  | "installed"
-  | "unsupported";
+  "unknown" | "installable" | "installed" | "unsupported";
 
 /**
  * Install prompt configuration

@@ -31,29 +31,19 @@ export type NotificationPriority = "low" | "normal" | "high" | "urgent";
  * Notification levels for channels
  */
 export type ChannelNotificationLevel =
-  | "all"
-  | "mentions"
-  | "nothing"
-  | "custom";
+  "all" | "mentions" | "nothing" | "custom";
 
 /**
  * Email digest frequency options
  */
 export type EmailDigestFrequency =
-  | "instant"
-  | "hourly"
-  | "daily"
-  | "weekly"
-  | "never";
+  "instant" | "hourly" | "daily" | "weekly" | "never";
 
 /**
  * Delivery methods for notifications
  */
 export type NotificationDeliveryMethod =
-  | "desktop"
-  | "mobile"
-  | "email"
-  | "in_app";
+  "desktop" | "mobile" | "email" | "in_app";
 
 /**
  * Day of week (0 = Sunday, 6 = Saturday)
@@ -399,12 +389,7 @@ export interface EmailNotificationSettings {
  * Filter tab options
  */
 export type NotificationFilterTab =
-  | "all"
-  | "mentions"
-  | "threads"
-  | "reactions"
-  | "dms"
-  | "unread";
+  "all" | "mentions" | "threads" | "reactions" | "dms" | "unread";
 
 /**
  * Notification filter configuration

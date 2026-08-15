@@ -141,11 +141,7 @@ export type PermissionsPolicyFeature =
  * Permissions Policy allowlist
  */
 export type PermissionsPolicyAllowlist =
-  | "*"
-  | "self"
-  | "src"
-  | "none"
-  | string[];
+  "*" | "self" | "src" | "none" | string[];
 
 /**
  * Permissions Policy configuration

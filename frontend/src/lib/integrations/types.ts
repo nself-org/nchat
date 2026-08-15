@@ -10,23 +10,13 @@
 // ============================================================================
 
 export type IntegrationCategory =
-  | "productivity"
-  | "devtools"
-  | "storage"
-  | "communication";
+  "productivity" | "devtools" | "storage" | "communication";
 
 export type IntegrationStatus =
-  | "connected"
-  | "disconnected"
-  | "error"
-  | "pending";
+  "connected" | "disconnected" | "error" | "pending";
 
 export type IntegrationId =
-  | "slack"
-  | "github"
-  | "jira"
-  | "google-drive"
-  | "custom";
+  "slack" | "github" | "jira" | "google-drive" | "custom";
 
 /**
  * Core integration definition
@@ -434,12 +424,7 @@ export interface GoogleDrivePermission {
   id: string;
   type: "user" | "group" | "domain" | "anyone";
   role:
-    | "owner"
-    | "organizer"
-    | "fileOrganizer"
-    | "writer"
-    | "commenter"
-    | "reader";
+    "owner" | "organizer" | "fileOrganizer" | "writer" | "commenter" | "reader";
   emailAddress?: string;
   displayName?: string;
 }

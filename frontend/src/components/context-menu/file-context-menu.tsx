@@ -42,11 +42,7 @@ export interface FileActionData {
 }
 
 export type FileAction =
-  | "download"
-  | "open-new-tab"
-  | "preview"
-  | "copy-link"
-  | "delete";
+  "download" | "open-new-tab" | "preview" | "copy-link" | "delete";
 
 // ============================================================================
 // Helper Functions

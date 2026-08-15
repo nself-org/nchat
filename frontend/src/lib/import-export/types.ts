@@ -9,12 +9,7 @@
 export type ImportSource = "slack" | "discord" | "file";
 export type ExportFormat = "json" | "csv";
 export type ImportStatus =
-  | "pending"
-  | "validating"
-  | "mapping"
-  | "importing"
-  | "completed"
-  | "failed";
+  "pending" | "validating" | "mapping" | "importing" | "completed" | "failed";
 export type ExportStatus = "pending" | "generating" | "completed" | "failed";
 
 export interface ImportProgress {
@@ -267,17 +262,7 @@ export interface DiscordChannel {
 }
 
 export type DiscordChannelType =
-  | 0
-  | 1
-  | 2
-  | 4
-  | 5
-  | 10
-  | 11
-  | 12
-  | 13
-  | 14
-  | 15;
+  0 | 1 | 2 | 4 | 5 | 10 | 11 | 12 | 13 | 14 | 15;
 // 0 = Text, 1 = DM, 2 = Voice, 4 = Category, 5 = News, 10-15 = Thread types
 
 export interface DiscordMessage {

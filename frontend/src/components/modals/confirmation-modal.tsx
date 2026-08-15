@@ -16,10 +16,7 @@ import { cn } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 
 export type ConfirmationVariant =
-  | "default"
-  | "destructive"
-  | "warning"
-  | "success";
+  "default" | "destructive" | "warning" | "success";
 
 interface ConfirmationModalProps {
   open: boolean;

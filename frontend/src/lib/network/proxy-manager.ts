@@ -27,22 +27,13 @@ import { logger } from "@/lib/logger";
  * Proxy protocol type
  */
 export type ProxyProtocol =
-  | "http"
-  | "https"
-  | "socks4"
-  | "socks5"
-  | "shadowsocks"
-  | "vmess";
+  "http" | "https" | "socks4" | "socks5" | "shadowsocks" | "vmess";
 
 /**
  * Bridge protocol type (obfuscation layer)
  */
 export type BridgeProtocol =
-  | "obfs4"
-  | "meek"
-  | "snowflake"
-  | "webtunnel"
-  | "plain";
+  "obfs4" | "meek" | "snowflake" | "webtunnel" | "plain";
 
 /**
  * Proxy authentication type

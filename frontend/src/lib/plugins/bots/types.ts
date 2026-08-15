@@ -52,11 +52,7 @@ export interface BotAccount {
  * Bot account status.
  */
 export type BotAccountStatus =
-  | "active"
-  | "suspended"
-  | "disabled"
-  | "pending_review"
-  | "deleted";
+  "active" | "suspended" | "disabled" | "pending_review" | "deleted";
 
 /**
  * Bot type classification.
@@ -174,10 +170,7 @@ export interface BotInstallation {
  * Bot installation status.
  */
 export type BotInstallationStatus =
-  | "active"
-  | "disabled"
-  | "suspended"
-  | "uninstalled";
+  "active" | "disabled" | "suspended" | "uninstalled";
 
 // ============================================================================
 // BOT RATE LIMITING

@@ -23,10 +23,7 @@ import { logger } from "@/lib/logger";
  * Notification permission states
  */
 export type NotificationPermission =
-  | "granted"
-  | "denied"
-  | "default"
-  | "prompt";
+  "granted" | "denied" | "default" | "prompt";
 
 /**
  * Notification priority levels
@@ -103,11 +100,7 @@ export interface NotificationResult {
  * Notification event types
  */
 export type NotificationEventType =
-  | "click"
-  | "close"
-  | "action"
-  | "show"
-  | "error";
+  "click" | "close" | "action" | "show" | "error";
 
 /**
  * Notification event data
@@ -794,11 +787,7 @@ export class NoopNotificationAdapter extends BaseNotificationAdapter {
  * Detect the best notification backend for the current platform
  */
 export function detectNotificationBackend():
-  | "web"
-  | "capacitor"
-  | "electron"
-  | "tauri"
-  | "none" {
+  "web" | "capacitor" | "electron" | "tauri" | "none" {
   const platform = detectPlatform();
 
   switch (platform) {

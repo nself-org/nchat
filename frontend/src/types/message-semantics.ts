@@ -15,12 +15,7 @@ import type { MessageUser } from "./message";
  * Supported messaging platform styles.
  */
 export type MessagePlatformStyle =
-  | "whatsapp"
-  | "telegram"
-  | "signal"
-  | "slack"
-  | "discord"
-  | "custom";
+  "whatsapp" | "telegram" | "signal" | "slack" | "discord" | "custom";
 
 // ============================================================================
 // EDIT SEMANTICS
@@ -192,11 +187,7 @@ export const DEFAULT_UNDO_CONFIG: UndoWindowConfig = {
  * User role for permission checking.
  */
 export type MessagePermissionRole =
-  | "owner"
-  | "admin"
-  | "moderator"
-  | "member"
-  | "guest";
+  "owner" | "admin" | "moderator" | "member" | "guest";
 
 /**
  * Permission check result.

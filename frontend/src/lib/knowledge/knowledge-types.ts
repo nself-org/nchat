@@ -26,12 +26,7 @@ export type ArticleVisibility = "public" | "internal" | "restricted";
  * Content type for articles
  */
 export type ArticleContentType =
-  | "faq"
-  | "guide"
-  | "tutorial"
-  | "troubleshooting"
-  | "reference"
-  | "policy";
+  "faq" | "guide" | "tutorial" | "troubleshooting" | "reference" | "policy";
 
 // ============================================================================
 // CATEGORY TYPES

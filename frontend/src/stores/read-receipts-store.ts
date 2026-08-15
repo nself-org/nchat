@@ -57,11 +57,7 @@ export interface ChannelReadStatus {
  * Message delivery status
  */
 export type DeliveryStatus =
-  | "sending"
-  | "sent"
-  | "delivered"
-  | "read"
-  | "failed";
+  "sending" | "sent" | "delivered" | "read" | "failed";
 
 /**
  * Message status info combining delivery and read state

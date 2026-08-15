@@ -124,12 +124,13 @@ Redis-backed distributed rate limiting with:
 - **Rate Limit Headers**: Standard HTTP headers for client feedback
 
 **Default Limits:**
-| Feature | User Limit | Org Limit | Window |
-|---------|-----------|-----------|---------|
-| Summarization | 50 req | 500 req | 1 hour |
-| Search | 20 req | 1000 req | 1 min / 1 hour |
-| Chat | 10 req | 1000 req | 1 min / 1 hour |
-| Embeddings | 30 req | 5000 req | 1 min / 1 hour |
+
+| Feature       | User Limit | Org Limit | Window         |
+| ------------- | ---------- | --------- | -------------- |
+| Summarization | 50 req     | 500 req   | 1 hour         |
+| Search        | 20 req     | 1000 req  | 1 min / 1 hour |
+| Chat          | 10 req     | 1000 req  | 1 min / 1 hour |
+| Embeddings    | 30 req     | 5000 req  | 1 min / 1 hour |
 
 **Usage:**
 
@@ -174,13 +175,14 @@ Comprehensive cost tracking and budget management:
 - **Top Users**: Identify highest spenders
 
 **Model Pricing (Jan 2026):**
-| Model | Input (per 1K) | Output (per 1K) |
-|-------|---------------|-----------------|
-| GPT-4 Turbo | $0.01 | $0.03 |
-| GPT-4o | $0.005 | $0.015 |
-| GPT-4o Mini | $0.00015 | $0.0006 |
-| Claude 3.5 Sonnet | $0.003 | $0.015 |
-| Claude 3.5 Haiku | $0.0008 | $0.004 |
+
+| Model             | Input (per 1K) | Output (per 1K) |
+| ----------------- | -------------- | --------------- |
+| GPT-4 Turbo       | $0.01          | $0.03           |
+| GPT-4o            | $0.005         | $0.015          |
+| GPT-4o Mini       | $0.00015       | $0.0006         |
+| Claude 3.5 Sonnet | $0.003         | $0.015          |
+| Claude 3.5 Haiku  | $0.0008        | $0.004          |
 
 **Usage:**
 
@@ -269,13 +271,14 @@ Intelligent caching with:
 - **Batch Operations**: Get/set multiple entries efficiently
 
 **Cache TTLs:**
-| Operation | TTL | Rationale |
-|-----------|-----|-----------|
-| Chat | 5 min | Responses change frequently |
-| Summarization | 30 min | Summaries remain valid |
-| Search | 1 hour | Search results stable |
-| Embeddings | 2 hours | Embeddings rarely change |
-| Translation | 24 hours | Translations are static |
+
+| Operation     | TTL      | Rationale                   |
+| ------------- | -------- | --------------------------- |
+| Chat          | 5 min    | Responses change frequently |
+| Summarization | 30 min   | Summaries remain valid      |
+| Search        | 1 hour   | Search results stable       |
+| Embeddings    | 2 hours  | Embeddings rarely change    |
+| Translation   | 24 hours | Translations are static     |
 
 **Usage:**
 

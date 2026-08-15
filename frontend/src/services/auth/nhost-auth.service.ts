@@ -31,12 +31,7 @@ export interface SignUpOptions {
 }
 
 export type OAuthProvider =
-  | "google"
-  | "github"
-  | "microsoft"
-  | "apple"
-  | "facebook"
-  | "twitter";
+  "google" | "github" | "microsoft" | "apple" | "facebook" | "twitter";
 
 export interface SignInWithOAuthOptions {
   provider: OAuthProvider;

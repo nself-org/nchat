@@ -38,10 +38,7 @@ export type FeatureCategory =
  * Implementation status of a feature
  */
 export type FeatureStatus =
-  | "not_started"
-  | "in_progress"
-  | "complete"
-  | "blocked";
+  "not_started" | "in_progress" | "complete" | "blocked";
 
 /**
  * Plan levels for feature restrictions
@@ -52,12 +49,7 @@ export type PlanLevel = "free" | "starter" | "pro" | "business" | "enterprise";
  * Platform compatibility for platform-specific features
  */
 export type Platform =
-  | "web"
-  | "ios"
-  | "android"
-  | "macos"
-  | "windows"
-  | "linux";
+  "web" | "ios" | "android" | "macos" | "windows" | "linux";
 
 /**
  * Feature definition interface

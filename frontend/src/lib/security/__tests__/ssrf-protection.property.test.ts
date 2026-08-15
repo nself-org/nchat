@@ -8,7 +8,15 @@
  * - DNS rebinding scenarios
  */
 
-import { describe, it, expect, beforeEach, beforeAll, afterAll, jest } from "@jest/globals";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  beforeAll,
+  afterAll,
+  jest,
+} from "@jest/globals";
 import * as fc from "fast-check";
 import { SsrfProtection, clearDnsCache } from "../ssrf-protection";
 
@@ -17,7 +25,8 @@ import { SsrfProtection, clearDnsCache } from "../ssrf-protection";
 // exhausting the 60s Jest timeout on slow/sandboxed CI runners.
 const mockDnsResolve4 = jest.fn<() => Promise<string[]>>();
 const mockDnsResolve6 = jest.fn<() => Promise<string[]>>();
-const mockDnsLookup = jest.fn<() => Promise<{ address: string; family: number }[]>>();
+const mockDnsLookup =
+  jest.fn<() => Promise<{ address: string; family: number }[]>>();
 
 beforeAll(() => {
   // Stub dns module so dynamic import("dns") inside resolveHostname() returns mocks.

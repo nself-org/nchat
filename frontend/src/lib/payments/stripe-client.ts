@@ -94,11 +94,7 @@ export interface Invoice {
 }
 
 export type InvoiceStatus =
-  | "draft"
-  | "open"
-  | "paid"
-  | "uncollectible"
-  | "void";
+  "draft" | "open" | "paid" | "uncollectible" | "void";
 
 export interface WebhookEvent {
   id: string;

@@ -290,7 +290,9 @@ export function UsageProgress({
                 isExceeded && "text-red-600",
               )}
             >
-              {t("billing.paywall.remaining", { count: remaining.toLocaleString() })}
+              {t("billing.paywall.remaining", {
+                count: remaining.toLocaleString(),
+              })}
             </span>
           )}
         </div>
@@ -348,13 +350,17 @@ export function PaywallOverlay({
             />
           )}
           <p className="text-sm text-muted-foreground">
-            {t("billing.paywall.upgradeToPlan", { plan: PLAN_TIER_NAMES[targetPlan] })}
+            {t("billing.paywall.upgradeToPlan", {
+              plan: PLAN_TIER_NAMES[targetPlan],
+            })}
           </p>
         </div>
 
         <div className="flex gap-2">
           <Button onClick={() => onUpgradeClick?.(targetPlan)}>
-            {t("billing.paywall.upgradeToPlan", { plan: PLAN_TIER_NAMES[targetPlan] })}
+            {t("billing.paywall.upgradeToPlan", {
+              plan: PLAN_TIER_NAMES[targetPlan],
+            })}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           {onDismiss && (
@@ -415,7 +421,9 @@ export function PaywallModal({
 
         {promptConfig?.showComparison && (
           <div className="space-y-3 py-4">
-            <h4 className="text-sm font-medium">{t("billing.paywall.whatYouGet")}</h4>
+            <h4 className="text-sm font-medium">
+              {t("billing.paywall.whatYouGet")}
+            </h4>
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-green-600" />
@@ -446,7 +454,9 @@ export function PaywallModal({
             }}
           >
             {promptConfig?.primaryCta?.text ??
-              t("billing.paywall.upgradeToPlan", { plan: PLAN_TIER_NAMES[targetPlan] })}
+              t("billing.paywall.upgradeToPlan", {
+                plan: PLAN_TIER_NAMES[targetPlan],
+              })}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           <Button
@@ -454,7 +464,8 @@ export function PaywallModal({
             className="w-full"
             onClick={() => onOpenChange(false)}
           >
-            {promptConfig?.secondaryCta?.text ?? t("billing.paywall.maybeLater")}
+            {promptConfig?.secondaryCta?.text ??
+              t("billing.paywall.maybeLater")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -512,7 +523,9 @@ export function InlineUpgradePrompt({
         <span>
           {limit && usage
             ? `${usage.current.toLocaleString()} / ${usage.limit?.toLocaleString() ?? t("billing.paywall.unlimited")} ${LIMIT_UNITS[limit]}`
-            : t("billing.paywall.availableOnPlan", { plan: PLAN_TIER_NAMES[targetPlan] })}
+            : t("billing.paywall.availableOnPlan", {
+                plan: PLAN_TIER_NAMES[targetPlan],
+              })}
         </span>
         <div className="flex gap-2">
           <Button size="sm" onClick={() => onUpgradeClick?.(targetPlan)}>
@@ -726,7 +739,9 @@ export function PaywallGate({
             <div className="flex items-center gap-2 rounded-full bg-background/90 px-4 py-2 shadow-lg">
               <Lock className="h-4 w-4" />
               <span className="text-sm font-medium">
-                {t("billing.paywall.planRequired", { plan: PLAN_TIER_NAMES[requiredPlan ?? "starter"] })}
+                {t("billing.paywall.planRequired", {
+                  plan: PLAN_TIER_NAMES[requiredPlan ?? "starter"],
+                })}
               </span>
             </div>
           </div>

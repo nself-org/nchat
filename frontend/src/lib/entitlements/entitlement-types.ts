@@ -29,10 +29,7 @@ export type EntitlementValueType = "boolean" | "numeric" | "tier" | "custom";
  * Inheritance flows: organization -> workspace -> channel -> user
  */
 export type EntitlementScope =
-  | "organization"
-  | "workspace"
-  | "channel"
-  | "user";
+  "organization" | "workspace" | "channel" | "user";
 
 /**
  * Source of an entitlement.

@@ -162,12 +162,7 @@ export interface GoogleDrivePermissionDetail {
   id: string;
   type: "user" | "group" | "domain" | "anyone";
   role:
-    | "owner"
-    | "organizer"
-    | "fileOrganizer"
-    | "writer"
-    | "commenter"
-    | "reader";
+    "owner" | "organizer" | "fileOrganizer" | "writer" | "commenter" | "reader";
   emailAddress?: string;
   domain?: string;
   displayName?: string;
@@ -372,12 +367,7 @@ export interface GoogleDriveNotificationSettings {
  */
 export interface GoogleDriveUnfurlResult {
   type:
-    | "document"
-    | "spreadsheet"
-    | "presentation"
-    | "form"
-    | "folder"
-    | "file";
+    "document" | "spreadsheet" | "presentation" | "form" | "folder" | "file";
   title: string;
   description?: string;
   owner?: string;

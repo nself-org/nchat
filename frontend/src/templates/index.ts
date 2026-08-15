@@ -247,17 +247,13 @@ export function applyEnvOverrides(
         : undefined,
       messageDensity:
         (process.env.NEXT_PUBLIC_MESSAGE_DENSITY as
-          | "compact"
-          | "comfortable"
-          | "spacious") ?? undefined,
+          "compact" | "comfortable" | "spacious") ?? undefined,
       messageGrouping: process.env.NEXT_PUBLIC_MESSAGE_GROUPING
         ? process.env.NEXT_PUBLIC_MESSAGE_GROUPING === "true"
         : undefined,
       avatarStyle:
         (process.env.NEXT_PUBLIC_AVATAR_STYLE as
-          | "circle"
-          | "rounded"
-          | "square") ?? undefined,
+          "circle" | "rounded" | "square") ?? undefined,
       avatarSize:
         (process.env.NEXT_PUBLIC_AVATAR_SIZE as "sm" | "md" | "lg") ??
         undefined,

@@ -14,12 +14,7 @@ import { logger } from "@/lib/logger";
  * Update state
  */
 export type UpdateState =
-  | "none"
-  | "checking"
-  | "available"
-  | "downloading"
-  | "ready"
-  | "error";
+  "none" | "checking" | "available" | "downloading" | "ready" | "error";
 
 /**
  * Update handler configuration

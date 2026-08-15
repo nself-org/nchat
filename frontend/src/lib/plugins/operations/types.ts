@@ -14,10 +14,7 @@
  * Health status for a plugin.
  */
 export type PluginHealthState =
-  | "healthy"
-  | "degraded"
-  | "unhealthy"
-  | "unknown";
+  "healthy" | "degraded" | "unhealthy" | "unknown";
 
 /**
  * Detailed health check result for a plugin.
@@ -183,11 +180,7 @@ export const DEFAULT_VERSION_COMPATIBILITY_CONFIG: VersionCompatibilityConfig =
  * Status of a rollback operation.
  */
 export type RollbackStatus =
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "in_progress" | "completed" | "failed" | "cancelled";
 
 /**
  * A snapshot of a plugin's state before an update.

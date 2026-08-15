@@ -18,11 +18,7 @@ import type { Attachment } from "./attachment";
  * Types of searchable entities.
  */
 export type SearchResultType =
-  | "message"
-  | "user"
-  | "channel"
-  | "file"
-  | "thread";
+  "message" | "user" | "channel" | "file" | "thread";
 
 /**
  * Search scope options.

@@ -29,11 +29,7 @@ export type ContactDiscoveryMethod =
   | "channel_member";
 
 export type ContactInviteStatus =
-  | "pending"
-  | "accepted"
-  | "rejected"
-  | "expired"
-  | "cancelled";
+  "pending" | "accepted" | "rejected" | "expired" | "cancelled";
 
 export interface Contact {
   id: string;

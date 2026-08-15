@@ -67,8 +67,7 @@ async function handleGet(
     const user = (request as any).user;
     const { searchParams } = new URL(request.url);
     const disposition = (searchParams.get("disposition") || "inline") as
-      | "inline"
-      | "attachment";
+      "inline" | "attachment";
     const expiresIn = parseInt(searchParams.get("expiresIn") || "3600", 10);
 
     // Get file from database

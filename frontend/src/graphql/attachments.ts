@@ -10,12 +10,7 @@ import {
 // ============================================================================
 
 export type AttachmentType =
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "archive"
-  | "other";
+  "image" | "video" | "audio" | "document" | "archive" | "other";
 
 export interface GetAttachmentVariables {
   id: string;

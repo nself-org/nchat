@@ -35,11 +35,7 @@ import {
 // ── Types ───────────────────────────────────────────────────────────────────
 
 export type NotificationType =
-  | "mention"
-  | "dm"
-  | "thread_reply"
-  | "reaction"
-  | "system";
+  "mention" | "dm" | "thread_reply" | "reaction" | "system";
 export type PriorityLevel = "high" | "medium" | "low";
 export type DateRange = "today" | "week" | "month" | "all";
 

@@ -442,8 +442,7 @@ export function getSkippableSteps(config: Record<string, unknown>): number[] {
 
   // Step 7: Auth - skip if at least one provider is enabled
   const authProviders = getNestedValue(config, "authProviders") as
-    | Record<string, unknown>
-    | undefined;
+    Record<string, unknown> | undefined;
   if (authProviders && Object.values(authProviders).some((v) => v === true)) {
     skippable.push(7);
   }

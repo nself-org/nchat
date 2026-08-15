@@ -23,22 +23,10 @@
 // ============================================================================
 
 export type OperatorType =
-  | "from"
-  | "in"
-  | "before"
-  | "after"
-  | "has"
-  | "is"
-  | "to"
-  | "mentions";
+  "from" | "in" | "before" | "after" | "has" | "is" | "to" | "mentions";
 
 export type HasFilterType =
-  | "link"
-  | "file"
-  | "image"
-  | "code"
-  | "mention"
-  | "reaction";
+  "link" | "file" | "image" | "code" | "mention" | "reaction";
 
 export type IsFilterType = "pinned" | "starred" | "thread" | "unread";
 

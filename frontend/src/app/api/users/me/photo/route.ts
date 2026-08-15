@@ -82,8 +82,7 @@ async function postHandler(
 
     // Parse crop data if provided
     let crop:
-      | { x: number; y: number; width: number; height: number }
-      | undefined;
+      { x: number; y: number; width: number; height: number } | undefined;
     if (cropData) {
       try {
         crop = JSON.parse(cropData);

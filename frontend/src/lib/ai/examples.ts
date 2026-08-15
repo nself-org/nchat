@@ -288,9 +288,7 @@ export async function example10_APIUsage() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      messages: [
-        /* ... */
-      ],
+      messages: [/* ... */],
       type: "digest",
       options: { style: "detailed" },
     }),
@@ -306,9 +304,7 @@ export async function example10_APIUsage() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       query: "authentication bug",
-      messages: [
-        /* ... */
-      ],
+      messages: [/* ... */],
       options: { limit: 20 },
     }),
   });

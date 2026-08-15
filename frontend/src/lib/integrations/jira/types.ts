@@ -169,10 +169,7 @@ export interface JiraComponent {
   description?: string;
   lead?: JiraUser;
   assigneeType?:
-    | "PROJECT_LEAD"
-    | "COMPONENT_LEAD"
-    | "UNASSIGNED"
-    | "PROJECT_DEFAULT";
+    "PROJECT_LEAD" | "COMPONENT_LEAD" | "UNASSIGNED" | "PROJECT_DEFAULT";
   project?: string;
 }
 

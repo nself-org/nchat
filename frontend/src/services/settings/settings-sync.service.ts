@@ -38,11 +38,7 @@ import {
  * Settings sync status
  */
 export type SettingsSyncStatus =
-  | "idle"
-  | "syncing"
-  | "synced"
-  | "conflict"
-  | "error";
+  "idle" | "syncing" | "synced" | "conflict" | "error";
 
 /**
  * Settings sync result

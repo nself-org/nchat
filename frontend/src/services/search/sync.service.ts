@@ -76,11 +76,7 @@ export interface ReindexProgress {
 }
 
 export type SyncEventType =
-  | "create"
-  | "update"
-  | "delete"
-  | "bulk_create"
-  | "bulk_delete";
+  "create" | "update" | "delete" | "bulk_create" | "bulk_delete";
 
 export interface SyncEvent<T = unknown> {
   type: SyncEventType;

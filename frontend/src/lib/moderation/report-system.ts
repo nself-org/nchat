@@ -9,11 +9,7 @@
 // ============================================================================
 
 export type ReportStatus =
-  | "pending"
-  | "in_review"
-  | "resolved"
-  | "dismissed"
-  | "escalated";
+  "pending" | "in_review" | "resolved" | "dismissed" | "escalated";
 export type ReportPriority = "low" | "medium" | "high" | "urgent";
 export type ReportTargetType = "user" | "message" | "channel" | "other";
 

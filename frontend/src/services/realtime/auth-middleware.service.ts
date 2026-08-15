@@ -27,11 +27,7 @@ import { logger } from "@/lib/logger";
  * Authentication state
  */
 export type AuthState =
-  | "unauthenticated"
-  | "authenticating"
-  | "authenticated"
-  | "expired"
-  | "error";
+  "unauthenticated" | "authenticating" | "authenticated" | "expired" | "error";
 
 /**
  * User session information

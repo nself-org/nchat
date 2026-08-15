@@ -261,11 +261,7 @@ export interface FloatingRecordingIndicatorProps {
   formattedDuration?: string;
   /** Position on screen */
   position?:
-    | "top-right"
-    | "top-left"
-    | "bottom-right"
-    | "bottom-left"
-    | "top-center";
+    "top-right" | "top-left" | "bottom-right" | "bottom-left" | "top-center";
   /** Show cancel button */
   showCancel?: boolean;
   /** Cancel callback */

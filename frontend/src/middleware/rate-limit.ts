@@ -54,12 +54,7 @@ interface RateLimitEntry {
  * User tier for rate limit multipliers
  */
 export type UserTier =
-  | "guest"
-  | "member"
-  | "premium"
-  | "enterprise"
-  | "admin"
-  | "internal";
+  "guest" | "member" | "premium" | "enterprise" | "admin" | "internal";
 
 /**
  * Tier multipliers for rate limits

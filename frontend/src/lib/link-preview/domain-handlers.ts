@@ -301,12 +301,7 @@ export function parseSpotifyUrl(url: string): {
 
   return {
     type: match[1] as
-      | "track"
-      | "album"
-      | "playlist"
-      | "artist"
-      | "episode"
-      | "show",
+      "track" | "album" | "playlist" | "artist" | "episode" | "show",
     id: match[2],
   };
 }

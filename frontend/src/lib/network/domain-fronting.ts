@@ -57,11 +57,7 @@ export type CDNProvider =
  * Domain fronting strategy
  */
 export type FrontingStrategy =
-  | "sni-host-split"
-  | "host-header-only"
-  | "reflector"
-  | "meek"
-  | "custom";
+  "sni-host-split" | "host-header-only" | "reflector" | "meek" | "custom";
 
 /**
  * CDN endpoint configuration

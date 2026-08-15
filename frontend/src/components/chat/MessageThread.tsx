@@ -17,13 +17,7 @@
  */
 
 import * as React from "react";
-import {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  useId,
-} from "react";
+import { useState, useCallback, useRef, useEffect, useId } from "react";
 import { Loader2, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -60,7 +54,9 @@ export interface MessageThreadProps {
     cursor: string | null,
     limit: number,
     signal: AbortSignal,
-  ) => Promise<AppResult<{ messages: ThreadMessage[]; nextCursor: string | null }>>;
+  ) => Promise<
+    AppResult<{ messages: ThreadMessage[]; nextCursor: string | null }>
+  >;
   _sendMessage?: (
     channelId: string,
     content: string,
@@ -82,7 +78,9 @@ async function defaultFetchMessages(
   _cursor: string | null,
   _limit: number,
   _signal: AbortSignal,
-): Promise<AppResult<{ messages: ThreadMessage[]; nextCursor: string | null }>> {
+): Promise<
+  AppResult<{ messages: ThreadMessage[]; nextCursor: string | null }>
+> {
   return ok({ messages: [], nextCursor: null });
 }
 
@@ -112,7 +110,8 @@ export function MessageThread({
   _isOfflineOverride,
 }: MessageThreadProps) {
   const subStatus = useSubscriptionStatus();
-  const isOffline = _isOfflineOverride !== undefined ? _isOfflineOverride : subStatus.isOffline;
+  const isOffline =
+    _isOfflineOverride !== undefined ? _isOfflineOverride : subStatus.isOffline;
   const isReconnecting = subStatus.isReconnecting;
   const networkOnline = subStatus.networkOnline;
 
@@ -150,7 +149,9 @@ export function MessageThread({
           setMessages(result.value.messages);
           setCursor(result.value.nextCursor);
           setHasMore(result.value.nextCursor !== null);
-          setScreenState(result.value.messages.length === 0 ? "empty" : "connected");
+          setScreenState(
+            result.value.messages.length === 0 ? "empty" : "connected",
+          );
         } else {
           const code = result.error.code;
           if (code === "permission_denied" || code === "unauthenticated") {
@@ -238,7 +239,15 @@ export function MessageThread({
       }
       _onToast?.("Failed — tap to retry");
     }
-  }, [inputValue, jwt, isOffline, rateLimitMs, channelId, _sendMessage, _onToast]);
+  }, [
+    inputValue,
+    jwt,
+    isOffline,
+    rateLimitMs,
+    channelId,
+    _sendMessage,
+    _onToast,
+  ]);
 
   // Decide actual state to render
   const activeState: AsyncState =
@@ -317,7 +326,9 @@ export function MessageThread({
               isOffline && "cursor-not-allowed opacity-50",
             )}
             placeholder={
-              isOffline ? "You're offline" : `Message ${channelName ? "#" + channelName : "this channel"}`
+              isOffline
+                ? "You're offline"
+                : `Message ${channelName ? "#" + channelName : "this channel"}`
             }
             disabled={isOffline}
             value={inputValue}

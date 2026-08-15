@@ -822,8 +822,7 @@ export class EntitlementGraph {
     for (const [key, nodeData] of Object.entries(nodes)) {
       const { scope, entityId } = this.parseNodeKey(key);
       const grants = nodeData.grants as
-        | Record<string, EntitlementGrant>
-        | undefined;
+        Record<string, EntitlementGrant> | undefined;
       if (grants) {
         for (const grant of Object.values(grants)) {
           this.addGrant(scope, entityId, grant);

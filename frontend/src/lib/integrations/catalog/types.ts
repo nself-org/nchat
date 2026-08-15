@@ -47,12 +47,7 @@ export type ConnectorStatus =
  * Categorized error types for connectors.
  */
 export type ConnectorErrorCategory =
-  | "auth"
-  | "rate_limit"
-  | "network"
-  | "data"
-  | "config"
-  | "unknown";
+  "auth" | "rate_limit" | "network" | "data" | "config" | "unknown";
 
 /**
  * Supported calendar providers.
@@ -656,17 +651,10 @@ export interface CRMLeadCreateParams {
 // ============================================================================
 
 export type ConflictResolutionStrategy =
-  | "latest_wins"
-  | "source_wins"
-  | "target_wins"
-  | "manual";
+  "latest_wins" | "source_wins" | "target_wins" | "manual";
 
 export type SyncItemStatus =
-  | "pending"
-  | "syncing"
-  | "synced"
-  | "conflict"
-  | "error";
+  "pending" | "syncing" | "synced" | "conflict" | "error";
 
 export interface SyncQueueItem {
   id: string;

@@ -12,11 +12,7 @@
 // ============================================================================
 
 export type StreamStatus =
-  | "scheduled"
-  | "preparing"
-  | "live"
-  | "ended"
-  | "cancelled";
+  "scheduled" | "preparing" | "live" | "ended" | "cancelled";
 
 export type StreamQuality = "auto" | "1080p" | "720p" | "480p" | "360p";
 

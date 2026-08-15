@@ -46,8 +46,7 @@ export const GET = compose(
   const searchParams = request.nextUrl.searchParams;
   const channelId = searchParams.get("channelId") || undefined;
   const status = (searchParams.get("status") || undefined) as
-    | ScheduledMessageStatus
-    | undefined;
+    ScheduledMessageStatus | undefined;
   const limit = parseInt(searchParams.get("limit") || "50", 10);
   const offset = parseInt(searchParams.get("offset") || "0", 10);
 

@@ -18,11 +18,7 @@ import { type Contact, type BlockedUser } from "@/lib/users/user-privacy";
 
 export type ViewMode = "grid" | "list" | "org-chart";
 export type SortField =
-  | "displayName"
-  | "username"
-  | "role"
-  | "presence"
-  | "lastSeen";
+  "displayName" | "username" | "role" | "presence" | "lastSeen";
 export type SortDirection = "asc" | "desc";
 
 export interface UserDirectoryState {

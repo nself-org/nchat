@@ -14,17 +14,9 @@ import { logger } from "@/lib/logger";
 export type CryptoProvider = "coinbase_commerce" | "stripe_crypto" | "manual";
 export type CryptoCurrency = "ETH" | "BTC" | "USDC" | "USDT" | "DAI" | "MATIC";
 export type CryptoNetwork =
-  | "ethereum"
-  | "bitcoin"
-  | "polygon"
-  | "arbitrum"
-  | "base";
+  "ethereum" | "bitcoin" | "polygon" | "arbitrum" | "base";
 export type CryptoPaymentStatus =
-  | "pending"
-  | "confirming"
-  | "completed"
-  | "failed"
-  | "expired";
+  "pending" | "confirming" | "completed" | "failed" | "expired";
 
 export interface CryptoPaymentConfig {
   provider: CryptoProvider;
