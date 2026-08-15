@@ -54,7 +54,10 @@
       "react": "^19.2.0",
       "react-dom": "^19.2.0",
       "@types/react": "19.2.17",
-      "@types/react-dom": "19.2.0"
+      "@types/react-dom": "19.2.0",
+      "next": "15.5.21",
+      "websocket-driver": ">=0.7.5",
+      "axios": "1.16.0"
     },
     "patchedDependencies": {
       "@capacitor/cli@6.2.1": "patches/@capacitor__cli@6.2.1.patch"
