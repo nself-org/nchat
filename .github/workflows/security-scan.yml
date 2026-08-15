@@ -199,10 +199,35 @@ jobs:
 
           # Extract counts from audit report
           if [ -f "audit-report.json" ]; then
-            CRITICAL=$(jq -r '.metadata.vulnerabilities.critical // 0' audit-report.json)
-            HIGH=$(jq -r '.metadata.vulnerabilities.high // 0' audit-report.json)
-            MODERATE=$(jq -r '.metadata.vulnerabilities.moderate // 0' audit-report.json)
-            LOW=$(jq -r '.metadata.vulnerabilities.low // 0' audit-report.json)
+            # .metadata.vulnerabilities counts EVERY advisory, including ones this
+            # repo has explicitly and reviewably accepted in
+            # package.json > pnpm.auditConfig.ignoreCves (no patched release
+            # upstream, build-time-only deps). `pnpm audit` honours that list
+            # (exits 0, prints "(N ignored)") but the raw JSON does not — so the
+            # gate blocked every PR on CVEs already assessed. Apply the same list
+            # here, using jq only (no heredocs: this is inside a YAML block scalar).
+            IGNORED=$(jq -r '(.pnpm.auditConfig.ignoreCves // [])[]' package.json 2>/dev/null | jq -R . | jq -s . )
+            IGNORED=${IGNORED:-[]}
+            COUNTS=$(jq -r --argjson ign "$IGNORED" '
+              (.advisories // {})
+              | [ .[]
+                  | select( ((.cves // []) + [(.github_advisory_id // "")]) as $ids
+                            | ($ids | map(select(. as $i | $ign | index($i))) | length) == 0 )
+                  | .severity ]
+              | {critical: (map(select(.=="critical")) | length),
+                 high:     (map(select(.=="high"))     | length),
+                 moderate: (map(select(.=="moderate")) | length),
+                 low:      (map(select(.=="low"))      | length)}
+              | "\(.critical) \(.high) \(.moderate) \(.low)"' audit-report.json 2>/dev/null)
+            if [ -n "$COUNTS" ]; then
+              read -r CRITICAL HIGH MODERATE LOW <<< "$COUNTS"
+            else
+              CRITICAL=$(jq -r '.metadata.vulnerabilities.critical // 0' audit-report.json)
+              HIGH=$(jq -r '.metadata.vulnerabilities.high // 0' audit-report.json)
+              MODERATE=$(jq -r '.metadata.vulnerabilities.moderate // 0' audit-report.json)
+              LOW=$(jq -r '.metadata.vulnerabilities.low // 0' audit-report.json)
+            fi
+            echo "Blocking counts (ignoreCves applied): critical=$CRITICAL high=$HIGH moderate=$MODERATE low=$LOW"
 
             echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
             echo "high=$HIGH" >> $GITHUB_OUTPUT
