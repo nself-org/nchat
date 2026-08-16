@@ -417,8 +417,20 @@ jobs:
           # Allowed licenses (permissive)
           ALLOWED="MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;CC0-1.0;CC-BY-3.0;CC-BY-4.0;0BSD;Unlicense;Python-2.0;Zlib;WTFPL;BlueOak-1.0.0"
 
-          # Run license checker
-          npx license-checker --production --onlyAllow "$ALLOWED" --summary > license-report.txt 2>&1 || HAS_RESTRICTED=1
+          # Known, previously-reviewed copyleft dependencies. license-checker flags every
+          # package in this list on every run (they cannot be swapped for permissive
+          # equivalents without a feature-level replacement), so they are excluded here
+          # instead of being silently swallowed by the old blanket continue-on-error.
+          # Exceptions below are for the security-gate below, not automatic clearance —
+          # revisit if a maintainer decides to relicense/replace either dependency.
+          #   - @signalapp/libsignal-client (AGPL-3.0-only) — Signal Protocol E2E encryption core.
+          #   - ffmpeg-static (GPL-3.0-or-later) — bundled ffmpeg binary for attachment transcoding
+          #     (frontend/src/app/api/attachments/upload/route.ts).
+          EXCLUDE_PACKAGES="@signalapp/libsignal-client@0.88.3;ffmpeg-static@5.3.0"
+
+          # Run license checker (--excludePrivatePackages drops this app's own
+          # UNLICENSED/private package.json, which would otherwise always self-flag).
+          npx license-checker --production --excludePrivatePackages --excludePackages "$EXCLUDE_PACKAGES" --onlyAllow "$ALLOWED" --summary > license-report.txt 2>&1 || HAS_RESTRICTED=1
 
           if [ "${HAS_RESTRICTED:-0}" = "1" ]; then
             echo "has_restricted=true" >> $GITHUB_OUTPUT
@@ -429,9 +441,14 @@ jobs:
 
           echo "## License Check Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Known exceptions (excluded from the check above; see workflow source for rationale): @signalapp/libsignal-client, ffmpeg-static._" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           cat license-report.txt >> $GITHUB_STEP_SUMMARY
-        # ACCEPTED: license-checker may fail on packages with missing/UNKNOWN license metadata.
-        # Expiry: 2026-12-01 — remove once all deps have confirmed acceptable licenses.
+        # ACCEPTED: this step's own exit status doesn't determine blocking — the has_restricted
+        # output is read by the security-gate job below, which enforces the actual policy (same
+        # pattern as the pnpm-audit step above). continue-on-error only protects against the
+        # license-checker CLI itself erroring on unrelated issues (e.g. unresolvable metadata).
+        # Expiry: permanent — blocking is centralized in security-gate, not this step's exit code.
         continue-on-error: true
 
       - name: Upload license report
@@ -486,6 +503,7 @@ jobs:
           SAST_BLOCK="${{ needs.sast-scan.outputs.should_block || 'false' }}"
           DEP_BLOCK="${{ needs.dependency-scan.outputs.should_block || 'false' }}"
           SECRETS_FOUND="${{ needs.secrets-scan.outputs.found_secrets || '0' }}"
+          LICENSE_RESTRICTED="${{ needs.license-check.outputs.has_restricted || 'false' }}"
 
           # Count findings
           SAST_CRITICAL="${{ needs.sast-scan.outputs.findings_critical || 0 }}"
@@ -528,6 +546,11 @@ jobs:
           if [ "$SECRETS_FOUND" = "1" ]; then
             GATE_PASS="false"
             REASONS="$REASONS- Potential secrets detected\n"
+          fi
+
+          if [ "$LICENSE_RESTRICTED" = "true" ]; then
+            GATE_PASS="false"
+            REASONS="$REASONS- Restricted-license dependency detected (not on the known-exception list — see license-check step)\n"
           fi
 
           if [ "$GATE_PASS" = "true" ]; then
