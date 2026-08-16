@@ -29,10 +29,7 @@ export type StandardEmojiCategory =
  * All emoji category types.
  */
 export type EmojiCategory =
-  | StandardEmojiCategory
-  | "custom"
-  | "recent"
-  | "search";
+  StandardEmojiCategory | "custom" | "recent" | "search";
 
 /**
  * Category metadata.
@@ -73,12 +70,7 @@ export const EmojiCategories: EmojiCategoryInfo[] = [
  * Skin tone modifiers.
  */
 export type SkinTone =
-  | "default"
-  | "light"
-  | "medium-light"
-  | "medium"
-  | "medium-dark"
-  | "dark";
+  "default" | "light" | "medium-light" | "medium" | "medium-dark" | "dark";
 
 /**
  * Skin tone emoji modifiers.
@@ -156,8 +148,7 @@ export interface CustomEmoji {
  * Unified emoji type (standard or custom).
  */
 export type AnyEmoji =
-  | { type: "standard"; emoji: Emoji }
-  | { type: "custom"; emoji: CustomEmoji };
+  { type: "standard"; emoji: Emoji } | { type: "custom"; emoji: CustomEmoji };
 
 // ============================================================================
 // Reaction Types

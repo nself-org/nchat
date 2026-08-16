@@ -20,10 +20,7 @@ export type OnboardingStepId =
   | "completion";
 
 export type OnboardingStepStatus =
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "skipped";
+  "pending" | "in_progress" | "completed" | "skipped";
 
 export interface OnboardingStep {
   id: OnboardingStepId;
@@ -49,10 +46,7 @@ export interface OnboardingStepState {
 // ============================================================================
 
 export type OnboardingStatus =
-  | "not_started"
-  | "in_progress"
-  | "completed"
-  | "skipped";
+  "not_started" | "in_progress" | "completed" | "skipped";
 
 export interface OnboardingState {
   userId: string;
@@ -183,10 +177,7 @@ export type TourStopId =
   | "mentions-notifications";
 
 export type TourStatus =
-  | "not_started"
-  | "in_progress"
-  | "completed"
-  | "dismissed";
+  "not_started" | "in_progress" | "completed" | "dismissed";
 
 export interface TourStop {
   id: TourStopId;

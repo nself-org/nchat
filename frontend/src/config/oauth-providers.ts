@@ -12,7 +12,7 @@
 
 // Prevent this module from being included in any client bundle.
 // Any 'use client' file that imports this will fail at build time.
-import 'server-only';
+import "server-only";
 
 export interface OAuthProviderMetadata {
   name: string;

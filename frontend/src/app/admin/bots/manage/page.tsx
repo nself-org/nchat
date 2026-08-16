@@ -40,13 +40,7 @@ import type { Bot, BotCategory, BotPermissionScope } from "@/types/bot";
 import type { BotPermission } from "@/graphql/bots";
 
 type ViewMode =
-  | "list"
-  | "editor"
-  | "analytics"
-  | "logs"
-  | "templates"
-  | "test"
-  | "config";
+  "list" | "editor" | "analytics" | "logs" | "templates" | "test" | "config";
 
 // Mock channels
 const mockChannels = [

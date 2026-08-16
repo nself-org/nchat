@@ -209,11 +209,7 @@ export function ThreadView({
     attachments: msg.attachments?.map((att: any) => ({
       id: att.id,
       type: (att.file_type || "file") as
-        | "image"
-        | "video"
-        | "audio"
-        | "file"
-        | "link",
+        "image" | "video" | "audio" | "file" | "link",
       url: att.file_url,
       name: att.file_name,
       size: att.file_size,

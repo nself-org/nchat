@@ -25,11 +25,7 @@ interface DiscoveredUser {
   mutualContacts: number;
   isBlocked: boolean;
   relationshipStatus:
-    | "none"
-    | "pending_sent"
-    | "pending_received"
-    | "accepted"
-    | "blocked";
+    "none" | "pending_sent" | "pending_received" | "accepted" | "blocked";
 }
 
 interface PrivacySettings {

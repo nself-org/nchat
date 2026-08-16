@@ -47,8 +47,7 @@ export class DraftManager {
   private sync: DraftSyncManager;
   private listeners: Set<DraftEventListener>;
   private contextNameResolver:
-    | ((type: DraftContextType, id: string) => string)
-    | null;
+    ((type: DraftContextType, id: string) => string) | null;
 
   constructor(
     storage?: DraftStorage,

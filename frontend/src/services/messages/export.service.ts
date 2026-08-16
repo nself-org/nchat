@@ -45,11 +45,7 @@ import type { Reaction } from "@/types/message";
  * Export job status.
  */
 export type ExportJobStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "processing" | "completed" | "failed" | "cancelled";
 
 /**
  * Export job.

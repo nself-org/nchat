@@ -619,8 +619,7 @@ function transformBot(data: Record<string, unknown>): Bot {
           displayName: (data.owner as Record<string, unknown>)
             .display_name as string,
           avatarUrl: (data.owner as Record<string, unknown>).avatar_url as
-            | string
-            | undefined,
+            string | undefined,
         }
       : undefined,
     installCount: data.install_count as number | undefined,

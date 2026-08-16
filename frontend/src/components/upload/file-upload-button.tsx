@@ -37,12 +37,7 @@ import { cn } from "@/lib/utils";
 // ============================================================================
 
 export type FileCategory =
-  | "all"
-  | "images"
-  | "videos"
-  | "audio"
-  | "documents"
-  | "archives";
+  "all" | "images" | "videos" | "audio" | "documents" | "archives";
 
 export interface FileUploadButtonProps {
   /** Callback when files are selected */

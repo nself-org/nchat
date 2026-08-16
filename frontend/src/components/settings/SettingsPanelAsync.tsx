@@ -12,24 +12,27 @@
  */
 
 import * as React from "react";
-import { AsyncScreen, type AsyncState, type AsyncScreenProps } from "@/components/common/AsyncScreen";
+import {
+  AsyncScreen,
+  type AsyncState,
+  type AsyncScreenProps,
+} from "@/components/common/AsyncScreen";
 import { cn } from "@/lib/utils";
 
 // =============================================================================
 // Types
 // =============================================================================
 
-interface SettingsPanelAsyncProps
-  extends Pick<
-    AsyncScreenProps,
-    | "onLoginRedirect"
-    | "isNetworkOffline"
-    | "isReconnecting"
-    | "error"
-    | "onRetry"
-    | "rateLimitRetryAfterMs"
-    | "onRateLimitRetry"
-  > {
+interface SettingsPanelAsyncProps extends Pick<
+  AsyncScreenProps,
+  | "onLoginRedirect"
+  | "isNetworkOffline"
+  | "isReconnecting"
+  | "error"
+  | "onRetry"
+  | "rateLimitRetryAfterMs"
+  | "onRateLimitRetry"
+> {
   state: AsyncState;
   children: React.ReactNode;
   className?: string;

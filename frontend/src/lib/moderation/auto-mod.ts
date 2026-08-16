@@ -15,20 +15,9 @@ import {
 // ============================================================================
 
 export type AutoModAction =
-  | "warn"
-  | "mute"
-  | "kick"
-  | "ban"
-  | "delete"
-  | "flag"
-  | "log";
+  "warn" | "mute" | "kick" | "ban" | "delete" | "flag" | "log";
 export type AutoModTrigger =
-  | "content"
-  | "spam"
-  | "mention"
-  | "attachment"
-  | "join"
-  | "custom";
+  "content" | "spam" | "mention" | "attachment" | "join" | "custom";
 export type RulePriority = "low" | "medium" | "high" | "critical";
 
 export interface AutoModCondition {

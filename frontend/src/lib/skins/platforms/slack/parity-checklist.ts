@@ -43,10 +43,7 @@ export type SlackParityCategory =
  * Implementation status.
  */
 export type SlackParityStatus =
-  | "implemented"
-  | "partial"
-  | "not-implemented"
-  | "not-applicable";
+  "implemented" | "partial" | "not-implemented" | "not-applicable";
 
 /**
  * A single parity checklist item.

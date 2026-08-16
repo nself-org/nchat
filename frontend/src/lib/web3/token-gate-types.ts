@@ -292,11 +292,7 @@ export interface TokenGateConfig {
  * Token gate status for a user
  */
 export type TokenGateStatus =
-  | "granted"
-  | "denied"
-  | "pending"
-  | "grace_period"
-  | "expired";
+  "granted" | "denied" | "pending" | "grace_period" | "expired";
 
 // =============================================================================
 // VERIFICATION TYPES

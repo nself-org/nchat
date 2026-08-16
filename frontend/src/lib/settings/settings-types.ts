@@ -7,13 +7,7 @@
 // ============================================================================
 
 export type SettingType =
-  | "toggle"
-  | "select"
-  | "input"
-  | "slider"
-  | "color"
-  | "radio"
-  | "textarea";
+  "toggle" | "select" | "input" | "slider" | "color" | "radio" | "textarea";
 
 export interface BaseSetting {
   id: string;
@@ -178,10 +172,7 @@ export interface AppearanceSettings {
 
 export type NotificationSound = "default" | "chime" | "bell" | "pop" | "none";
 export type NotificationPosition =
-  | "top-right"
-  | "top-left"
-  | "bottom-right"
-  | "bottom-left";
+  "top-right" | "top-left" | "bottom-right" | "bottom-left";
 
 export interface NotificationSettings {
   enabled: boolean;

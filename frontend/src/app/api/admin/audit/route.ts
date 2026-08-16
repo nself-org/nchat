@@ -100,8 +100,7 @@ export async function GET(request: NextRequest) {
 
     // Parse sort
     const sortField = searchParams.get("sort") as
-      | AuditLogSortOptions["field"]
-      | null;
+      AuditLogSortOptions["field"] | null;
     const sortDirection = searchParams.get("order") as "asc" | "desc" | null;
 
     const sort: AuditLogSortOptions = {

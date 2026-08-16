@@ -33,13 +33,9 @@ export async function GET(request: NextRequest) {
       limit: parseInt(searchParams.get("limit") || "10", 10),
       categoryId: searchParams.get("categoryId") || undefined,
       status: (searchParams.get("status") || "published") as
-        | "draft"
-        | "published"
-        | "archived",
+        "draft" | "published" | "archived",
       visibility: (searchParams.get("visibility") || "public") as
-        | "public"
-        | "internal"
-        | "restricted",
+        "public" | "internal" | "restricted",
     };
 
     const service = getKnowledgeBaseService();

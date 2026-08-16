@@ -170,8 +170,7 @@ export class LinkUnfurlIntegration {
       });
 
       const records = data?.nchat_link_previews as
-        | LinkPreviewRecord[]
-        | undefined;
+        LinkPreviewRecord[] | undefined;
       if (!records || records.length === 0) return null;
 
       const transformed = transformLinkPreviewRecord(records[0]);

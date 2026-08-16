@@ -9,7 +9,11 @@
  */
 
 import * as React from "react";
-import { AsyncScreen, type AsyncState, type AsyncScreenProps } from "@/components/common/AsyncScreen";
+import {
+  AsyncScreen,
+  type AsyncState,
+  type AsyncScreenProps,
+} from "@/components/common/AsyncScreen";
 import { NotificationList } from "./NotificationList";
 import { cn } from "@/lib/utils";
 
@@ -17,18 +21,17 @@ import { cn } from "@/lib/utils";
 // Types
 // =============================================================================
 
-interface NotificationFeedAsyncProps
-  extends Pick<
-    AsyncScreenProps,
-    | "onLoginRedirect"
-    | "onRequestAccess"
-    | "isNetworkOffline"
-    | "isReconnecting"
-    | "error"
-    | "onRetry"
-    | "rateLimitRetryAfterMs"
-    | "onRateLimitRetry"
-  > {
+interface NotificationFeedAsyncProps extends Pick<
+  AsyncScreenProps,
+  | "onLoginRedirect"
+  | "onRequestAccess"
+  | "isNetworkOffline"
+  | "isReconnecting"
+  | "error"
+  | "onRetry"
+  | "rateLimitRetryAfterMs"
+  | "onRateLimitRetry"
+> {
   state: AsyncState;
   permissionKind?: AsyncScreenProps["permissionKind"];
   className?: string;

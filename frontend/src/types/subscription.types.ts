@@ -64,11 +64,7 @@ export interface Plan {
  * Plan tier levels.
  */
 export type PlanTier =
-  | "free"
-  | "starter"
-  | "professional"
-  | "enterprise"
-  | "custom";
+  "free" | "starter" | "professional" | "enterprise" | "custom";
 
 /**
  * Supported currencies.
@@ -178,12 +174,7 @@ export interface PlanDisplay {
  * Subscription status.
  */
 export type SubscriptionStatus =
-  | "trialing"
-  | "active"
-  | "past_due"
-  | "canceled"
-  | "unpaid"
-  | "paused";
+  "trialing" | "active" | "past_due" | "canceled" | "unpaid" | "paused";
 
 /**
  * Human-readable subscription status labels.
@@ -283,11 +274,7 @@ export interface SubscriptionWithComputed extends Subscription {
  * Invoice status.
  */
 export type InvoiceStatus =
-  | "draft"
-  | "open"
-  | "paid"
-  | "void"
-  | "uncollectible";
+  "draft" | "open" | "paid" | "void" | "uncollectible";
 
 /**
  * Billing invoice.
@@ -375,10 +362,7 @@ export interface InvoiceLineItem {
  * Payment method type.
  */
 export type PaymentMethodType =
-  | "card"
-  | "bank_account"
-  | "ideal"
-  | "sepa_debit";
+  "card" | "bank_account" | "ideal" | "sepa_debit";
 
 /**
  * Payment method.

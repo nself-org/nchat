@@ -42,18 +42,14 @@ export interface ChatError {
 // =============================================================================
 
 const USER_MESSAGES: Record<ChatErrorType, string> = {
-  network:
-    "Connection lost. Check your network and try again.",
-  auth:
-    "Your session has expired. Please sign in again.",
-  rate_limit:
-    "You're sending messages too quickly. Please slow down.",
+  network: "Connection lost. Check your network and try again.",
+  auth: "Your session has expired. Please sign in again.",
+  rate_limit: "You're sending messages too quickly. Please slow down.",
   e2ee_failure:
     "End-to-end encryption error. The message could not be encrypted or decrypted.",
   livekit_error:
     "Call connection failed. Please try again or check your audio/video permissions.",
-  bot_error:
-    "The bot failed to respond. Check the webhook URL and try again.",
+  bot_error: "The bot failed to respond. Check the webhook URL and try again.",
 };
 
 // =============================================================================
@@ -111,7 +107,6 @@ export function isChatErrorType(
  */
 export function asChatError(raw: unknown): ChatError {
   if (isChatError(raw)) return raw;
-  const detail =
-    raw instanceof Error ? raw.message : String(raw);
+  const detail = raw instanceof Error ? raw.message : String(raw);
   return chatError("network", detail);
 }

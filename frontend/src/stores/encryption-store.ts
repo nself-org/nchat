@@ -14,10 +14,7 @@ import { immer } from "zustand/middleware/immer";
 // ============================================================================
 
 export type EncryptionStatus =
-  | "disabled"
-  | "initializing"
-  | "enabled"
-  | "error";
+  "disabled" | "initializing" | "enabled" | "error";
 
 export type KeyStatus = "none" | "generating" | "ready" | "rotating" | "error";
 

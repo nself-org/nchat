@@ -62,13 +62,7 @@ export interface ImageMetadata {
 }
 
 export type ImageFormat =
-  | "jpeg"
-  | "png"
-  | "webp"
-  | "gif"
-  | "bmp"
-  | "svg"
-  | "unknown";
+  "jpeg" | "png" | "webp" | "gif" | "bmp" | "svg" | "unknown";
 
 export interface OptimizationResult {
   blob: Blob;

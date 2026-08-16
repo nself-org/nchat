@@ -112,11 +112,7 @@ export interface NotificationEmptyProps {
 }
 
 export type NotificationFilterTab =
-  | "all"
-  | "mentions"
-  | "threads"
-  | "reactions"
-  | "unread";
+  "all" | "mentions" | "threads" | "reactions" | "unread";
 
 export interface NotificationFilterTabConfig {
   id: NotificationFilterTab;

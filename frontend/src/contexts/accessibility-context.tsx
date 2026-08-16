@@ -28,11 +28,7 @@ import { logger } from "@/lib/logger";
 
 export type FontSize = "small" | "medium" | "large" | "x-large";
 export type ColorBlindMode =
-  | "none"
-  | "protanopia"
-  | "deuteranopia"
-  | "tritanopia"
-  | "monochrome";
+  "none" | "protanopia" | "deuteranopia" | "tritanopia" | "monochrome";
 export type AnimationLevel = "full" | "reduced" | "none";
 
 export interface AccessibilitySettings {

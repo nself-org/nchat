@@ -476,8 +476,7 @@ export function transformReceipt(
             ((data.user as Record<string, unknown>).display_name as string) ||
             ((data.user as Record<string, unknown>).username as string),
           avatarUrl: (data.user as Record<string, unknown>).avatar_url as
-            | string
-            | undefined,
+            string | undefined,
         }
       : undefined,
   };

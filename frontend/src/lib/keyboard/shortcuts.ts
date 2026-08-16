@@ -10,11 +10,7 @@
 // ============================================================================
 
 export type ShortcutCategory =
-  | "Navigation"
-  | "Messages"
-  | "Formatting"
-  | "UI"
-  | "Actions";
+  "Navigation" | "Messages" | "Formatting" | "UI" | "Actions";
 
 export interface ShortcutDefinition {
   /** The keyboard key combination (uses react-hotkeys-hook format) */

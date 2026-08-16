@@ -53,12 +53,7 @@ export interface SpamRule {
 }
 
 export type SpamAction =
-  | "flag"
-  | "delete"
-  | "mute"
-  | "timeout"
-  | "ban"
-  | "warn";
+  "flag" | "delete" | "mute" | "timeout" | "ban" | "warn";
 
 export interface SpamDetectionResult {
   isSpam: boolean;

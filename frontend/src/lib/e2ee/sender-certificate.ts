@@ -451,8 +451,8 @@ export class SenderCertificateManager {
   private certificate: SenderCertificate | null = null;
   private serverPublicKeys: Map<number, Uint8Array> = new Map();
   private refreshCallback:
-    | ((request: CertificateRequest) => Promise<CertificateResponse>)
-    | null = null;
+    ((request: CertificateRequest) => Promise<CertificateResponse>) | null =
+    null;
   private userId: string;
   private deviceId: string;
   private identityKey: Uint8Array;

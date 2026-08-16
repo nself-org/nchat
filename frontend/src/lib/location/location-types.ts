@@ -226,10 +226,7 @@ export function isStaticLocation(
  * Browser geolocation permission state.
  */
 export type LocationPermissionState =
-  | "prompt"
-  | "granted"
-  | "denied"
-  | "unavailable";
+  "prompt" | "granted" | "denied" | "unavailable";
 
 /**
  * Location permission result.

@@ -22,12 +22,7 @@ import { randomUUID } from "crypto";
 // ============================================================================
 
 export type ImportPlatform =
-  | "nchat"
-  | "whatsapp"
-  | "telegram"
-  | "slack"
-  | "discord"
-  | "generic";
+  "nchat" | "whatsapp" | "telegram" | "slack" | "discord" | "generic";
 
 export type ImportStatus =
   | "pending"

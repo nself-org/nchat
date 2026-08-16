@@ -281,8 +281,7 @@ export class CommandBuilder {
     name: string,
     description: string,
     choices: (
-      | string
-      | { value: string; label: string; description?: string }
+      string | { value: string; label: string; description?: string }
     )[],
     options?: {
       required?: boolean;

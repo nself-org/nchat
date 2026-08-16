@@ -9,7 +9,11 @@
  */
 
 import * as React from "react";
-import { AsyncScreen, type AsyncState, type AsyncScreenProps } from "@/components/common/AsyncScreen";
+import {
+  AsyncScreen,
+  type AsyncState,
+  type AsyncScreenProps,
+} from "@/components/common/AsyncScreen";
 import { DMList } from "./DMList";
 import { cn } from "@/lib/utils";
 
@@ -17,18 +21,17 @@ import { cn } from "@/lib/utils";
 // Types
 // =============================================================================
 
-interface DMListAsyncProps
-  extends Pick<
-    AsyncScreenProps,
-    | "onLoginRedirect"
-    | "onRequestAccess"
-    | "isNetworkOffline"
-    | "isReconnecting"
-    | "error"
-    | "onRetry"
-    | "rateLimitRetryAfterMs"
-    | "onRateLimitRetry"
-  > {
+interface DMListAsyncProps extends Pick<
+  AsyncScreenProps,
+  | "onLoginRedirect"
+  | "onRequestAccess"
+  | "isNetworkOffline"
+  | "isReconnecting"
+  | "error"
+  | "onRetry"
+  | "rateLimitRetryAfterMs"
+  | "onRateLimitRetry"
+> {
   state: AsyncState;
   permissionKind?: AsyncScreenProps["permissionKind"];
   className?: string;

@@ -458,10 +458,7 @@ export interface ParsedArgument {
 export interface ParseError {
   /** Type of error */
   type:
-    | "missing_required"
-    | "invalid_type"
-    | "validation_failed"
-    | "unknown_flag";
+    "missing_required" | "invalid_type" | "validation_failed" | "unknown_flag";
   /** Argument that caused error */
   argument?: string;
   /** Error message */

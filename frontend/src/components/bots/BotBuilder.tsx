@@ -34,12 +34,7 @@ interface BotBuilderProps {
 }
 
 type BuilderStep =
-  | "info"
-  | "triggers"
-  | "responses"
-  | "commands"
-  | "test"
-  | "deploy";
+  "info" | "triggers" | "responses" | "commands" | "test" | "deploy";
 
 interface StepConfig {
   id: BuilderStep;

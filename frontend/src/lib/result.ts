@@ -125,7 +125,11 @@ export async function tryAsync<T, E = Error>(
     return ok(value);
   } catch (caught) {
     if (transformError) return err(transformError(caught));
-    return err(caught instanceof Error ? (caught as unknown as E) : (new Error(String(caught)) as unknown as E));
+    return err(
+      caught instanceof Error
+        ? (caught as unknown as E)
+        : (new Error(String(caught)) as unknown as E),
+    );
   }
 }
 

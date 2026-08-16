@@ -84,13 +84,7 @@ export async function setupDeepLinkListeners(
  */
 export function parseDeepLink(url: string): {
   type:
-    | "channel"
-    | "message"
-    | "user"
-    | "thread"
-    | "settings"
-    | "auth"
-    | "unknown";
+    "channel" | "message" | "user" | "thread" | "settings" | "auth" | "unknown";
   id?: string;
   params?: Record<string, string>;
 } {

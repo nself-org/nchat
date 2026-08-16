@@ -42,8 +42,7 @@ function validateCSS(css: string): { valid: boolean; error?: string } {
       if (node.type === "Url") {
         // css-tree Url nodes have a value child that is a String or Raw
         const urlNode = node.value as unknown as
-          | { type: string; value: string }
-          | undefined;
+          { type: string; value: string } | undefined;
         const urlStr = urlNode?.value?.replace(/['"]/g, "") ?? "";
         if (/^(https?:|javascript:|data:)/i.test(urlStr)) {
           dangerous = true;

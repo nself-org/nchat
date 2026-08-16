@@ -214,8 +214,7 @@ export function validateIncomingPayload(
 
   // Avatar URL
   const avatarUrl = (raw.avatarUrl ?? raw.avatar_url ?? raw.icon_url) as
-    | string
-    | undefined;
+    string | undefined;
   if (avatarUrl !== undefined) {
     if (typeof avatarUrl !== "string") {
       return { valid: false, error: "avatarUrl must be a string" };

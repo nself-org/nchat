@@ -22,7 +22,11 @@ import { captureError } from "@/lib/sentry-utils";
 import type { Message } from "@/types/message";
 import type { Channel } from "@/types/channel";
 import type { User } from "@/types/user";
-import type { FileInput, UserInput, ChannelInput } from "@/services/search/sync.service";
+import type {
+  FileInput,
+  UserInput,
+  ChannelInput,
+} from "@/services/search/sync.service";
 
 import { logger } from "@/lib/logger";
 
@@ -58,18 +62,16 @@ const REINDEX_MESSAGES_QUERY = gql`
       }
     }
     nchat_messages_aggregate(where: { is_deleted: { _eq: false } }) {
-      aggregate { count }
+      aggregate {
+        count
+      }
     }
   }
 `;
 
 const REINDEX_USERS_QUERY = gql`
   query ReindexUsers($limit: Int = 500, $offset: Int = 0) {
-    nchat_users(
-      order_by: { created_at: asc }
-      limit: $limit
-      offset: $offset
-    ) {
+    nchat_users(order_by: { created_at: asc }, limit: $limit, offset: $offset) {
       id
       username
       display_name
@@ -130,8 +132,15 @@ const REINDEX_FILES_QUERY = gql`
       user_id
       created_at
       extracted_text
-      channel { id name }
-      user { id username display_name }
+      channel {
+        id
+        name
+      }
+      user {
+        id
+        username
+        display_name
+      }
     }
   }
 `;
@@ -140,11 +149,13 @@ const REINDEX_FILES_QUERY = gql`
 // Data Fetchers (paginated bulk pulls via Hasura admin)
 // ============================================================================
 
-async function fetchAllMessages(): Promise<Array<{
-  message: Message;
-  channel?: Pick<Channel, "id" | "name">;
-  author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">;
-}>> {
+async function fetchAllMessages(): Promise<
+  Array<{
+    message: Message;
+    channel?: Pick<Channel, "id" | "name">;
+    author?: Pick<User, "id" | "username" | "displayName" | "avatarUrl">;
+  }>
+> {
   const client = getApolloClient();
   const PAGE_SIZE = 500;
   const results: Array<{
@@ -163,7 +174,9 @@ async function fetchAllMessages(): Promise<Array<{
     for (const r of rows) {
       results.push({
         message: r as unknown as Message,
-        channel: r.channel ? { id: r.channel.id, name: r.channel.name } : undefined,
+        channel: r.channel
+          ? { id: r.channel.id, name: r.channel.name }
+          : undefined,
         author: r.user
           ? {
               id: r.user.id,
@@ -341,7 +354,8 @@ async function handlePost(request: NextRequest): Promise<NextResponse> {
       try {
         switch (indexName) {
           case "messages": {
-            const syncResult = await syncService.reindexMessages(fetchAllMessages);
+            const syncResult =
+              await syncService.reindexMessages(fetchAllMessages);
             results[indexName] = {
               success: syncResult.success,
               indexed: syncResult.indexed,

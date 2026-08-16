@@ -24,12 +24,7 @@ export interface DiscoveryFilters {
 }
 
 export type DiscoverySortOption =
-  | "name"
-  | "memberCount"
-  | "activity"
-  | "created"
-  | "trending"
-  | "relevance";
+  "name" | "memberCount" | "activity" | "created" | "trending" | "relevance";
 
 export interface DiscoveryResult {
   channel: Channel;

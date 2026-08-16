@@ -9,7 +9,11 @@
  */
 
 import * as React from "react";
-import { AsyncScreen, type AsyncState, type AsyncScreenProps } from "@/components/common/AsyncScreen";
+import {
+  AsyncScreen,
+  type AsyncState,
+  type AsyncScreenProps,
+} from "@/components/common/AsyncScreen";
 import { ChannelMembers } from "./channel-members";
 import { cn } from "@/lib/utils";
 
@@ -17,18 +21,17 @@ import { cn } from "@/lib/utils";
 // Types
 // =============================================================================
 
-interface MemberListAsyncProps
-  extends Pick<
-    AsyncScreenProps,
-    | "onLoginRedirect"
-    | "onRequestAccess"
-    | "isNetworkOffline"
-    | "isReconnecting"
-    | "error"
-    | "onRetry"
-    | "rateLimitRetryAfterMs"
-    | "onRateLimitRetry"
-  > {
+interface MemberListAsyncProps extends Pick<
+  AsyncScreenProps,
+  | "onLoginRedirect"
+  | "onRequestAccess"
+  | "isNetworkOffline"
+  | "isReconnecting"
+  | "error"
+  | "onRetry"
+  | "rateLimitRetryAfterMs"
+  | "onRateLimitRetry"
+> {
   state: AsyncState;
   permissionKind?: AsyncScreenProps["permissionKind"];
   channelId: string;

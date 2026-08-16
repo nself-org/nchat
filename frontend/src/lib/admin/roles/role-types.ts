@@ -13,12 +13,7 @@
  * Permission categories that group related permissions
  */
 export type PermissionCategory =
-  | "general"
-  | "messages"
-  | "members"
-  | "channels"
-  | "admin"
-  | "moderation";
+  "general" | "messages" | "members" | "channels" | "admin" | "moderation";
 
 /**
  * Individual permission identifiers
@@ -110,11 +105,7 @@ export interface PermissionGroup {
  * Built-in role identifiers
  */
 export type BuiltInRoleId =
-  | "owner"
-  | "admin"
-  | "moderator"
-  | "member"
-  | "guest";
+  "owner" | "admin" | "moderator" | "member" | "guest";
 
 /**
  * Role configuration

@@ -71,11 +71,7 @@ export interface ContactInvite {
 }
 
 export type ContactInviteStatus =
-  | "pending"
-  | "accepted"
-  | "rejected"
-  | "expired"
-  | "cancelled";
+  "pending" | "accepted" | "rejected" | "expired" | "cancelled";
 
 export interface BlockedContact {
   id: string;

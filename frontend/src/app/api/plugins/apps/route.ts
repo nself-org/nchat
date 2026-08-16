@@ -20,11 +20,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as
-      | "pending_review"
-      | "approved"
-      | "rejected"
-      | "suspended"
-      | null;
+      "pending_review" | "approved" | "rejected" | "suspended" | null;
 
     const apps = registryService.listApps(status ? { status } : undefined);
 

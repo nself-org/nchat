@@ -44,11 +44,7 @@ export interface ChannelConfig {
  * Visitor status in the live chat system
  */
 export type VisitorStatus =
-  | "online"
-  | "offline"
-  | "away"
-  | "waiting"
-  | "chatting";
+  "online" | "offline" | "away" | "waiting" | "chatting";
 
 /**
  * Visitor information

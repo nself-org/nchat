@@ -8,12 +8,7 @@
 export type ImportSource = "slack" | "discord" | "csv" | "json";
 
 export type ImportStatus =
-  | "idle"
-  | "validating"
-  | "importing"
-  | "completed"
-  | "error"
-  | "cancelled";
+  "idle" | "validating" | "importing" | "completed" | "error" | "cancelled";
 
 export interface ImportOptions {
   importUsers: boolean;

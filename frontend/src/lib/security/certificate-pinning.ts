@@ -30,12 +30,7 @@ export type PinFormat = "sha256" | "sha384" | "sha512";
  * Platform type for pinning configuration
  */
 export type PlatformType =
-  | "ios"
-  | "android"
-  | "electron"
-  | "tauri"
-  | "web"
-  | "react-native";
+  "ios" | "android" | "electron" | "tauri" | "web" | "react-native";
 
 /**
  * Certificate pin entry

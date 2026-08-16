@@ -181,8 +181,8 @@ export class SealedSenderService {
   private serverPublicKeys: Map<number, Uint8Array> = new Map();
   private initialized = false;
   private refreshCertificateCallback:
-    | ((request: CertificateRequest) => Promise<CertificateResponse>)
-    | null = null;
+    ((request: CertificateRequest) => Promise<CertificateResponse>) | null =
+    null;
 
   constructor(config: SealedSenderServiceConfig) {
     this.config = {

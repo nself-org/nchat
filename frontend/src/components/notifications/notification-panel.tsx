@@ -25,11 +25,7 @@ import { NotificationItem } from "./notification-item";
 // ============================================================================
 
 export type NotificationFilterType =
-  | "all"
-  | "mentions"
-  | "threads"
-  | "reactions"
-  | "unread";
+  "all" | "mentions" | "threads" | "reactions" | "unread";
 
 export interface NotificationPanelProps {
   /**

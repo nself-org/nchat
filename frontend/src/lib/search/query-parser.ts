@@ -76,10 +76,7 @@ export function parseQuery(query: string): ParsedQuery {
   operatorRegexes.has.lastIndex = 0;
   while ((match = operatorRegexes.has.exec(query)) !== null) {
     const value = match[1].toLowerCase() as
-      | "link"
-      | "file"
-      | "image"
-      | "attachment";
+      "link" | "file" | "image" | "attachment";
     operators.push({ type: "has", value });
     // Map 'attachment' to 'file'
     const mappedValue: "link" | "file" | "image" =

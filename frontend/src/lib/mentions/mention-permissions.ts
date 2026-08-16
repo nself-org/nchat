@@ -454,11 +454,7 @@ export function getMentionPermissionTooltip(
  * Platform type for mention permission rules
  */
 export type PlatformType =
-  | "default"
-  | "whatsapp"
-  | "telegram"
-  | "slack"
-  | "discord";
+  "default" | "whatsapp" | "telegram" | "slack" | "discord";
 
 /**
  * Platform-specific mention rules configuration

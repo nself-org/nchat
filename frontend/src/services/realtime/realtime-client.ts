@@ -33,11 +33,7 @@ export type RealtimeConnectionState =
  * Connection quality levels
  */
 export type ConnectionQuality =
-  | "excellent"
-  | "good"
-  | "fair"
-  | "poor"
-  | "unknown";
+  "excellent" | "good" | "fair" | "poor" | "unknown";
 
 /**
  * Offline status change listener

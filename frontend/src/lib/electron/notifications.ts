@@ -200,10 +200,7 @@ export function areNotificationsSupported(): boolean {
  * Get notification permission status
  */
 export function getNotificationPermission():
-  | "granted"
-  | "denied"
-  | "default"
-  | "unsupported" {
+  "granted" | "denied" | "default" | "unsupported" {
   if (!("Notification" in window)) {
     return "unsupported";
   }

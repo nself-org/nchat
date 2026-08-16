@@ -37,11 +37,7 @@ export type MetadataCategory =
  * Sensitivity levels for metadata fields
  */
 export type SensitivityLevel =
-  | "public"
-  | "internal"
-  | "sensitive"
-  | "pii"
-  | "secret";
+  "public" | "internal" | "sensitive" | "pii" | "secret";
 
 /**
  * Metadata field classification

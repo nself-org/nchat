@@ -23,12 +23,7 @@ import { logger } from "@/lib/logger";
 // ============================================================================
 
 export type TrustLevel =
-  | "new"
-  | "untrusted"
-  | "limited"
-  | "standard"
-  | "trusted"
-  | "verified";
+  "new" | "untrusted" | "limited" | "standard" | "trusted" | "verified";
 
 export type BehaviorEvent =
   | "message_sent"

@@ -46,12 +46,7 @@ export interface Subscription {
   planId: string;
   planName: string;
   status:
-    | "active"
-    | "trialing"
-    | "past_due"
-    | "canceled"
-    | "incomplete"
-    | "paused";
+    "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "paused";
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
   cancelAtPeriodEnd: boolean;

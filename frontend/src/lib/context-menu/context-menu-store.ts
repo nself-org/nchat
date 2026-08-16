@@ -13,12 +13,7 @@ import { immer } from "zustand/middleware/immer";
 // ============================================================================
 
 export type ContextMenuType =
-  | "message"
-  | "channel"
-  | "user"
-  | "file"
-  | "text-selection"
-  | null;
+  "message" | "channel" | "user" | "file" | "text-selection" | null;
 
 export interface ContextMenuPosition {
   x: number;

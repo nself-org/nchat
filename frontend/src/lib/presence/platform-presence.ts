@@ -17,33 +17,19 @@
  * Supported platform presets for presence/receipt behavior
  */
 export type PlatformPreset =
-  | "whatsapp"
-  | "telegram"
-  | "signal"
-  | "slack"
-  | "discord"
-  | "default";
+  "whatsapp" | "telegram" | "signal" | "slack" | "discord" | "default";
 
 /**
  * Presence status types
  */
 export type PresenceStatus =
-  | "online"
-  | "away"
-  | "busy"
-  | "dnd"
-  | "invisible"
-  | "offline";
+  "online" | "away" | "busy" | "dnd" | "invisible" | "offline";
 
 /**
  * Message delivery status
  */
 export type DeliveryStatus =
-  | "pending"
-  | "sent"
-  | "delivered"
-  | "read"
-  | "failed";
+  "pending" | "sent" | "delivered" | "read" | "failed";
 
 /**
  * Last seen privacy levels

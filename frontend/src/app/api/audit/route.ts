@@ -46,17 +46,14 @@ export async function GET(request: NextRequest) {
     const pageSize = parseInt(searchParams.get("limit") || "20", 10);
     const sortField = searchParams.get("sort") || "timestamp";
     const sortDirection = (searchParams.get("order") || "desc") as
-      | "asc"
-      | "desc";
+      "asc" | "desc";
     const searchQuery = searchParams.get("q") || undefined;
 
     // Parse filter parameters
     const categories = searchParams.get("categories")?.split(",") as
-      | AuditCategory[]
-      | undefined;
+      AuditCategory[] | undefined;
     const severities = searchParams.get("severities")?.split(",") as
-      | AuditSeverity[]
-      | undefined;
+      AuditSeverity[] | undefined;
     const actorId = searchParams.get("actor") || undefined;
     const resourceId = searchParams.get("resource") || undefined;
     const startDate = searchParams.get("from")

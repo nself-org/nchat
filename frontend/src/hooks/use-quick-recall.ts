@@ -49,11 +49,7 @@ export interface QuickRecallStats {
 }
 
 export type QuickRecallFilter =
-  | "all"
-  | "pins"
-  | "bookmarks"
-  | "saved"
-  | "stars";
+  "all" | "pins" | "bookmarks" | "saved" | "stars";
 export type QuickRecallSort = "recent" | "oldest" | "priority" | "channel";
 
 interface UseQuickRecallOptions {

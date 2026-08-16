@@ -340,11 +340,9 @@ class ConflictResolutionService {
     for (const field of CRITICAL_SETTINGS_FIELDS) {
       const [category, key] = field.split(".");
       const localCategory = local[category as keyof UserSettings] as
-        | Record<string, any>
-        | undefined;
+        Record<string, any> | undefined;
       const remoteCategory = remote[category as keyof UserSettings] as
-        | Record<string, any>
-        | undefined;
+        Record<string, any> | undefined;
       const localValue = localCategory?.[key as string];
       const remoteValue = remoteCategory?.[key as string];
 

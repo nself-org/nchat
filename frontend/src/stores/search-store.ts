@@ -21,12 +21,7 @@ export type SearchTab = "all" | "messages" | "files" | "people" | "channels";
 export type SearchSortBy = "relevance" | "date_desc" | "date_asc";
 
 export type HasFilter =
-  | "link"
-  | "file"
-  | "image"
-  | "code"
-  | "mention"
-  | "reaction";
+  "link" | "file" | "image" | "code" | "mention" | "reaction";
 
 export type IsFilter = "pinned" | "starred" | "thread" | "unread";
 

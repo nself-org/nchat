@@ -457,12 +457,7 @@ export interface EscalationCondition {
   type: EscalationTriggerType;
   field?: string;
   operator:
-    | "equals"
-    | "not_equals"
-    | "greater_than"
-    | "less_than"
-    | "contains"
-    | "in";
+    "equals" | "not_equals" | "greater_than" | "less_than" | "contains" | "in";
   value: unknown;
 }
 

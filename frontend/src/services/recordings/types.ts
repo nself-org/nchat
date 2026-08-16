@@ -31,17 +31,10 @@ export type RecordingFormat = "mp4" | "webm" | "mkv" | "hls" | "audio_only";
 export type RecordingQuality = "360p" | "480p" | "720p" | "1080p" | "4k";
 
 export type RecordingLayout =
-  | "grid"
-  | "speaker"
-  | "single"
-  | "pip"
-  | "side_by_side";
+  "grid" | "speaker" | "single" | "pip" | "side_by_side";
 
 export type RecordingSource =
-  | "call"
-  | "livestream"
-  | "screen_share"
-  | "voice_chat";
+  "call" | "livestream" | "screen_share" | "voice_chat";
 
 export interface Recording {
   id: string;
@@ -254,11 +247,7 @@ export interface RetentionSchedule {
 // ============================================================================
 
 export type RecordingVisibility =
-  | "private"
-  | "participants"
-  | "channel"
-  | "workspace"
-  | "public";
+  "private" | "participants" | "channel" | "workspace" | "public";
 
 export type SharePermission = "view" | "download" | "share" | "edit" | "delete";
 
@@ -326,12 +315,7 @@ export interface AccessRequest {
 // ============================================================================
 
 export type RedactionType =
-  | "audio"
-  | "video"
-  | "both"
-  | "blur"
-  | "silence"
-  | "beep";
+  "audio" | "video" | "both" | "blur" | "silence" | "beep";
 
 export interface RedactionSegment {
   id: string;
@@ -402,12 +386,7 @@ export type ProcessingJobType =
   | "encrypt";
 
 export type ProcessingJobStatus =
-  | "queued"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled"
-  | "retrying";
+  "queued" | "processing" | "completed" | "failed" | "cancelled" | "retrying";
 
 export interface ProcessingJob {
   id: string;
@@ -434,10 +413,7 @@ export interface ProcessingInput {
   sourceFilePath: string;
   sourceFormat: RecordingFormat;
   options:
-    | TranscodeOptions
-    | ThumbnailOptions
-    | TranscriptOptions
-    | RedactionOptions;
+    TranscodeOptions | ThumbnailOptions | TranscriptOptions | RedactionOptions;
 }
 
 export interface ProcessingOutput {

@@ -342,8 +342,7 @@ export function ParticipantGrid({
   const allParticipants = useMemo(
     () =>
       [localParticipant, ...participants] as (
-        | LocalParticipant
-        | UICallParticipant
+        LocalParticipant | UICallParticipant
       )[],
     [localParticipant, participants],
   );

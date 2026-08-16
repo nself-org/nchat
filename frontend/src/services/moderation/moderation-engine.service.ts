@@ -61,11 +61,7 @@ export type ReportCategory =
   | "other";
 
 export type ReportStatus =
-  | "pending"
-  | "under_review"
-  | "resolved"
-  | "dismissed"
-  | "escalated";
+  "pending" | "under_review" | "resolved" | "dismissed" | "escalated";
 export type ReportPriority = "low" | "medium" | "high" | "critical";
 export type AppealStatus =
   | "pending"

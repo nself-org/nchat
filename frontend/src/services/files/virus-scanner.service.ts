@@ -159,8 +159,7 @@ export function getScannerConfig(): ScannerConfig {
     enabled,
     backend,
     fallbackBackend: getEnv("VIRUS_SCANNER_FALLBACK") as
-      | ScannerBackend
-      | undefined,
+      ScannerBackend | undefined,
     // Security-first: block by default when scanner is unavailable.
     // Set VIRUS_SCANNER_BLOCK_ON_UNAVAILABLE=false (or NCHAT_UPLOAD_SCAN_OPTIONAL=true) to
     // allow uploads when the scanner is down (operator opt-in only).

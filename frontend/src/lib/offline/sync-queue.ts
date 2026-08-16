@@ -22,11 +22,7 @@ export type SyncItemStatus = "pending" | "syncing" | "failed" | "completed";
  * Sync queue item type
  */
 export type SyncItemType =
-  | "message"
-  | "reaction"
-  | "read_receipt"
-  | "typing"
-  | "presence";
+  "message" | "reaction" | "read_receipt" | "typing" | "presence";
 
 /**
  * Sync queue item operation

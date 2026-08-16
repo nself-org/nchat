@@ -31,8 +31,7 @@ interface CheckDuressPinBody {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as
-      | SetDuressPinBody
-      | CheckDuressPinBody;
+      SetDuressPinBody | CheckDuressPinBody;
 
     if (!body.pin) {
       return NextResponse.json({ error: "PIN is required" }, { status: 400 });

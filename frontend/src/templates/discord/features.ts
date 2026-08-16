@@ -790,13 +790,7 @@ export interface DiscordVoiceState {
 
 export interface DiscordStreamSettings {
   quality:
-    | "auto"
-    | "720p30"
-    | "720p60"
-    | "1080p30"
-    | "1080p60"
-    | "1440p60"
-    | "4k60";
+    "auto" | "720p30" | "720p60" | "1080p30" | "1080p60" | "1440p60" | "4k60";
   soundEnabled: boolean;
   frameRate: 15 | 30 | 60;
 }

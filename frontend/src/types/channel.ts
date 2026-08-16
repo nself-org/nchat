@@ -94,18 +94,7 @@ export interface UpdateChannelCategoryInput {
  * Slow mode duration options (in seconds).
  */
 export type SlowModeDuration =
-  | 0
-  | 5
-  | 10
-  | 15
-  | 30
-  | 60
-  | 120
-  | 300
-  | 600
-  | 900
-  | 1800
-  | 3600;
+  0 | 5 | 10 | 15 | 30 | 60 | 120 | 300 | 600 | 900 | 1800 | 3600;
 
 /**
  * Channel-specific settings and permissions.
@@ -523,11 +512,7 @@ export interface ChannelFilter {
  * Channel sort options.
  */
 export type ChannelSortBy =
-  | "name"
-  | "created"
-  | "lastMessage"
-  | "memberCount"
-  | "position";
+  "name" | "created" | "lastMessage" | "memberCount" | "position";
 
 /**
  * Channel sort order.

@@ -34,11 +34,7 @@ export interface TopMessage {
 export interface Highlight {
   id: string;
   type:
-    | "announcement"
-    | "decision"
-    | "milestone"
-    | "achievement"
-    | "discussion";
+    "announcement" | "decision" | "milestone" | "achievement" | "discussion";
   summary: string;
   relatedMessages: string[]; // Message IDs
   timestamp: Date;

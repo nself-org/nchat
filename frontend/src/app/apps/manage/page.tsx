@@ -90,7 +90,9 @@ export default function ManageAppsPage() {
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t("manage.apps.title")}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {t("manage.apps.title")}
+            </h1>
             <p className="mt-2 text-muted-foreground">
               {t("manage.apps.subtitle")}
             </p>
@@ -183,8 +185,12 @@ export default function ManageAppsPage() {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="featured">{t("manage.apps.tabFeatured")}</TabsTrigger>
-          <TabsTrigger value="settings">{t("manage.apps.tabSettings")}</TabsTrigger>
+          <TabsTrigger value="featured">
+            {t("manage.apps.tabFeatured")}
+          </TabsTrigger>
+          <TabsTrigger value="settings">
+            {t("manage.apps.tabSettings")}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
@@ -204,11 +210,21 @@ export default function ManageAppsPage() {
                 <SelectValue placeholder={t("manage.apps.statusFilter")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("manage.apps.statusAll")}</SelectItem>
-                <SelectItem value="active">{t("manage.apps.statusActive")}</SelectItem>
-                <SelectItem value="pending">{t("manage.apps.statusPending")}</SelectItem>
-                <SelectItem value="deprecated">{t("manage.apps.statusDeprecated")}</SelectItem>
-                <SelectItem value="disabled">{t("manage.apps.statusDisabled")}</SelectItem>
+                <SelectItem value="all">
+                  {t("manage.apps.statusAll")}
+                </SelectItem>
+                <SelectItem value="active">
+                  {t("manage.apps.statusActive")}
+                </SelectItem>
+                <SelectItem value="pending">
+                  {t("manage.apps.statusPending")}
+                </SelectItem>
+                <SelectItem value="deprecated">
+                  {t("manage.apps.statusDeprecated")}
+                </SelectItem>
+                <SelectItem value="disabled">
+                  {t("manage.apps.statusDisabled")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -223,7 +239,9 @@ export default function ManageAppsPage() {
                   <TableHead>{t("manage.apps.tableStatus")}</TableHead>
                   <TableHead>{t("manage.apps.tableInstalls")}</TableHead>
                   <TableHead>{t("manage.apps.tableRating")}</TableHead>
-                  <TableHead className="text-right">{t("manage.apps.tableActions")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("manage.apps.tableActions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -265,7 +283,8 @@ export default function ManageAppsPage() {
                       <div className="flex-1">
                         <p className="font-medium">{app.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatNumber(app.stats.activeInstalls)} {t("manage.apps.activeInstalls")}
+                          {formatNumber(app.stats.activeInstalls)}{" "}
+                          {t("manage.apps.activeInstalls")}
                         </p>
                       </div>
                       <Button variant="outline" size="sm">
@@ -383,7 +402,13 @@ export default function ManageAppsPage() {
   );
 }
 
-function AppTableRow({ app, t }: { app: App; t: (key: string, opts?: Record<string, string | number>) => string }) {
+function AppTableRow({
+  app,
+  t,
+}: {
+  app: App;
+  t: (key: string, opts?: Record<string, string | number>) => string;
+}) {
   const statusColors = {
     active: "bg-green-100 text-green-700",
     pending: "bg-yellow-100 text-yellow-700",

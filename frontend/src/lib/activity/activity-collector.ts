@@ -733,10 +733,7 @@ export function notificationToActivity(
       if (!message || !channel) return null;
       const mentionType =
         (notification.data?.mentionType as
-          | "user"
-          | "everyone"
-          | "here"
-          | "channel") || "user";
+          "user" | "everyone" | "here" | "channel") || "user";
       return createMentionActivity(
         actor,
         mentionType,

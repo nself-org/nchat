@@ -100,11 +100,17 @@ function pluginFaqToEntry(f: any): FAQEntry {
     id: f.id,
     question: f.question ?? "",
     answer: f.answer ?? "",
-    alternativeQuestions: f.alternative_questions ?? f.alternativeQuestions ?? [],
+    alternativeQuestions:
+      f.alternative_questions ?? f.alternativeQuestions ?? [],
     keywords: f.keywords ?? [],
     category: f.collection_id ?? f.category ?? undefined,
     priority: f.order_index ?? f.priority ?? 0,
-    isActive: f.is_active !== undefined ? f.is_active : (f.isActive !== undefined ? f.isActive : true),
+    isActive:
+      f.is_active !== undefined
+        ? f.is_active
+        : f.isActive !== undefined
+          ? f.isActive
+          : true,
     articleId: f.article_id ?? f.articleId ?? undefined,
     createdAt: now,
     updatedAt: f.updated_at ? new Date(f.updated_at) : now,
@@ -561,7 +567,11 @@ export class KnowledgeBaseService {
       if (existingDocs.some((d: any) => d.slug === slug)) {
         return {
           success: false,
-          error: { code: "CONFLICT", status: 409, message: `Article with slug "${slug}" already exists` },
+          error: {
+            code: "CONFLICT",
+            status: 409,
+            message: `Article with slug "${slug}" already exists`,
+          },
         };
       }
       const body = {
@@ -675,7 +685,8 @@ export class KnowledgeBaseService {
       if (input.slug !== undefined) body.slug = input.slug;
       if (input.excerpt !== undefined) body.excerpt = input.excerpt;
       if (input.content !== undefined) body.content = input.content;
-      if (input.contentType !== undefined) body.content_type = input.contentType;
+      if (input.contentType !== undefined)
+        body.content_type = input.contentType;
       if (input.status !== undefined) body.status = input.status;
       if (input.visibility !== undefined) body.visibility = input.visibility;
       if (input.categoryId !== undefined) body.collection_id = input.categoryId;
@@ -683,8 +694,10 @@ export class KnowledgeBaseService {
       if (input.keywords !== undefined) body.keywords = input.keywords;
       if (input.isFeatured !== undefined) body.is_featured = input.isFeatured;
       if (input.isPinned !== undefined) body.is_pinned = input.isPinned;
-      if (input.relatedArticleIds !== undefined) body.related_article_ids = input.relatedArticleIds;
-      if (input.customFields !== undefined) body.custom_fields = input.customFields;
+      if (input.relatedArticleIds !== undefined)
+        body.related_article_ids = input.relatedArticleIds;
+      if (input.customFields !== undefined)
+        body.custom_fields = input.customFields;
       body.author_id = updatedBy;
 
       // Save current version to history before applying update
@@ -733,7 +746,11 @@ export class KnowledgeBaseService {
       if (msg.includes("404")) {
         return {
           success: false,
-          error: { code: "NOT_FOUND", status: 404, message: "Article not found" },
+          error: {
+            code: "NOT_FOUND",
+            status: 404,
+            message: "Article not found",
+          },
         };
       }
       log.error("Failed to update article", error);
@@ -782,21 +799,28 @@ export class KnowledgeBaseService {
           if (relatedIds.includes(id)) {
             await kbFetch(`/api/v1/documents/${encodeURIComponent(doc.id)}`, {
               method: "PUT",
-              body: JSON.stringify({ related_article_ids: relatedIds.filter((r: string) => r !== id) }),
+              body: JSON.stringify({
+                related_article_ids: relatedIds.filter((r: string) => r !== id),
+              }),
             });
             // Update local cache too
             const cached = articles.get(doc.id);
             if (cached) {
               articles.set(doc.id, {
                 ...cached,
-                relatedArticleIds: cached.relatedArticleIds.filter((r: string) => r !== id),
+                relatedArticleIds: cached.relatedArticleIds.filter(
+                  (r: string) => r !== id,
+                ),
               });
             }
           }
         }
       } catch {
         // Non-fatal: best-effort cleanup of related references
-        log.debug("Could not clean related article references for deleted article", { id });
+        log.debug(
+          "Could not clean related article references for deleted article",
+          { id },
+        );
       }
       await kbFetch(`/api/v1/documents/${encodeURIComponent(id)}`, {
         method: "DELETE",
@@ -810,7 +834,11 @@ export class KnowledgeBaseService {
       if (msg.includes("404")) {
         return {
           success: false,
-          error: { code: "NOT_FOUND", status: 404, message: "Article not found" },
+          error: {
+            code: "NOT_FOUND",
+            status: 404,
+            message: "Article not found",
+          },
         };
       }
       log.error("Failed to delete article", error);
@@ -844,9 +872,7 @@ export class KnowledgeBaseService {
       }
       if ((options as any).tags && (options as any).tags.length > 0) {
         const filterTags: string[] = (options as any).tags;
-        items = items.filter((a) =>
-          filterTags.some((t) => a.tags.includes(t)),
-        );
+        items = items.filter((a) => filterTags.some((t) => a.tags.includes(t)));
       }
       if ((options as any).isFeatured !== undefined) {
         items = items.filter(
@@ -866,7 +892,13 @@ export class KnowledgeBaseService {
       items = items.slice(offset, offset + limit);
       return {
         success: true,
-        data: { items, totalCount, hasMore: offset + limit < totalCount, offset, limit },
+        data: {
+          items,
+          totalCount,
+          hasMore: offset + limit < totalCount,
+          offset,
+          limit,
+        },
       };
     } catch (error) {
       log.error("Failed to list articles", error);
@@ -916,11 +948,15 @@ export class KnowledgeBaseService {
           const titleLower = article.title.toLowerCase();
           if (titleLower === q) score += 100;
           else if (titleLower.includes(q)) score += 50;
-          const kwMatch = article.keywords.filter((k) => k.toLowerCase().includes(q)).length;
+          const kwMatch = article.keywords.filter((k) =>
+            k.toLowerCase().includes(q),
+          ).length;
           score += kwMatch * 10;
           if (article.content.toLowerCase().includes(q)) score += 5;
           if (article.excerpt.toLowerCase().includes(q)) score += 3;
-          const matchedKeywords = article.keywords.filter((k) => k.toLowerCase().includes(q));
+          const matchedKeywords = article.keywords.filter((k) =>
+            k.toLowerCase().includes(q),
+          );
           return { article, score, matchedKeywords };
         })
         .sort((a, b) => b.score - a.score)
@@ -1122,7 +1158,9 @@ export class KnowledgeBaseService {
     createdBy: string,
   ): Promise<APIResponse<FAQEntry>> {
     try {
-      log.debug("Creating FAQ via KB plugin", { question: input.question.substring(0, 50) });
+      log.debug("Creating FAQ via KB plugin", {
+        question: input.question.substring(0, 50),
+      });
       const body = {
         question: input.question,
         answer: input.answer,
@@ -1140,13 +1178,21 @@ export class KnowledgeBaseService {
       // If the plugin returned no id, it is not a real KB plugin response
       // (e.g. a generic fetch mock in tests). Fall back to in-memory.
       if (!json?.id) {
-        log.warn("KB plugin createFAQ returned no id — using in-memory fallback");
+        log.warn(
+          "KB plugin createFAQ returned no id — using in-memory fallback",
+        );
         return this._createFAQInMemory(input);
       }
       // Plugin returns { id }; get full list to find new entry
       const listJson = await kbFetch("/api/v1/faqs");
       const raw = (listJson.data ?? []).find((f: any) => f.id === json.id);
-      const faq = raw ? pluginFaqToEntry(raw) : pluginFaqToEntry({ ...json, question: input.question, answer: input.answer });
+      const faq = raw
+        ? pluginFaqToEntry(raw)
+        : pluginFaqToEntry({
+            ...json,
+            question: input.question,
+            answer: input.answer,
+          });
       // Cache in local store for size tracking
       faqs.set(faq.id, faq);
       log.info("FAQ created", { id: faq.id });
@@ -1154,7 +1200,9 @@ export class KnowledgeBaseService {
     } catch (error) {
       // Plugin unavailable — fall back to in-memory store so the service
       // remains functional without a running KB plugin (e.g. in tests).
-      log.warn("KB plugin unavailable for createFAQ — using in-memory fallback");
+      log.warn(
+        "KB plugin unavailable for createFAQ — using in-memory fallback",
+      );
       return this._createFAQInMemory(input);
     }
   }
@@ -1195,7 +1243,11 @@ export class KnowledgeBaseService {
       log.error("Failed to get FAQ", error);
       return {
         success: false,
-        error: { code: "INTERNAL_ERROR", status: 500, message: (error as Error).message },
+        error: {
+          code: "INTERNAL_ERROR",
+          status: 500,
+          message: (error as Error).message,
+        },
       };
     }
   }
@@ -1212,7 +1264,8 @@ export class KnowledgeBaseService {
       const body: Record<string, unknown> = {};
       if (input.question !== undefined) body.question = input.question;
       if (input.answer !== undefined) body.answer = input.answer;
-      if (input.alternativeQuestions !== undefined) body.alternative_questions = input.alternativeQuestions;
+      if (input.alternativeQuestions !== undefined)
+        body.alternative_questions = input.alternativeQuestions;
       if (input.keywords !== undefined) body.keywords = input.keywords;
       if (input.category !== undefined) body.collection_id = input.category;
       if (input.priority !== undefined) body.order_index = input.priority;
@@ -1227,7 +1280,10 @@ export class KnowledgeBaseService {
       const listJson = await kbFetch("/api/v1/faqs");
       const raw = (listJson.data ?? []).find((f: any) => f.id === id);
       if (!raw) {
-        return { success: false, error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" } };
+        return {
+          success: false,
+          error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" },
+        };
       }
       const updated = pluginFaqToEntry(raw);
       // Update local cache
@@ -1237,7 +1293,10 @@ export class KnowledgeBaseService {
     } catch (error) {
       const msg = (error as Error).message;
       if (msg.includes("404")) {
-        return { success: false, error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" } };
+        return {
+          success: false,
+          error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" },
+        };
       }
       log.error("Failed to update FAQ", error);
       return {
@@ -1252,14 +1311,19 @@ export class KnowledgeBaseService {
    */
   async deleteFAQ(id: string): Promise<APIResponse<{ deleted: boolean }>> {
     try {
-      await kbFetch(`/api/v1/faqs/${encodeURIComponent(id)}`, { method: "DELETE" });
+      await kbFetch(`/api/v1/faqs/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
       faqs.delete(id);
       log.info("FAQ deleted", { id });
       return { success: true, data: { deleted: true } };
     } catch (error) {
       const msg = (error as Error).message;
       if (msg.includes("404")) {
-        return { success: false, error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" } };
+        return {
+          success: false,
+          error: { code: "NOT_FOUND", status: 404, message: "FAQ not found" },
+        };
       }
       log.error("Failed to delete FAQ", error);
       return {
@@ -1292,7 +1356,11 @@ export class KnowledgeBaseService {
       log.error("Failed to list FAQs", error);
       return {
         success: false,
-        error: { code: "INTERNAL_ERROR", status: 500, message: (error as Error).message },
+        error: {
+          code: "INTERNAL_ERROR",
+          status: 500,
+          message: (error as Error).message,
+        },
       };
     }
   }
@@ -1309,7 +1377,9 @@ export class KnowledgeBaseService {
         return { success: true, data: [] };
       }
       const limit = options?.limit || 5;
-      const json = await kbFetch(`/api/v1/search?q=${encodeURIComponent(query)}`);
+      const json = await kbFetch(
+        `/api/v1/search?q=${encodeURIComponent(query)}`,
+      );
       let results: FAQEntry[] = (json.data ?? [])
         .filter((r: any) => r.kind === "faq")
         .map(pluginFaqToEntry)
@@ -1322,14 +1392,18 @@ export class KnowledgeBaseService {
       // (e.g. added via createFAQ fallback or in a test environment with a
       // stub fetch that always returns {}), search in-memory instead.
       if (results.length === 0 && faqs.size > 0) {
-        log.warn("KB plugin searchFAQs returned no results — using in-memory fallback");
+        log.warn(
+          "KB plugin searchFAQs returned no results — using in-memory fallback",
+        );
         return this._searchFAQsInMemory(query, options);
       }
       return { success: true, data: results.slice(0, limit) };
     } catch (error) {
       // Plugin unavailable — fall back to in-memory keyword search so the
       // chatbot can still match FAQs without a running KB plugin (e.g. in tests).
-      log.warn("KB plugin unavailable for searchFAQs — using in-memory fallback");
+      log.warn(
+        "KB plugin unavailable for searchFAQs — using in-memory fallback",
+      );
       return this._searchFAQsInMemory(query, options);
     }
   }
@@ -1353,15 +1427,20 @@ export class KnowledgeBaseService {
       const faqKeywords = faq.keywords.map((k) => k.toLowerCase());
       let score = 0;
       for (const qw of queryWords) {
-        if (questionWords.some((w) => w.includes(qw) || qw.includes(w))) score += 2;
-        if (faqKeywords.some((k) => k.includes(qw) || qw.includes(k))) score += 3;
+        if (questionWords.some((w) => w.includes(qw) || qw.includes(w)))
+          score += 2;
+        if (faqKeywords.some((k) => k.includes(qw) || qw.includes(k)))
+          score += 3;
       }
       return { faq, score };
     });
     scored.sort((a, b) => b.score - a.score);
     return {
       success: true,
-      data: scored.filter((s) => s.score > 0).slice(0, limit).map((s) => s.faq),
+      data: scored
+        .filter((s) => s.score > 0)
+        .slice(0, limit)
+        .map((s) => s.faq),
     };
   }
 

@@ -11,27 +11,15 @@
 export type NotificationChannel = "email" | "push" | "sms";
 
 export type NotificationCategory =
-  | "transactional"
-  | "marketing"
-  | "system"
-  | "alert";
+  "transactional" | "marketing" | "system" | "alert";
 
 export type NotificationStatus =
-  | "pending"
-  | "queued"
-  | "sent"
-  | "delivered"
-  | "failed"
-  | "bounced";
+  "pending" | "queued" | "sent" | "delivered" | "failed" | "bounced";
 
 export type QueueStatus = "pending" | "processing" | "completed" | "failed";
 
 export type FrequencyType =
-  | "immediate"
-  | "hourly"
-  | "daily"
-  | "weekly"
-  | "disabled";
+  "immediate" | "hourly" | "daily" | "weekly" | "disabled";
 
 // =============================================================================
 // Template Types

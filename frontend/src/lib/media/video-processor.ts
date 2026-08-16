@@ -45,13 +45,7 @@ export interface VideoFrame {
 }
 
 export type VideoFormat =
-  | "mp4"
-  | "webm"
-  | "ogg"
-  | "quicktime"
-  | "avi"
-  | "mkv"
-  | "unknown";
+  "mp4" | "webm" | "ogg" | "quicktime" | "avi" | "mkv" | "unknown";
 
 export interface VideoValidationResult {
   valid: boolean;

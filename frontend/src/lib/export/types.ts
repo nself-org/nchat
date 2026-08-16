@@ -7,18 +7,10 @@
 export type ExportFormat = "json" | "csv" | "html" | "pdf";
 
 export type ExportStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled"
-  | "expired";
+  "pending" | "processing" | "completed" | "failed" | "cancelled" | "expired";
 
 export type ExportScope =
-  | "all_messages"
-  | "direct_messages"
-  | "specific_channels"
-  | "user_data";
+  "all_messages" | "direct_messages" | "specific_channels" | "user_data";
 
 export interface ExportOptions {
   // Scope

@@ -494,8 +494,7 @@ export const workspaceSizeGate: GateFn = async (context, definition) => {
   };
 
   const memberCount = context.metadata?.workspaceMemberCount as
-    | number
-    | undefined;
+    number | undefined;
 
   if (memberCount === undefined) {
     return {

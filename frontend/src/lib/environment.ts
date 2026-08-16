@@ -52,10 +52,7 @@ export const isClient = (): boolean => {
 export const getPublicEnv = () => {
   return {
     NEXT_PUBLIC_ENV: (process.env.NEXT_PUBLIC_ENV || "development") as
-      | "development"
-      | "staging"
-      | "production"
-      | "test",
+      "development" | "staging" | "production" | "test",
     NEXT_PUBLIC_USE_DEV_AUTH: process.env.NEXT_PUBLIC_USE_DEV_AUTH === "true",
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "ɳChat",
   };

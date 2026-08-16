@@ -311,8 +311,7 @@ export class ReceiptService {
               ?.display_name as string) ||
             ((member.user as Record<string, unknown>)?.username as string),
           avatarUrl: (member.user as Record<string, unknown>)?.avatar_url as
-            | string
-            | undefined,
+            string | undefined,
         },
       }));
 

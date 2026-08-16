@@ -31,11 +31,7 @@ export type ReportReason =
   | "other";
 
 export type ReportStatus =
-  | "pending"
-  | "under_review"
-  | "resolved"
-  | "dismissed"
-  | "escalated";
+  "pending" | "under_review" | "resolved" | "dismissed" | "escalated";
 
 export type ReportType = "user" | "message" | "channel";
 

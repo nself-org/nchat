@@ -67,12 +67,7 @@ export interface PendingTransaction {
 }
 
 export type TransactionStatus =
-  | "pending"
-  | "submitted"
-  | "confirming"
-  | "confirmed"
-  | "failed"
-  | "cancelled";
+  "pending" | "submitted" | "confirming" | "confirmed" | "failed" | "cancelled";
 
 export interface TransactionError {
   code: number;

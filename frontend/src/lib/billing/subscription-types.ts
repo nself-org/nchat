@@ -36,12 +36,7 @@ import type {
  * - paused -> canceled (canceled while paused)
  */
 export type SubscriptionState =
-  | "trial"
-  | "active"
-  | "grace"
-  | "past_due"
-  | "paused"
-  | "canceled";
+  "trial" | "active" | "grace" | "past_due" | "paused" | "canceled";
 
 /**
  * Subscription state metadata.
@@ -678,12 +673,7 @@ export interface BillingCycle {
  * Billing cycle status.
  */
 export type BillingCycleStatus =
-  | "upcoming"
-  | "current"
-  | "invoiced"
-  | "paid"
-  | "past_due"
-  | "void";
+  "upcoming" | "current" | "invoiced" | "paid" | "past_due" | "void";
 
 /**
  * Billing anchor configuration.

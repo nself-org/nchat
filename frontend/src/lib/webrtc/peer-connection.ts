@@ -12,12 +12,7 @@ import { logger } from "@/lib/logger";
 // =============================================================================
 
 export type ConnectionState =
-  | "new"
-  | "connecting"
-  | "connected"
-  | "disconnected"
-  | "failed"
-  | "closed";
+  "new" | "connecting" | "connected" | "disconnected" | "failed" | "closed";
 
 export type IceConnectionState =
   | "new"

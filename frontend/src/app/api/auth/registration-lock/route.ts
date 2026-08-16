@@ -131,9 +131,7 @@ interface RemoveBoundDeviceRequest {
 }
 
 type PutRequestBody =
-  | ChangePinRequest
-  | AddBoundDeviceRequest
-  | RemoveBoundDeviceRequest;
+  ChangePinRequest | AddBoundDeviceRequest | RemoveBoundDeviceRequest;
 
 // ============================================================================
 // Helper Functions

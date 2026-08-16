@@ -27,12 +27,7 @@ import {
 // =============================================================================
 
 export type ScreenShareState =
-  | "idle"
-  | "requesting"
-  | "active"
-  | "paused"
-  | "switching"
-  | "error";
+  "idle" | "requesting" | "active" | "paused" | "switching" | "error";
 
 export interface ScreenShareServiceOptions {
   /** Default quality preset */

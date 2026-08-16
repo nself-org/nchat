@@ -8,11 +8,7 @@ import type { ComponentType } from "react";
  * Available platform template IDs
  */
 export type TemplateId =
-  | "default"
-  | "slack"
-  | "discord"
-  | "telegram"
-  | "whatsapp";
+  "default" | "slack" | "discord" | "telegram" | "whatsapp";
 
 /**
  * Theme color configuration

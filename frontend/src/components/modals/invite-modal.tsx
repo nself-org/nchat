@@ -60,13 +60,7 @@ export interface InviteLink {
 }
 
 export type InviteLinkExpiry =
-  | "never"
-  | "7days"
-  | "1day"
-  | "12hours"
-  | "6hours"
-  | "1hour"
-  | "30min";
+  "never" | "7days" | "1day" | "12hours" | "6hours" | "1hour" | "30min";
 
 export interface InviteModalProps {
   open: boolean;

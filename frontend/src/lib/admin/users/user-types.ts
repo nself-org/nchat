@@ -10,11 +10,7 @@
 export type UserRole = "owner" | "admin" | "moderator" | "member" | "guest";
 
 export type UserStatus =
-  | "active"
-  | "inactive"
-  | "pending"
-  | "banned"
-  | "suspended";
+  "active" | "inactive" | "pending" | "banned" | "suspended";
 
 export type InviteStatus = "pending" | "accepted" | "expired" | "revoked";
 

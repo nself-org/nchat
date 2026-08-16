@@ -83,11 +83,7 @@ export type VerificationMethod =
  * Verification status
  */
 export type VerificationStatus =
-  | "pending"
-  | "in_progress"
-  | "verified"
-  | "failed"
-  | "expired";
+  "pending" | "in_progress" | "verified" | "failed" | "expired";
 
 /**
  * Identity verification record

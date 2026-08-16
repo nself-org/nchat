@@ -76,10 +76,7 @@ export interface BoolExp<T> {
   _or?: BoolExp<T>[];
   _not?: BoolExp<T>;
   [key: string]:
-    | WhereComparison<unknown>
-    | BoolExp<T>[]
-    | BoolExp<T>
-    | undefined;
+    WhereComparison<unknown> | BoolExp<T>[] | BoolExp<T> | undefined;
 }
 
 // ============================================================================

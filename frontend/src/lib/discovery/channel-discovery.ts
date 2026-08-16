@@ -58,11 +58,7 @@ export interface ChannelDiscoveryOptions {
 }
 
 export type ChannelSortOption =
-  | "popular"
-  | "recent"
-  | "alphabetical"
-  | "members"
-  | "activity";
+  "popular" | "recent" | "alphabetical" | "members" | "activity";
 
 export interface ChannelRecommendationContext {
   userId: string;

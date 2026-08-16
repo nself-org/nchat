@@ -19,11 +19,7 @@ import type { Reaction } from "./emoji";
  * Socket connection states.
  */
 export type SocketConnectionState =
-  | "connecting"
-  | "connected"
-  | "disconnected"
-  | "reconnecting"
-  | "error";
+  "connecting" | "connected" | "disconnected" | "reconnecting" | "error";
 
 /**
  * Socket connection info.

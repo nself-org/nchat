@@ -80,10 +80,7 @@ export interface AppConfig {
     requireEmailVerification: boolean;
     allowedDomains?: string[];
     allowedIdMeRoles?: (
-      | "military"
-      | "police"
-      | "first-responder"
-      | "government"
+      "military" | "police" | "first-responder" | "government"
     )[];
     requireApproval: boolean;
     autoApprove?: boolean;

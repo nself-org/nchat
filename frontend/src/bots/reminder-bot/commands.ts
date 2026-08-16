@@ -30,8 +30,7 @@ import {
 
 // Store the trigger callback for scheduling
 let triggerCallback:
-  | ((reminder: ReturnType<typeof getReminder>) => void)
-  | null = null;
+  ((reminder: ReturnType<typeof getReminder>) => void) | null = null;
 
 /**
  * Set the trigger callback for when reminders fire

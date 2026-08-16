@@ -52,12 +52,7 @@ export interface AddBotModalProps {
 }
 
 type Step =
-  | "method"
-  | "token"
-  | "browse"
-  | "permissions"
-  | "channels"
-  | "confirm";
+  "method" | "token" | "browse" | "permissions" | "channels" | "confirm";
 
 // ============================================================================
 // COMPONENT

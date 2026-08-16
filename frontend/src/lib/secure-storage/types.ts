@@ -12,13 +12,7 @@
  * Supported operating systems
  */
 export type OperatingSystem =
-  | "ios"
-  | "android"
-  | "macos"
-  | "windows"
-  | "linux"
-  | "web"
-  | "unknown";
+  "ios" | "android" | "macos" | "windows" | "linux" | "web" | "unknown";
 
 /**
  * Security levels for stored items
@@ -43,12 +37,7 @@ export type AccessControlPolicy =
  * Biometric authentication type
  */
 export type BiometricAuthType =
-  | "faceId"
-  | "touchId"
-  | "fingerprint"
-  | "face"
-  | "iris"
-  | "none";
+  "faceId" | "touchId" | "fingerprint" | "face" | "iris" | "none";
 
 // ============================================================================
 // Storage Item Types

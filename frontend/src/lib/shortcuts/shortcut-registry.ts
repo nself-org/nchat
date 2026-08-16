@@ -24,12 +24,7 @@ export type ShortcutCategory =
 
 /** Contexts where a shortcut is active */
 export type ShortcutContext =
-  | "global"
-  | "chat"
-  | "editor"
-  | "sidebar"
-  | "modal"
-  | "command-palette";
+  "global" | "chat" | "editor" | "sidebar" | "modal" | "command-palette";
 
 /** Callback executed when a shortcut fires */
 export type ShortcutAction = (event: KeyboardEvent) => void | boolean;

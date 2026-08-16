@@ -16,11 +16,7 @@ export type ScreenSharePermissionMode =
   | "presenters-only"; // Only designated presenters can share
 
 export type ShareRequestStatus =
-  | "pending"
-  | "approved"
-  | "denied"
-  | "expired"
-  | "cancelled";
+  "pending" | "approved" | "denied" | "expired" | "cancelled";
 
 export interface ScreenSharePermissions {
   /** Who can share by default */

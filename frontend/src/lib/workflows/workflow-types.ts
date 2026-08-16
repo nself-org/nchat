@@ -9,18 +9,9 @@
 
 export type WorkflowStatus = "draft" | "active" | "paused" | "archived";
 export type WorkflowRunStatus =
-  | "pending"
-  | "running"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "running" | "completed" | "failed" | "cancelled";
 export type StepStatus =
-  | "pending"
-  | "running"
-  | "completed"
-  | "failed"
-  | "skipped"
-  | "waiting";
+  "pending" | "running" | "completed" | "failed" | "skipped" | "waiting";
 
 /**
  * Position on the canvas
@@ -499,12 +490,7 @@ export type WorkflowStep =
 // ============================================================================
 
 export type EdgeType =
-  | "default"
-  | "true"
-  | "false"
-  | "error"
-  | "timeout"
-  | "loop";
+  "default" | "true" | "false" | "error" | "timeout" | "loop";
 
 export interface WorkflowEdge {
   id: string;

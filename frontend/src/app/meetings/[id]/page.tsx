@@ -36,12 +36,7 @@ import {
 // ============================================================================
 
 type PageState =
-  | "loading"
-  | "preview"
-  | "joining"
-  | "in-meeting"
-  | "error"
-  | "ended";
+  "loading" | "preview" | "joining" | "in-meeting" | "error" | "ended";
 
 // ============================================================================
 // Component

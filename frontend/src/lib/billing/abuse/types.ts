@@ -23,12 +23,7 @@ export type RiskLevel = "low" | "medium" | "high" | "critical";
  * Enforcement actions the system can take in response to abuse.
  */
 export type EnforcementAction =
-  | "none"
-  | "warn"
-  | "throttle"
-  | "require_verification"
-  | "suspend"
-  | "block";
+  "none" | "warn" | "throttle" | "require_verification" | "suspend" | "block";
 
 /**
  * Abuse signal categories.
@@ -190,9 +185,7 @@ export interface AntiSharingConfig {
  * Seat abuse indicator types.
  */
 export type SeatAbuseIndicatorType =
-  | "ghost_seat"
-  | "seat_sharing"
-  | "seat_hopping";
+  "ghost_seat" | "seat_sharing" | "seat_hopping";
 
 /**
  * Seat assignment record.

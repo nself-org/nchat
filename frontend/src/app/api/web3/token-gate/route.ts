@@ -66,11 +66,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const resourceType = searchParams.get("resourceType") as
-      | "channel"
-      | "feature"
-      | "role"
-      | "workspace"
-      | null;
+      "channel" | "feature" | "role" | "workspace" | null;
     const isActive = searchParams.get("isActive");
 
     const gates = listTokenGates({

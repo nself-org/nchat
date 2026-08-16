@@ -29,11 +29,7 @@ export interface OpenAIConfig {
 }
 
 export type OpenAIModel =
-  | "gpt-4-turbo"
-  | "gpt-4"
-  | "gpt-3.5-turbo"
-  | "gpt-4o"
-  | "gpt-4o-mini";
+  "gpt-4-turbo" | "gpt-4" | "gpt-3.5-turbo" | "gpt-4o" | "gpt-4o-mini";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";

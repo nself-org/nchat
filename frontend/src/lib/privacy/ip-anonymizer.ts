@@ -32,12 +32,7 @@ export type IPVersion = "ipv4" | "ipv6" | "unknown";
  * Anonymization strategy
  */
 export type AnonymizationStrategy =
-  | "truncate"
-  | "hash"
-  | "geohash"
-  | "country_only"
-  | "remove"
-  | "none";
+  "truncate" | "hash" | "geohash" | "country_only" | "remove" | "none";
 
 /**
  * Truncation level for IP addresses

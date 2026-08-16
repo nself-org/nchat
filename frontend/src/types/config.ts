@@ -247,11 +247,7 @@ export const DefaultThemeConfig: ThemeConfig = {
  * Landing page theme templates.
  */
 export type LandingTheme =
-  | "login-only"
-  | "simple-landing"
-  | "full-homepage"
-  | "corporate"
-  | "community";
+  "login-only" | "simple-landing" | "full-homepage" | "corporate" | "community";
 
 /**
  * Landing page mode.

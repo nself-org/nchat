@@ -92,12 +92,7 @@ export interface RateLimitMetadata {
  * User subscription/role tiers for rate limit multipliers
  */
 export type UserTier =
-  | "guest"
-  | "member"
-  | "premium"
-  | "enterprise"
-  | "admin"
-  | "internal";
+  "guest" | "member" | "premium" | "enterprise" | "admin" | "internal";
 
 /**
  * Tier-specific rate limit multipliers

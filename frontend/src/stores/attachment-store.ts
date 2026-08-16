@@ -22,12 +22,7 @@ export type UploadStatus =
   | "cancelled";
 
 export type FileType =
-  | "image"
-  | "video"
-  | "audio"
-  | "document"
-  | "archive"
-  | "other";
+  "image" | "video" | "audio" | "document" | "archive" | "other";
 
 export interface UploadProgress {
   id: string;

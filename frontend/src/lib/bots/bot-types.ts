@@ -86,13 +86,7 @@ export interface BotState {
  * Command argument types
  */
 export type CommandArgType =
-  | "string"
-  | "number"
-  | "boolean"
-  | "user"
-  | "channel"
-  | "duration"
-  | "choice";
+  "string" | "number" | "boolean" | "user" | "channel" | "duration" | "choice";
 
 /**
  * Command argument definition
@@ -607,10 +601,7 @@ export interface BotBuilderCondition {
  * Context passed to bot handlers - union of all context types
  */
 export type BotContext =
-  | MessageContext
-  | CommandContext
-  | UserContext
-  | ReactionContext;
+  MessageContext | CommandContext | UserContext | ReactionContext;
 
 /**
  * Bot interface - implement this to create a bot

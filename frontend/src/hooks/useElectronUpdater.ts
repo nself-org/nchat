@@ -280,9 +280,7 @@ export function useAutoUpdateSettings(): {
           );
           setUpdateChannelState(
             ((settings as { updateChannel?: string }).updateChannel as
-              | "stable"
-              | "beta"
-              | "alpha") ?? "stable",
+              "stable" | "beta" | "alpha") ?? "stable",
           );
         }
       }

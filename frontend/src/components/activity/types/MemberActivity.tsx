@@ -18,9 +18,7 @@ import type {
 } from "@/lib/activity/activity-types";
 
 type MemberActivityType =
-  | MemberJoinedActivity
-  | MemberLeftActivity
-  | MemberInvitedActivity;
+  MemberJoinedActivity | MemberLeftActivity | MemberInvitedActivity;
 
 interface MemberActivityProps {
   activity: MemberActivityType;

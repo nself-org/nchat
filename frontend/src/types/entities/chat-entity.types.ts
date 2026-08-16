@@ -1015,19 +1015,13 @@ export type ChatEntity =
  * Entities that support multiple members
  */
 export type MultiMemberEntity =
-  | GroupEntity
-  | SupergroupEntity
-  | CommunityEntity
-  | ChannelEntity;
+  GroupEntity | SupergroupEntity | CommunityEntity | ChannelEntity;
 
 /**
  * Entities that support admin roles
  */
 export type AdminSupportedEntity =
-  | GroupEntity
-  | SupergroupEntity
-  | CommunityEntity
-  | ChannelEntity;
+  GroupEntity | SupergroupEntity | CommunityEntity | ChannelEntity;
 
 /**
  * Entities that can be broadcast (admin-only posting)

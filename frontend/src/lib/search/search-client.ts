@@ -19,11 +19,7 @@ import {
 export type SearchEntityType = "message" | "channel" | "user" | "file";
 
 export type SortOrder =
-  | "relevance"
-  | "date_asc"
-  | "date_desc"
-  | "name_asc"
-  | "name_desc";
+  "relevance" | "date_asc" | "date_desc" | "name_asc" | "name_desc";
 
 export interface SearchOptions {
   types?: SearchEntityType[];

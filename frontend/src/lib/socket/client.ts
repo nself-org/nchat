@@ -12,11 +12,7 @@ import { logger } from "@/lib/logger";
 
 // Connection states
 export type ConnectionState =
-  | "disconnected"
-  | "connecting"
-  | "connected"
-  | "reconnecting"
-  | "error";
+  "disconnected" | "connecting" | "connected" | "reconnecting" | "error";
 
 // Connection state listeners
 type ConnectionStateListener = (state: ConnectionState) => void;

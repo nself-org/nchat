@@ -153,8 +153,7 @@ function transformChannel(raw: Record<string, unknown>): Channel {
           displayName: (raw.creator as Record<string, unknown>)
             .display_name as string,
           avatarUrl: (raw.creator as Record<string, unknown>).avatar_url as
-            | string
-            | undefined,
+            string | undefined,
         }
       : undefined,
   };

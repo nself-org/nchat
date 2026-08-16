@@ -30,10 +30,7 @@ export interface LockoutPolicy {
 export interface WipeEvent {
   timestamp: number;
   reason:
-    | "max_attempts"
-    | "remote_command"
-    | "user_initiated"
-    | "factory_reset";
+    "max_attempts" | "remote_command" | "user_initiated" | "factory_reset";
   deviceId?: string;
   userId?: string;
 }

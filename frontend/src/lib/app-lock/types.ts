@@ -33,12 +33,7 @@ export type AuthMethod = "pin" | "biometric" | "none";
  * Biometric type available on device
  */
 export type BiometricType =
-  | "faceId"
-  | "touchId"
-  | "fingerprint"
-  | "face"
-  | "iris"
-  | "none";
+  "faceId" | "touchId" | "fingerprint" | "face" | "iris" | "none";
 
 /**
  * Platform type

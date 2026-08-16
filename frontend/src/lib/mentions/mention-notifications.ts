@@ -43,8 +43,7 @@ export function isNotificationSupported(): boolean {
  * Get current notification permission status
  */
 export function getNotificationPermission():
-  | NotificationPermission
-  | "unsupported" {
+  NotificationPermission | "unsupported" {
   if (!isNotificationSupported()) {
     return "unsupported";
   }

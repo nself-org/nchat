@@ -17,10 +17,7 @@ export type ScreenCaptureQuality = "auto" | "720p" | "1080p" | "4k";
 export type ScreenFitMode = "contain" | "cover" | "fill" | "none";
 
 export type SharePermissionStatus =
-  | "granted"
-  | "denied"
-  | "prompt"
-  | "unsupported";
+  "granted" | "denied" | "prompt" | "unsupported";
 
 export interface ScreenCaptureConstraints {
   video: {

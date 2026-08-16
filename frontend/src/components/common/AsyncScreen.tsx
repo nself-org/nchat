@@ -119,9 +119,7 @@ function EmptyView({
       <p className="text-sm font-medium text-muted-foreground">
         {title ?? "Nothing here yet"}
       </p>
-      {message && (
-        <p className="text-xs text-muted-foreground">{message}</p>
-      )}
+      {message && <p className="text-xs text-muted-foreground">{message}</p>}
     </div>
   );
 }
@@ -331,10 +329,7 @@ export function AsyncScreen({
   className,
 }: AsyncScreenProps) {
   return (
-    <div
-      className={cn("flex flex-col", className)}
-      data-async-state={state}
-    >
+    <div className={cn("flex flex-col", className)} data-async-state={state}>
       {/* Offline banner always rendered at top when relevant, children still show below */}
       {state === "offline" && (
         <OfflineView

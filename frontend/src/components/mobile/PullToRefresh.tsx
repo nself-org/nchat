@@ -29,11 +29,7 @@ export interface PullToRefreshProps {
 }
 
 export type RefreshState =
-  | "idle"
-  | "pulling"
-  | "ready"
-  | "refreshing"
-  | "complete";
+  "idle" | "pulling" | "ready" | "refreshing" | "complete";
 
 // ============================================================================
 // Constants

@@ -18,10 +18,7 @@ import { logger } from "@/lib/logger";
  * Connection state
  */
 export type ConnectionState =
-  | "online"
-  | "offline"
-  | "connecting"
-  | "reconnecting";
+  "online" | "offline" | "connecting" | "reconnecting";
 
 /**
  * Network quality

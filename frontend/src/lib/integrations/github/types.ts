@@ -79,11 +79,7 @@ export type GitHubVisibility = "public" | "private" | "internal";
  * GitHub review state
  */
 export type GitHubReviewState =
-  | "PENDING"
-  | "COMMENTED"
-  | "APPROVED"
-  | "CHANGES_REQUESTED"
-  | "DISMISSED";
+  "PENDING" | "COMMENTED" | "APPROVED" | "CHANGES_REQUESTED" | "DISMISSED";
 
 /**
  * GitHub label

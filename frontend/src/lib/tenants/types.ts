@@ -6,11 +6,7 @@
  */
 
 export type TenantStatus =
-  | "active"
-  | "suspended"
-  | "trial"
-  | "cancelled"
-  | "pending";
+  "active" | "suspended" | "trial" | "cancelled" | "pending";
 export type BillingPlan = "free" | "pro" | "enterprise" | "custom";
 export type BillingInterval = "monthly" | "yearly";
 

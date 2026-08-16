@@ -19,10 +19,7 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get("action");
     const entityId = searchParams.get("entityId");
     const entityType = searchParams.get("entityType") as
-      | "user"
-      | "channel"
-      | "team"
-      | null;
+      "user" | "channel" | "team" | null;
 
     // Get overall statistics
     if (action === "stats") {
@@ -257,10 +254,7 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const entityId = searchParams.get("entityId");
     const entityType = searchParams.get("entityType") as
-      | "user"
-      | "channel"
-      | "team"
-      | null;
+      "user" | "channel" | "team" | null;
     const fileId = searchParams.get("fileId");
 
     if (!entityId || !entityType) {

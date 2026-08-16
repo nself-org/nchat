@@ -552,8 +552,7 @@ class OutlookCalendarAdapter implements CalendarApiAdapter {
     const start = item.start as { dateTime: string } | undefined;
     const end = item.end as { dateTime: string } | undefined;
     const organizer = item.organizer as
-      | { emailAddress: { name: string; address: string } }
-      | undefined;
+      { emailAddress: { name: string; address: string } } | undefined;
     const attendees = item.attendees as
       | Array<{
           emailAddress: { name: string; address: string };
@@ -562,8 +561,7 @@ class OutlookCalendarAdapter implements CalendarApiAdapter {
         }>
       | undefined;
     const onlineMeeting = item.onlineMeeting as
-      | { joinUrl?: string }
-      | undefined;
+      { joinUrl?: string } | undefined;
 
     return {
       id: item.id as string,

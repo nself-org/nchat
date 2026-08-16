@@ -90,8 +90,7 @@ export class PluginOperationsService {
       this.circuitBreaker.addEventListener((event) => {
         if (event.type === "state_changed") {
           const details = event.details as
-            | { fromState?: string; reason?: string }
-            | undefined;
+            { fromState?: string; reason?: string } | undefined;
           if (event.state === "open") {
             this.degradationManager.degradePlugin(
               event.pluginId,

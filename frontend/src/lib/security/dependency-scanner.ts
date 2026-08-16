@@ -15,23 +15,13 @@
  * Severity levels for vulnerability findings
  */
 export type VulnerabilitySeverity =
-  | "critical"
-  | "high"
-  | "moderate"
-  | "low"
-  | "info";
+  "critical" | "high" | "moderate" | "low" | "info";
 
 /**
  * Package ecosystem types
  */
 export type PackageEcosystem =
-  | "npm"
-  | "pypi"
-  | "maven"
-  | "nuget"
-  | "rubygems"
-  | "go"
-  | "cargo";
+  "npm" | "pypi" | "maven" | "nuget" | "rubygems" | "go" | "cargo";
 
 /**
  * A vulnerability in a dependency

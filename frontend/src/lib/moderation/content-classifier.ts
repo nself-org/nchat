@@ -28,13 +28,7 @@ export interface ClassificationResult {
 
   // Content type
   contentType:
-    | "text"
-    | "image"
-    | "video"
-    | "audio"
-    | "document"
-    | "code"
-    | "unknown";
+    "text" | "image" | "video" | "audio" | "document" | "code" | "unknown";
 
   // Sentiment
   sentiment: "positive" | "negative" | "neutral";

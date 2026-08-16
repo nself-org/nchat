@@ -24,7 +24,10 @@ function makeKbPluginMock() {
   const faqStore = new Map<string, Record<string, unknown>>();
 
   return jest.fn((url: RequestInfo | URL, init?: RequestInit) => {
-    const path = typeof url === "string" ? url.replace(/^http:\/\/[^/]+/, "") : String(url);
+    const path =
+      typeof url === "string"
+        ? url.replace(/^http:\/\/[^/]+/, "")
+        : String(url);
     const method = (init?.method ?? "GET").toUpperCase();
 
     let responseBody: unknown = {};
@@ -38,31 +41,62 @@ function makeKbPluginMock() {
     if (path === "/api/v1/documents" && method === "POST") {
       const body = JSON.parse((init?.body as string) ?? "{}");
       const id = `doc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-      const doc = { id, ...body, status: body.status ?? "draft", views: 0, helpful_count: 0, not_helpful_count: 0, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      const doc = {
+        id,
+        ...body,
+        status: body.status ?? "draft",
+        views: 0,
+        helpful_count: 0,
+        not_helpful_count: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
       docs.set(id, doc);
       responseBody = { id };
     } else if (path === "/api/v1/documents" && method === "GET") {
       responseBody = { data: Array.from(docs.values()) };
     } else if (docIdMatch && method === "GET") {
       const doc = docs.get(docIdMatch[1]);
-      if (doc) { responseBody = doc; } else { ok = false; status = 404; responseBody = { error: "not found" }; }
+      if (doc) {
+        responseBody = doc;
+      } else {
+        ok = false;
+        status = 404;
+        responseBody = { error: "not found" };
+      }
     } else if (docIdMatch && method === "PUT") {
       const id = docIdMatch[1];
       const existing = docs.get(id);
-      if (!existing) { ok = false; status = 404; responseBody = { error: "not found" }; }
-      else {
+      if (!existing) {
+        ok = false;
+        status = 404;
+        responseBody = { error: "not found" };
+      } else {
         const updates = JSON.parse((init?.body as string) ?? "{}");
-        const updated = { ...existing, ...updates, updated_at: new Date().toISOString() };
+        const updated = {
+          ...existing,
+          ...updates,
+          updated_at: new Date().toISOString(),
+        };
         docs.set(id, updated);
         responseBody = updated;
       }
     } else if (docIdMatch && method === "DELETE") {
       const id = docIdMatch[1];
-      if (!docs.has(id)) { ok = false; status = 404; responseBody = { error: "not found" }; }
-      else { docs.delete(id); responseBody = { deleted: true }; }
+      if (!docs.has(id)) {
+        ok = false;
+        status = 404;
+        responseBody = { error: "not found" };
+      } else {
+        docs.delete(id);
+        responseBody = { deleted: true };
+      }
     } else if (path.startsWith("/api/v1/search")) {
       const q = new URL(`http://x${path}`).searchParams.get("q") ?? "";
-      const all = [...Array.from(docs.values()).map((d) => ({ ...d, kind: "article" })), ...Array.from(faqStore.values()).map((f) => ({ ...f, kind: "faq" }))];
+      const all = [
+        ...Array.from(docs.values()).map((d) => ({ ...d, kind: "article" })),
+        ...Array.from(faqStore.values()).map((f) => ({ ...f, kind: "faq" })),
+      ];
       const q_ = q.toLowerCase();
       // Split query into words for tokenized matching (any word match = include)
       const terms = q_.split(/\s+/).filter(Boolean);
@@ -70,16 +104,26 @@ function makeKbPluginMock() {
         const t = text.toLowerCase();
         return terms.some((term) => t.includes(term));
       };
-      responseBody = { data: all.filter((r: any) =>
-        matchesTerms(r.title ?? r.question ?? "") ||
-        matchesTerms(r.content ?? r.answer ?? "") ||
-        (Array.isArray(r.keywords) && r.keywords.some((k: string) => matchesTerms(k))) ||
-        (Array.isArray(r.alternative_questions) && r.alternative_questions.some((a: string) => matchesTerms(a)))
-      ) };
+      responseBody = {
+        data: all.filter(
+          (r: any) =>
+            matchesTerms(r.title ?? r.question ?? "") ||
+            matchesTerms(r.content ?? r.answer ?? "") ||
+            (Array.isArray(r.keywords) &&
+              r.keywords.some((k: string) => matchesTerms(k))) ||
+            (Array.isArray(r.alternative_questions) &&
+              r.alternative_questions.some((a: string) => matchesTerms(a))),
+        ),
+      };
     } else if (path === "/api/v1/faqs" && method === "POST") {
       const body = JSON.parse((init?.body as string) ?? "{}");
       const id = `faq-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-      const faq = { id, ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      const faq = {
+        id,
+        ...body,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
       faqStore.set(id, faq);
       responseBody = { id };
     } else if (path === "/api/v1/faqs" && method === "GET") {
@@ -87,16 +131,29 @@ function makeKbPluginMock() {
     } else if (faqIdMatch && method === "PUT") {
       const id = faqIdMatch[1];
       const existing = faqStore.get(id);
-      if (!existing) { ok = false; status = 404; responseBody = { error: "not found" }; }
-      else {
+      if (!existing) {
+        ok = false;
+        status = 404;
+        responseBody = { error: "not found" };
+      } else {
         const updates = JSON.parse((init?.body as string) ?? "{}");
-        faqStore.set(id, { ...existing, ...updates, updated_at: new Date().toISOString() });
+        faqStore.set(id, {
+          ...existing,
+          ...updates,
+          updated_at: new Date().toISOString(),
+        });
         responseBody = { ...faqStore.get(id) };
       }
     } else if (faqIdMatch && method === "DELETE") {
       const id = faqIdMatch[1];
-      if (!faqStore.has(id)) { ok = false; status = 404; responseBody = { error: "not found" }; }
-      else { faqStore.delete(id); responseBody = { deleted: true }; }
+      if (!faqStore.has(id)) {
+        ok = false;
+        status = 404;
+        responseBody = { error: "not found" };
+      } else {
+        faqStore.delete(id);
+        responseBody = { deleted: true };
+      }
     }
 
     const bodyStr = JSON.stringify(responseBody);

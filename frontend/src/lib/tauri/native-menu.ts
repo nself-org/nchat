@@ -8,11 +8,7 @@
 import { invoke, invokeOrFallback, listen, isTauri } from "./tauri-bridge";
 
 export type NavigationTarget =
-  | "home"
-  | "channels"
-  | "messages"
-  | "threads"
-  | "settings";
+  "home" | "channels" | "messages" | "threads" | "settings";
 
 export interface MenuEventHandlers {
   onNewMessage?: () => void;

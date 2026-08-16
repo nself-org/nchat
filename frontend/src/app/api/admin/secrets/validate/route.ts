@@ -100,10 +100,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const environment = forProduction
       ? "production"
       : ((process.env.NODE_ENV as
-          | "development"
-          | "staging"
-          | "production"
-          | "test") ?? "development");
+          "development" | "staging" | "production" | "test") ?? "development");
 
     const validator = createSecretValidator({
       environment,
@@ -205,10 +202,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const environment = body.forProduction
       ? "production"
       : ((process.env.NODE_ENV as
-          | "development"
-          | "staging"
-          | "production"
-          | "test") ?? "development");
+          "development" | "staging" | "production" | "test") ?? "development");
 
     const validator = createSecretValidator({
       environment,

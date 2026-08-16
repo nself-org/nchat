@@ -39,10 +39,7 @@ export interface ParsedWebhook {
 }
 
 export type SignatureAlgorithm =
-  | "sha256"
-  | "sha1"
-  | "hmac-sha256"
-  | "hmac-sha1";
+  "sha256" | "sha1" | "hmac-sha256" | "hmac-sha1";
 
 export interface SignatureConfig {
   algorithm: SignatureAlgorithm;

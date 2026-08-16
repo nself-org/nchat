@@ -90,12 +90,7 @@ export interface TwoFactorStatus {
 // ============================================================================
 
 export type OAuthProvider =
-  | "google"
-  | "github"
-  | "microsoft"
-  | "apple"
-  | "facebook"
-  | "twitter";
+  "google" | "github" | "microsoft" | "apple" | "facebook" | "twitter";
 
 export interface OAuthConfig {
   provider: OAuthProvider;

@@ -12,12 +12,7 @@ export type PaymentMethod = "card" | "crypto";
 export type CryptoNetwork = "ethereum" | "polygon" | "bsc" | "arbitrum";
 
 export type PaymentStatus =
-  | "pending"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled"
-  | "refunded";
+  "pending" | "processing" | "completed" | "failed" | "cancelled" | "refunded";
 
 export type SubscriptionStatus =
   | "active"

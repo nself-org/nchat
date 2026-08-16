@@ -19,11 +19,7 @@ import { logger } from "@/lib/logger";
  * Realtime connection state
  */
 export type RealtimeConnectionState =
-  | "disconnected"
-  | "connecting"
-  | "connected"
-  | "reconnecting"
-  | "error";
+  "disconnected" | "connecting" | "connected" | "reconnecting" | "error";
 
 /**
  * Realtime context type
