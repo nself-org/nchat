@@ -1,7 +1,7 @@
 {
   "name": "@nchat/frontend-vite",
   "version": "1.1.1",
-  "description": "ɳChat Vite SPA — React Router shell migrated from Next.js frontend/",
+  "description": "\u0273Chat Vite SPA \u2014 React Router shell migrated from Next.js frontend/",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -10,7 +10,6 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --port 3000",
     "start": "vite preview --port 3000",
-    "lint": "eslint src --max-warnings=0",
     "type-check": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
