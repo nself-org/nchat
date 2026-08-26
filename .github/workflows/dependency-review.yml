@@ -6,6 +6,7 @@ on:
     paths:
       - 'frontend/package.json'
       - 'pnpm-lock.yaml'
+      - '.github/workflows/dependency-review.yml'
 
 permissions:
   contents: read

@@ -195,6 +195,7 @@ jobs:
                 http:
                   paths:
                     - path: /
+                    - '.github/workflows/deploy-k8s.yml'
                       pathType: Prefix
                       backend:
                         service:
