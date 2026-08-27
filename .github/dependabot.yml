@@ -1,8 +1,22 @@
 version: 2
 updates:
-  # npm/pnpm dependencies
+  # npm/pnpm dependencies.
+  #
+  # directory MUST be the pnpm workspace root, not a member package.
+  # pnpm keeps one lockfile at the root for every workspace member. Pointed at
+  # '/frontend', Dependabot edited frontend/package.json and then looked for a
+  # lockfile beside it, found none, and left the root pnpm-lock.yaml untouched.
+  # CI installs with --frozen-lockfile, so every resulting PR died at the
+  # install step with ERR_PNPM_OUTDATED_LOCKFILE before a single gate ran:
+  #
+  #   Cannot install with "frozen-lockfile" because pnpm-lock.yaml
+  #   is not up to date with <ROOT>/frontend/package.json
+  #
+  # That made the PRs unmergeable by construction, not by regression. Six of
+  # them accumulated. From the root, Dependabot updates member manifests and
+  # regenerates the shared lockfile in the same commit.
   - package-ecosystem: 'npm'
-    directory: '/frontend'
+    directory: '/'
     schedule:
       interval: 'weekly'
       day: 'monday'
