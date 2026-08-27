@@ -155,13 +155,6 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: 'gradle'
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
@@ -178,6 +171,18 @@ jobs:
         run: |
           npx cap add android 2>/dev/null || true
           npx cap sync android
+
+      # setup-java's gradle cache keys off gradle-wrapper.properties / build.gradle
+      # files, which do not exist until Capacitor generates the native android/
+      # project above (it is gitignored, not committed) — so this step must run
+      # after "Add + Sync Capacitor Android", not before.
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+          cache-dependency-path: frontend/platforms/mobile/android/**/*.gradle*
 
       - name: Build Android (Debug)
         if: inputs.build_type == 'debug'
