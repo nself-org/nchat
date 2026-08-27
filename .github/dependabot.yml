@@ -1,4 +1,25 @@
 version: 2
+
+# Docker Hub credentials for the docker ecosystem.
+#
+# Dependabot pulls base-image tags through its own proxy, which hits Docker Hub
+# anonymously unless a registry is declared here. Anonymous pulls of
+# library/node are now refused outright:
+#   {"code":"UNAUTHORIZED","message":"authentication required",
+#    "detail":[{"Name":"library/node","Action":"pull"}]}
+# which failed the whole Dependabot run — and one errored ecosystem fails every
+# other ecosystem in that run with it.
+#
+# Secrets are set at the repo level under the "dependabot" app (they are a
+# separate store from Actions secrets; an Actions secret of the same name is
+# NOT visible here).
+registries:
+  dockerhub:
+    type: docker-registry
+    url: registry.hub.docker.com
+    username: ${{secrets.DOCKERHUB_USERNAME}}
+    password: ${{secrets.DOCKERHUB_TOKEN}}
+
 updates:
   # npm/pnpm dependencies.
   #
@@ -124,6 +145,8 @@ updates:
   # errored ecosystem fails the entire "Dependabot Updates" run.
   - package-ecosystem: 'docker'
     directory: '/.github/deploy/docker'
+    registries:
+      - dockerhub
     schedule:
       interval: 'weekly'
       day: 'monday'
