@@ -456,7 +456,7 @@ jobs:
       # files, which do not exist until Capacitor generates the native android/
       # project above (it is gitignored, not committed) — so this step must run
       # after "Sync Capacitor Android", not before.
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
