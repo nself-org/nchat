@@ -115,9 +115,15 @@ updates:
         patterns:
           - '*'
 
-  # Docker dependencies
+  # Docker dependencies.
+  #
+  # The Dockerfiles live under .github/deploy/docker/, not the repo root.
+  # Pointed at '/', every Dependabot run failed the whole job with
+  #   dependency_file_not_found: No Dockerfiles nor Kubernetes YAML found in /
+  # which took the npm and github-actions ecosystems down with it, since one
+  # errored ecosystem fails the entire "Dependabot Updates" run.
   - package-ecosystem: 'docker'
-    directory: '/'
+    directory: '/.github/deploy/docker'
     schedule:
       interval: 'weekly'
       day: 'monday'
