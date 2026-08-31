@@ -359,7 +359,7 @@ describe("UsageTracker", () => {
     it("should aggregate events for a period", async () => {
       const now = new Date();
       const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
       await tracker.recordUsage({
         organizationId: "org-1",
@@ -386,7 +386,7 @@ describe("UsageTracker", () => {
     it("should calculate event count", async () => {
       const now = new Date();
       const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
       await tracker.recordUsage({
         organizationId: "org-1",
@@ -412,7 +412,7 @@ describe("UsageTracker", () => {
     it("should calculate peak usage", async () => {
       const now = new Date();
       const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
       await tracker.recordUsage({
         organizationId: "org-1",
@@ -443,7 +443,7 @@ describe("UsageTracker", () => {
     it("should calculate billable usage after free tier", async () => {
       const now = new Date();
       const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
       // API calls has 1000 free tier allowance
       await tracker.recordUsage({
