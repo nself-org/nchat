@@ -66,9 +66,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web assets
+        # next build always runs with NODE_ENV=production internally, which
+        # trips the build gate in next.config.js (throws BUILD GATE FIRED
+        # without HASURA_ADMIN_SECRET set) — this workflow was the only
+        # nchat CI workflow running `pnpm build` without it (ci.yml,
+        # pr-checks.yml, lighthouse-ci.yml, accessibility.yml all already
+        # set the same CI placeholder). The app never connects to a real
+        # Hasura instance here; this only satisfies the gate check.
         run: pnpm build
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
 
       - name: Set Capacitor server.url (remote-hosted content mode)
         # Capacitor's webDir mode needs a locally bundled static dist/ dir,
@@ -186,9 +194,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web assets
+        # next build always runs with NODE_ENV=production internally, which
+        # trips the build gate in next.config.js (throws BUILD GATE FIRED
+        # without HASURA_ADMIN_SECRET set) — this workflow was the only
+        # nchat CI workflow running `pnpm build` without it (ci.yml,
+        # pr-checks.yml, lighthouse-ci.yml, accessibility.yml all already
+        # set the same CI placeholder). The app never connects to a real
+        # Hasura instance here; this only satisfies the gate check.
         run: pnpm build
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET || 'ci-placeholder-not-a-real-secret' }}
 
       - name: Set Capacitor server.url (remote-hosted content mode)
         # Capacitor's webDir mode needs a locally bundled static dist/ dir,
