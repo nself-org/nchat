@@ -102,6 +102,21 @@ jobs:
             console.log('server.url ->', process.env.SERVER_URL);
           "
 
+      - name: Create placeholder web assets (Capacitor requires webDir to exist)
+        # cap sync's asset-copy step is a soft no-op in server.url/remote-hosted
+        # mode (logs "not an error because server.url is set"), but it still
+        # needs the webDir to physically exist: the copy step is what creates
+        # android/app/src/main/assets/(public), and cap sync's own write of
+        # capacitor.config.json/capacitor.plugins.json into that same assets/
+        # dir fails with ENOENT when the dir was never created (confirmed live
+        # 2026-08-31, run 33403102433). A minimal placeholder index.html is
+        # never actually served at runtime (server.url wins), it only exists
+        # so the native assets directory chain gets created.
+        working-directory: frontend/platforms/mobile
+        run: |
+          mkdir -p dist
+          printf '%s' '<!doctype html><html><head><meta charset="utf-8"><title>nChat</title></head><body></body></html>' > dist/index.html
+
       - name: Add + Sync Capacitor iOS
         working-directory: frontend/platforms/mobile
         run: |
@@ -229,6 +244,21 @@ jobs:
             fs.writeFileSync(p, JSON.stringify(cfg, null, 2) + '\n');
             console.log('server.url ->', process.env.SERVER_URL);
           "
+
+      - name: Create placeholder web assets (Capacitor requires webDir to exist)
+        # cap sync's asset-copy step is a soft no-op in server.url/remote-hosted
+        # mode (logs "not an error because server.url is set"), but it still
+        # needs the webDir to physically exist: the copy step is what creates
+        # android/app/src/main/assets/(public), and cap sync's own write of
+        # capacitor.config.json/capacitor.plugins.json into that same assets/
+        # dir fails with ENOENT when the dir was never created (confirmed live
+        # 2026-08-31, run 33403102433). A minimal placeholder index.html is
+        # never actually served at runtime (server.url wins), it only exists
+        # so the native assets directory chain gets created.
+        working-directory: frontend/platforms/mobile
+        run: |
+          mkdir -p dist
+          printf '%s' '<!doctype html><html><head><meta charset="utf-8"><title>nChat</title></head><body></body></html>' > dist/index.html
 
       - name: Add + Sync Capacitor Android
         working-directory: frontend/platforms/mobile
