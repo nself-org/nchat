@@ -70,6 +70,30 @@ jobs:
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
 
+      - name: Set Capacitor server.url (remote-hosted content mode)
+        # Capacitor's webDir mode needs a locally bundled static dist/ dir,
+        # which this repo's Next.js build never produces (server mode emits
+        # .next/, standalone mode emits .next/standalone + .next/static —
+        # neither is a dist/). Static export is ruled out: frontend/src/app/api/
+        # has server-only API routes next export cannot support. nchat also
+        # requires a live Hasura + Nhost Auth backend for any real screen
+        # (see nchat PRI "Dual Auth"), so a fully offline bundle could never
+        # authenticate anyway. The correct Capacitor mode here is
+        # remote-hosted content: point server.url at the deployed origin so
+        # the native shell is a thin WebView, matching the environment
+        # ternary already used at .github/workflows/deploy-k8s.yml:191,194.
+        env:
+          SERVER_URL: ${{ inputs.build_type == 'release' && 'https://chat.nself.org' || 'https://chat-staging.nself.org' }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            const p = 'platforms/mobile/capacitor.config.json';
+            const cfg = JSON.parse(fs.readFileSync(p, 'utf8'));
+            cfg.server = Object.assign({}, cfg.server, { url: process.env.SERVER_URL, cleartext: false });
+            fs.writeFileSync(p, JSON.stringify(cfg, null, 2) + '\n');
+            console.log('server.url ->', process.env.SERVER_URL);
+          "
+
       - name: Add + Sync Capacitor iOS
         working-directory: frontend/platforms/mobile
         run: |
@@ -165,6 +189,30 @@ jobs:
         run: pnpm build
         env:
           NEXT_PUBLIC_USE_DEV_AUTH: 'false'
+
+      - name: Set Capacitor server.url (remote-hosted content mode)
+        # Capacitor's webDir mode needs a locally bundled static dist/ dir,
+        # which this repo's Next.js build never produces (server mode emits
+        # .next/, standalone mode emits .next/standalone + .next/static —
+        # neither is a dist/). Static export is ruled out: frontend/src/app/api/
+        # has server-only API routes next export cannot support. nchat also
+        # requires a live Hasura + Nhost Auth backend for any real screen
+        # (see nchat PRI "Dual Auth"), so a fully offline bundle could never
+        # authenticate anyway. The correct Capacitor mode here is
+        # remote-hosted content: point server.url at the deployed origin so
+        # the native shell is a thin WebView, matching the environment
+        # ternary already used at .github/workflows/deploy-k8s.yml:191,194.
+        env:
+          SERVER_URL: ${{ inputs.build_type == 'release' && 'https://chat.nself.org' || 'https://chat-staging.nself.org' }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            const p = 'platforms/mobile/capacitor.config.json';
+            const cfg = JSON.parse(fs.readFileSync(p, 'utf8'));
+            cfg.server = Object.assign({}, cfg.server, { url: process.env.SERVER_URL, cleartext: false });
+            fs.writeFileSync(p, JSON.stringify(cfg, null, 2) + '\n');
+            console.log('server.url ->', process.env.SERVER_URL);
+          "
 
       - name: Add + Sync Capacitor Android
         working-directory: frontend/platforms/mobile
