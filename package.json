@@ -76,7 +76,8 @@
       "brace-expansion@5": "5.0.9",
       "immutable@4": "4.3.9",
       "immutable@5": "5.1.8",
-      "deepmerge-ts@<8.0.0": ">=8.0.0"
+      "deepmerge-ts@<8.0.0": ">=8.0.0",
+      "browserslist@<4.28.7": "^4.28.7"
     },
     "patchedDependencies": {
       "@capacitor/cli@6.2.1": "patches/@capacitor__cli@6.2.1.patch"
