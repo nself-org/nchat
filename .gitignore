@@ -274,3 +274,5 @@ READY.md
 .codeium/
 .claude/
 desktop/src-tauri/target/
+*.generated.env
+**/*.gen.yml
