@@ -1,7 +1,7 @@
 {
   "name": "@nchat/frontend-vite",
   "version": "1.1.1",
-  "description": "\u0273Chat Vite SPA \u2014 React Router shell migrated from Next.js frontend/",
+  "description": "ɳChat Vite SPA \u2014 React Router shell migrated from Next.js frontend/",
   "license": "MIT",
   "private": true,
   "type": "module",
