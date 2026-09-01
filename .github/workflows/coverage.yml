@@ -6,8 +6,16 @@ name: Coverage Gate (nchat)
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.github/wiki/**'
+      - 'docs/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.github/wiki/**'
+      - 'docs/**'
 
 env:
   COVERAGE_FLOOR: 30

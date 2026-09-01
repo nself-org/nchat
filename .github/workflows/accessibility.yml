@@ -3,8 +3,16 @@ name: Accessibility Tests
 on:
   push:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - '.github/wiki/**'
+      - 'docs/**'
   pull_request:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - '.github/wiki/**'
+      - 'docs/**'
   workflow_dispatch:
 
 concurrency:
