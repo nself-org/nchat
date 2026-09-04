@@ -8,6 +8,7 @@ import { useApolloClient } from "@apollo/client";
 import { getE2EEManager, type E2EEStatus } from "@/lib/e2ee";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "./use-toast";
+import { getErrorMessage } from "@/lib/utils/error";
 
 export interface UseE2EEReturn {
   // Status
@@ -93,8 +94,8 @@ export function useE2EE(): UseE2EEReturn {
             variant: "default",
           });
         }
-      } catch (err: any) {
-        const errorMessage = err.message || "Failed to initialize E2EE";
+      } catch (err) {
+        const errorMessage = getErrorMessage(err) || "Failed to initialize E2EE";
         setError(errorMessage);
 
         toast({
@@ -125,8 +126,8 @@ export function useE2EE(): UseE2EEReturn {
           title: "E2EE Recovered",
           description: "Your encryption keys have been recovered",
         });
-      } catch (err: any) {
-        const errorMessage = err.message || "Failed to recover E2EE";
+      } catch (err) {
+        const errorMessage = getErrorMessage(err) || "Failed to recover E2EE";
         setError(errorMessage);
 
         toast({
@@ -163,8 +164,8 @@ export function useE2EE(): UseE2EEReturn {
           recipientDeviceId,
         );
         return result.encryptedPayload;
-      } catch (err: any) {
-        const errorMessage = err.message || "Failed to encrypt message";
+      } catch (err) {
+        const errorMessage = getErrorMessage(err) || "Failed to encrypt message";
         setError(errorMessage);
 
         toast({
@@ -194,8 +195,8 @@ export function useE2EE(): UseE2EEReturn {
           senderUserId,
           senderDeviceId,
         );
-      } catch (err: any) {
-        const errorMessage = err.message || "Failed to decrypt message";
+      } catch (err) {
+        const errorMessage = getErrorMessage(err) || "Failed to decrypt message";
         setError(errorMessage);
 
         toast({
@@ -221,10 +222,10 @@ export function useE2EE(): UseE2EEReturn {
         title: "Keys Rotated",
         description: "Signed prekey has been rotated",
       });
-    } catch (err: any) {
+    } catch (err) {
       toast({
         title: "Key Rotation Failed",
-        description: err.message,
+        description: getErrorMessage(err),
         variant: "destructive",
       });
 
@@ -246,10 +247,10 @@ export function useE2EE(): UseE2EEReturn {
           title: "Keys Replenished",
           description: `Generated ${count} new one-time prekeys`,
         });
-      } catch (err: any) {
+      } catch (err) {
         toast({
           title: "Key Replenishment Failed",
-          description: err.message,
+          description: getErrorMessage(err),
           variant: "destructive",
         });
 

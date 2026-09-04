@@ -14,6 +14,7 @@ import { Pool } from 'pg'
 import fs from 'fs'
 import path from 'path'
 import { performance } from 'perf_hooks'
+import { getErrorMessage } from "../src/lib/utils/error";
 
 interface MigrationTest {
   name: string
@@ -192,8 +193,8 @@ class MigrationTester {
       `)
 
       console.log(`✓ Created snapshot: ${name}`)
-    } catch (error: any) {
-      console.error(`✗ Failed to create snapshot ${name}:`, error.message)
+    } catch (error) {
+      console.error(`✗ Failed to create snapshot ${name}:`, getErrorMessage(error))
       throw error
     }
   }
@@ -231,14 +232,14 @@ class MigrationTester {
       this.results.push(result)
       return result
 
-    } catch (error: any) {
+    } catch (error) {
       const duration = performance.now() - startTime
       const result: TestResult = {
         migration: migration.name,
         phase: 'forward',
         success: false,
         duration,
-        error: error.message,
+        error: getErrorMessage(error),
       }
 
       this.results.push(result)
@@ -289,14 +290,14 @@ class MigrationTester {
       this.results.push(result)
       return result
 
-    } catch (error: any) {
+    } catch (error) {
       const duration = performance.now() - startTime
       const result: TestResult = {
         migration: migration.name,
         phase: 'rollback',
         success: false,
         duration,
-        error: error.message,
+        error: getErrorMessage(error),
       }
 
       this.results.push(result)
@@ -474,14 +475,14 @@ class MigrationTester {
       this.results.push(result)
       return result
 
-    } catch (error: any) {
+    } catch (error) {
       const duration = performance.now() - startTime
       const result: TestResult = {
         migration: migration.name,
         phase: 'data-integrity',
         success: false,
         duration,
-        error: error.message,
+        error: getErrorMessage(error),
       }
 
       this.results.push(result)
@@ -593,14 +594,14 @@ class MigrationTester {
       this.results.push(result)
       return result
 
-    } catch (error: any) {
+    } catch (error) {
       const duration = performance.now() - startTime
       const result: TestResult = {
         migration: migration.name,
         phase: 'performance',
         success: false,
         duration,
-        error: error.message,
+        error: getErrorMessage(error),
       }
 
       this.results.push(result)
@@ -679,8 +680,8 @@ class MigrationTester {
     try {
       await this.pool.query('DROP SCHEMA IF EXISTS migration_snapshots CASCADE')
       console.log('✓ Cleaned up test artifacts')
-    } catch (error: any) {
-      console.error('✗ Cleanup failed:', error.message)
+    } catch (error) {
+      console.error('✗ Cleanup failed:', getErrorMessage(error))
     }
 
     await this.pool.end()
@@ -741,9 +742,11 @@ async function main() {
     fs.writeFileSync(reportPath, report)
     console.log(`\n✓ Report saved to: ${reportPath}`)
 
-  } catch (error: any) {
-    console.error('\n✗ Test failed:', error.message)
-    console.error(error.stack)
+  } catch (error) {
+    console.error('\n✗ Test failed:', getErrorMessage(error))
+    if (error instanceof Error) {
+      console.error(error.stack)
+    }
     process.exit(1)
   } finally {
     await tester.cleanup()

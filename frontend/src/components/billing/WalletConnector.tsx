@@ -32,6 +32,7 @@ import {
 } from "@/lib/crypto/wallet-connector";
 import type { CryptoNetwork } from "@/types/billing";
 import { CRYPTO_NETWORKS } from "@/config/billing-plans";
+import { getErrorMessage } from "@/lib/utils/error";
 
 interface WalletConnectorProps {
   onConnect?: (info: WalletInfo) => void;
@@ -125,8 +126,8 @@ export function WalletConnector({
       } else {
         setError(result.error || "Failed to connect wallet");
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to connect wallet");
+    } catch (err) {
+      setError(getErrorMessage(err) || "Failed to connect wallet");
     } finally {
       setIsConnecting(false);
     }

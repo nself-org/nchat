@@ -7,6 +7,7 @@
  */
 
 import { Pool } from 'pg'
+import { getErrorMessage } from "../src/lib/utils/error";
 
 const connectionString = process.env.DATABASE_URL ||
   'postgresql://postgres:postgres@localhost:5432/nself_production'
@@ -92,8 +93,8 @@ async function verifyIntegrity() {
 
     process.exit(0)
 
-  } catch (error: any) {
-    console.error('\n✗ Integrity check failed:', error.message)
+  } catch (error) {
+    console.error('\n✗ Integrity check failed:', getErrorMessage(error))
     process.exit(1)
   } finally {
     await pool.end()

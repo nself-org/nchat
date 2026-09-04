@@ -14,6 +14,7 @@ import type {
   TokenRequirement,
 } from "@/types/billing";
 import { CRYPTO_NETWORKS } from "@/config/billing-plans";
+import { getErrorMessage } from "@/lib/utils/error";
 
 export interface VerificationResult {
   verified: boolean;
@@ -321,10 +322,10 @@ export async function verifyERC20Balance(
 
     setCacheResult(cacheKey, result);
     return result;
-  } catch (error: any) {
+  } catch (error) {
     return {
       verified: false,
-      error: error.message || "Failed to verify ERC-20 balance",
+      error: getErrorMessage(error) || "Failed to verify ERC-20 balance",
     };
   }
 }
@@ -456,10 +457,10 @@ async function verifyERC721ViaRPC(
       balance,
       source: "rpc",
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       verified: false,
-      error: error.message || "Failed to verify ERC-721 ownership",
+      error: getErrorMessage(error) || "Failed to verify ERC-721 ownership",
     };
   }
 }
@@ -612,10 +613,10 @@ async function verifyERC1155ViaRPC(
       tokenIds: ownedTokenIds,
       source: "rpc",
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       verified: false,
-      error: error.message || "Failed to verify ERC-1155 ownership",
+      error: getErrorMessage(error) || "Failed to verify ERC-1155 ownership",
     };
   }
 }
@@ -932,10 +933,10 @@ export async function verifyOwnershipViaAPI(
       tokenIds,
       source: "alchemy",
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       verified: false,
-      error: error.message || "API verification failed",
+      error: getErrorMessage(error) || "API verification failed",
     };
   }
 }
