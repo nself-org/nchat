@@ -15,8 +15,49 @@ interface BatchedQuery {
   id: string;
   query: DocumentNode;
   variables?: Record<string, any>;
+  // The queue holds pending queries of heterogeneous result types (each
+  // `query<T>()` call has its own T), so `resolve` can't be `(data: T) =>
+  // void` for one shared T, and `unknown` doesn't work either — a
+  // `Promise<T>`'s own `resolve` is contravariant in T, so it can't accept
+  // an arbitrary `unknown` value. `any` here is the correct escape hatch for
+  // this generic-erasure case, not an unreviewed placeholder.
   resolve: (data: any) => void;
-  reject: (error: any) => void;
+  reject: (error: unknown) => void;
+}
+
+/** Raw row shape for the `createUserLoader` GraphQL selection set below. */
+interface UserLoaderRow {
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_url?: string;
+  role: string;
+  presence?: unknown;
+  created_at: string;
+}
+
+/** Raw row shape for the `createChannelLoader` GraphQL selection set below. */
+interface ChannelLoaderRow {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  type: string;
+  is_archived: boolean;
+  member_count: number;
+  created_at: string;
+}
+
+/** Raw row shape for the `createMessageLoader` GraphQL selection set below. */
+interface MessageLoaderRow {
+  id: string;
+  content: string;
+  type: string;
+  channel_id: string;
+  user_id: string;
+  created_at: string;
+  is_edited: boolean;
+  reactions?: unknown;
 }
 
 interface DataLoaderOptions {
@@ -128,7 +169,7 @@ export class DataLoader<K, V> {
   private queue: Array<{
     key: K;
     resolve: (value: V) => void;
-    reject: (error: any) => void;
+    reject: (error: unknown) => void;
   }> = [];
   private cache = new Map<string, { value: V; timestamp: number }>();
   private batchTimer: NodeJS.Timeout | null = null;
@@ -289,7 +330,7 @@ export function createUserLoader(client: ApolloClient<any>) {
       });
 
       // Map results back to input order
-      const userMap = new Map(data.nchat_users.map((u: any) => [u.id, u]));
+      const userMap = new Map(data.nchat_users.map((u: UserLoaderRow) => [u.id, u]));
       return userIds.map((id) => userMap.get(id) || null);
     },
     { cacheTTL: 30000 }, // 30 seconds
@@ -321,7 +362,7 @@ export function createChannelLoader(client: ApolloClient<any>) {
       });
 
       const channelMap = new Map(
-        data.nchat_channels.map((c: any) => [c.id, c]),
+        data.nchat_channels.map((c: ChannelLoaderRow) => [c.id, c]),
       );
       return channelIds.map((id) => channelMap.get(id) || null);
     },
@@ -354,7 +395,7 @@ export function createMessageLoader(client: ApolloClient<any>) {
       });
 
       const messageMap = new Map(
-        data.nchat_messages.map((m: any) => [m.id, m]),
+        data.nchat_messages.map((m: MessageLoaderRow) => [m.id, m]),
       );
       return messageIds.map((id) => messageMap.get(id) || null);
     },

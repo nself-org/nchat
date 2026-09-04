@@ -8,6 +8,25 @@ import type { SocialPost, SocialAPIClient, OAuthConfig } from "./types";
 const TWITTER_API_BASE = "https://api.twitter.com/2";
 const TWITTER_AUTH_BASE = "https://twitter.com/i/oauth2";
 
+/** Twitter API v2 tweet object (only the fields this client reads). */
+interface TwitterApiTweet {
+  id: string;
+  text: string;
+  author_id: string;
+  created_at?: string;
+  attachments?: { media_keys?: string[] };
+  entities?: {
+    hashtags?: Array<{ tag: string }>;
+    mentions?: Array<{ username: string }>;
+  };
+  public_metrics?: {
+    like_count?: number;
+    retweet_count?: number;
+    reply_count?: number;
+    impression_count?: number;
+  };
+}
+
 export class TwitterClient implements SocialAPIClient {
   private config: OAuthConfig;
 
@@ -210,11 +229,11 @@ export class TwitterClient implements SocialAPIClient {
       }
     }
 
-    return data.data.map((tweet: any) => {
+    return data.data.map((tweet: TwitterApiTweet) => {
       const author = userMap.get(tweet.author_id) || {};
-      const hashtags = tweet.entities?.hashtags?.map((h: any) => h.tag) || [];
+      const hashtags = tweet.entities?.hashtags?.map((h) => h.tag) || [];
       const mentions =
-        tweet.entities?.mentions?.map((m: any) => m.username) || [];
+        tweet.entities?.mentions?.map((m) => m.username) || [];
 
       // Get media
       const mediaUrls: string[] = [];

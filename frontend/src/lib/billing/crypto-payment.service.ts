@@ -90,6 +90,62 @@ export interface ExchangeRate {
   updatedAt: Date;
 }
 
+/** Raw response shape from blockchain.info's `rawtx` endpoint (fields actually read). */
+interface BlockchainInfoTx {
+  out?: Array<{ addr?: string }>;
+  inputs?: Array<{ prev_out?: { addr?: string } }>;
+  block_height?: number;
+  confirmations?: number;
+}
+
+/** Raw Bitcoin transaction shape from Blockstream.info's `/api/tx/:txid` endpoint. */
+interface BlockstreamBtcTx {
+  vout?: Array<{ scriptpubkey_address?: string }>;
+  vin?: Array<{ prevout?: { scriptpubkey_address?: string } }>;
+  status?: { block_height?: number; confirmed?: boolean };
+}
+
+/** Raw `public.crypto_payments` row shape as returned by `pg`. */
+interface CryptoPaymentRow {
+  id: string;
+  workspace_id: string;
+  subscription_id?: string;
+  invoice_id?: string;
+  user_id: string;
+  provider: CryptoProvider;
+  provider_payment_id?: string;
+  crypto_currency: CryptoCurrency;
+  crypto_amount: string;
+  crypto_network: CryptoNetwork;
+  fiat_amount: number;
+  fiat_currency: string;
+  exchange_rate: string;
+  transaction_hash?: string;
+  from_address?: string;
+  to_address?: string;
+  block_number?: string;
+  confirmations?: number;
+  status: CryptoPaymentStatus;
+  payment_url?: string;
+  expires_at?: string;
+  completed_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Coinbase Commerce `charge` object as embedded in webhook `event.data`. */
+interface CoinbaseCharge {
+  id: string;
+  confirmations?: number;
+  reason?: string;
+}
+
+/** Coinbase Commerce webhook event envelope (fields actually read by this service). */
+interface CoinbaseWebhookEvent {
+  type: string;
+  data: CoinbaseCharge;
+}
+
 // ============================================================================
 // Crypto Payment Service
 // ============================================================================
@@ -753,11 +809,11 @@ export class CryptoPaymentService {
         return this.parseBlockstreamBtcTx(blockstreamData, toAddress);
       }
 
-      const data = await response.json();
+      const data: BlockchainInfoTx = await response.json();
 
       // Find output matching our address
       const matchingOutput = data.out?.find(
-        (output: any) => output.addr === toAddress,
+        (output) => output.addr === toAddress,
       );
 
       if (!matchingOutput) {
@@ -786,7 +842,7 @@ export class CryptoPaymentService {
    * Parse Blockstream.info Bitcoin transaction response
    */
   private parseBlockstreamBtcTx(
-    tx: any,
+    tx: BlockstreamBtcTx,
     toAddress: string,
   ): {
     success: boolean;
@@ -797,7 +853,7 @@ export class CryptoPaymentService {
   } {
     // Find output matching our address
     const matchingOutput = tx.vout?.find(
-      (output: any) => output.scriptpubkey_address === toAddress,
+      (output) => output.scriptpubkey_address === toAddress,
     );
 
     if (!matchingOutput) {
@@ -952,7 +1008,7 @@ export class CryptoPaymentService {
   /**
    * Map database row to CryptoPayment
    */
-  private mapRowToPayment(row: any): CryptoPayment {
+  private mapRowToPayment(row: CryptoPaymentRow): CryptoPayment {
     return {
       id: row.id,
       workspaceId: row.workspace_id,
@@ -984,7 +1040,7 @@ export class CryptoPaymentService {
   /**
    * Process webhook from payment provider
    */
-  async processWebhook(provider: CryptoProvider, event: any): Promise<void> {
+  async processWebhook(provider: CryptoProvider, event: CoinbaseWebhookEvent): Promise<void> {
     switch (provider) {
       case "coinbase_commerce":
         await this.processCoinbaseWebhook(event);
@@ -998,7 +1054,7 @@ export class CryptoPaymentService {
   /**
    * Process Coinbase Commerce webhook
    */
-  private async processCoinbaseWebhook(event: any): Promise<void> {
+  private async processCoinbaseWebhook(event: CoinbaseWebhookEvent): Promise<void> {
     // Handle different event types
     switch (event.type) {
       case "charge:confirmed":
@@ -1021,7 +1077,7 @@ export class CryptoPaymentService {
   /**
    * Handle payment confirmed
    */
-  private async handlePaymentConfirmed(charge: any): Promise<void> {
+  private async handlePaymentConfirmed(charge: CoinbaseCharge): Promise<void> {
     try {
       const { Pool } = await import("pg");
       const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -1063,7 +1119,7 @@ export class CryptoPaymentService {
   /**
    * Handle payment failed
    */
-  private async handlePaymentFailed(charge: any): Promise<void> {
+  private async handlePaymentFailed(charge: CoinbaseCharge): Promise<void> {
     try {
       const { Pool } = await import("pg");
       const pool = new Pool({ connectionString: process.env.DATABASE_URL });

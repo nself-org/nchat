@@ -57,7 +57,7 @@ const DEFAULT_CONFIG: Required<Omit<WebSocketConfig, "url" | "auth">> = {
 
 interface QueuedMessage {
   event: string;
-  data: any;
+  data: unknown;
   timestamp: number;
 }
 
@@ -74,7 +74,7 @@ class MessageBatcher {
     this.maxSize = maxSize;
   }
 
-  enqueue(event: string, data: any): void {
+  enqueue(event: string, data: unknown): void {
     this.queue.push({
       event,
       data,
@@ -337,7 +337,7 @@ export class OptimizedWebSocket {
   // Message Sending
   // ============================================================================
 
-  emit(event: string, data: any): void {
+  emit(event: string, data: unknown): void {
     const socket = this.connectionPool
       ? this.connectionPool.getConnection().socket
       : this.socket;
@@ -356,7 +356,7 @@ export class OptimizedWebSocket {
     }
   }
 
-  emitImmediate(event: string, data: any): void {
+  emitImmediate(event: string, data: unknown): void {
     const socket = this.connectionPool
       ? this.connectionPool.getConnection().socket
       : this.socket;
@@ -415,7 +415,7 @@ export class OptimizedWebSocket {
     }
   }
 
-  private triggerEvent(event: string, data: any): void {
+  private triggerEvent(event: string, data: unknown): void {
     const handlers = this.eventHandlers.get(event);
     if (handlers) {
       handlers.forEach((handler) => handler(data));
@@ -459,7 +459,7 @@ export class OptimizedWebSocket {
     connected: boolean;
     latency: number;
     queueSize: number;
-    poolStats?: any;
+    poolStats?: { totalConnections: number; connectedCount: number; averageLatency: number };
   } {
     return {
       connected: this.isConnected(),
@@ -475,7 +475,7 @@ export class OptimizedWebSocket {
 
   updateAuth(auth: WebSocketConfig["auth"]): void {
     if (this.socket && auth) {
-      this.socket.auth = auth as { [key: string]: any };
+      this.socket.auth = auth as { [key: string]: unknown };
       // Reconnect with new auth
       this.socket.disconnect().connect();
     }
