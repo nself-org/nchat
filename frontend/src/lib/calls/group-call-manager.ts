@@ -232,7 +232,10 @@ export class GroupCallManager {
     this.sendTransport.on(
       "produce",
       async (
-        { kind, rtpParameters }: { kind: types.MediaKind; rtpParameters: types.RtpParameters },
+        {
+          kind,
+          rtpParameters,
+        }: { kind: types.MediaKind; rtpParameters: types.RtpParameters },
         callback: (params: { id: string }) => void,
         errback: (error: Error) => void,
       ) => {
@@ -269,7 +272,9 @@ export class GroupCallManager {
   /**
    * Request transport from SFU server
    */
-  private async requestTransport(direction: "send" | "recv"): Promise<types.TransportOptions> {
+  private async requestTransport(
+    direction: "send" | "recv",
+  ): Promise<types.TransportOptions> {
     try {
       const response = await fetch(`${this.config.sfuUrl}/transport/create`, {
         method: "POST",

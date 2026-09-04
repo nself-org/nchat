@@ -554,7 +554,9 @@ export class CallManager extends EventEmitter {
     }
   }
 
-  private async handleIceCandidate(payload: CallIceCandidatePayload): Promise<void> {
+  private async handleIceCandidate(
+    payload: CallIceCandidatePayload,
+  ): Promise<void> {
     if (!this.peerConnection) return;
 
     try {

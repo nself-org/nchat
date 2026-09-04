@@ -525,7 +525,10 @@ export class SearchFilterBuilder {
   /**
    * Build complete SQL query
    */
-  buildQuery(schema: string = "nchat"): { sql: string; params: SearchParamValue[] } {
+  buildQuery(schema: string = "nchat"): {
+    sql: string;
+    params: SearchParamValue[];
+  } {
     const where = this.buildWhereClause(schema);
     const orderBy = this.buildOrderByClause();
     const pagination = this.buildPaginationClause();

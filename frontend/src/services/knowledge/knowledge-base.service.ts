@@ -1254,7 +1254,9 @@ export class KnowledgeBaseService {
       }
       // Plugin returns { id }; get full list to find new entry
       const listJson = await kbFetch("/api/v1/faqs");
-      const raw = (listJson.data ?? []).find((f: PluginFaqRaw) => f.id === json.id);
+      const raw = (listJson.data ?? []).find(
+        (f: PluginFaqRaw) => f.id === json.id,
+      );
       const faq = raw
         ? pluginFaqToEntry(raw)
         : pluginFaqToEntry({
@@ -1306,7 +1308,8 @@ export class KnowledgeBaseService {
     try {
       // Plugin has no by-id GET for FAQs; list and filter
       const json = await kbFetch("/api/v1/faqs");
-      const raw = (json.data ?? []).find((f: PluginFaqRaw) => f.id === id) ?? null;
+      const raw =
+        (json.data ?? []).find((f: PluginFaqRaw) => f.id === id) ?? null;
       return { success: true, data: raw ? pluginFaqToEntry(raw) : null };
     } catch (error) {
       log.error("Failed to get FAQ", error);

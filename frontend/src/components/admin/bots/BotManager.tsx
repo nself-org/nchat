@@ -180,7 +180,10 @@ export function BotManager({
 
   // Status badge
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: BadgeProps["variant"]; icon: LucideIcon }> = {
+    const variants: Record<
+      string,
+      { variant: BadgeProps["variant"]; icon: LucideIcon }
+    > = {
       online: { variant: "default", icon: CheckCircle },
       offline: { variant: "secondary", icon: PowerOff },
       maintenance: { variant: "outline", icon: Clock },

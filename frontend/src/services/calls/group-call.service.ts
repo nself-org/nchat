@@ -1758,7 +1758,9 @@ export class GroupCallService extends EventEmitter {
     await pc.setRemoteDescription(payload.sdp);
   }
 
-  private async handleIceCandidate(payload: CallIceCandidatePayload): Promise<void> {
+  private async handleIceCandidate(
+    payload: CallIceCandidatePayload,
+  ): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc) return;
 

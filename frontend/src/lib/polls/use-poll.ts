@@ -151,7 +151,9 @@ export function usePoll(pollId: string | undefined): UsePollResult {
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       if (data?.nchat_poll_votes && pollId) {
-        const optionIds = data.nchat_poll_votes.map((v: { option_id: string }) => v.option_id);
+        const optionIds = data.nchat_poll_votes.map(
+          (v: { option_id: string }) => v.option_id,
+        );
         store.setUserVotes(pollId, optionIds);
       }
     },

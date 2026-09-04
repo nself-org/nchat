@@ -145,7 +145,9 @@ describe("CI Pipeline Configuration", () => {
     it("should have test job with jest runner", () => {
       // CI runs without coverage (--no-coverage) to avoid OOM; coverage is in test.yml
       const test = ciWorkflow.jobs.test;
-      const testStep = test.steps.find((s: GitHubActionsStep) => s.name === "Run tests")!;
+      const testStep = test.steps.find(
+        (s: GitHubActionsStep) => s.name === "Run tests",
+      )!;
       expect(testStep).toBeDefined();
       expect(testStep.run).toContain("jest");
     });
@@ -277,7 +279,9 @@ describe("CI Pipeline Configuration", () => {
 
     it("pr-checks.yml should have backend filter", () => {
       const changes = prChecksWorkflow.jobs.changes;
-      const filterStep = changes.steps.find((s: GitHubActionsStep) => s.id === "changes")!;
+      const filterStep = changes.steps.find(
+        (s: GitHubActionsStep) => s.id === "changes",
+      )!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("backend:");
@@ -286,7 +290,9 @@ describe("CI Pipeline Configuration", () => {
 
     it("pr-checks.yml should have frontend filter", () => {
       const changes = prChecksWorkflow.jobs.changes;
-      const filterStep = changes.steps.find((s: GitHubActionsStep) => s.id === "changes")!;
+      const filterStep = changes.steps.find(
+        (s: GitHubActionsStep) => s.id === "changes",
+      )!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("frontend:");
@@ -295,7 +301,9 @@ describe("CI Pipeline Configuration", () => {
 
     it("pr-checks.yml should have packages filter", () => {
       const changes = prChecksWorkflow.jobs.changes;
-      const filterStep = changes.steps.find((s: GitHubActionsStep) => s.id === "changes")!;
+      const filterStep = changes.steps.find(
+        (s: GitHubActionsStep) => s.id === "changes",
+      )!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("packages:");
@@ -363,7 +371,9 @@ describe("CI Pipeline Configuration", () => {
   describe("Quality Gate Enforcement", () => {
     it("should run lint with correct command", () => {
       const lint = ciWorkflow.jobs.lint;
-      const lintStep = lint.steps.find((s: GitHubActionsStep) => s.name === "Run ESLint")!;
+      const lintStep = lint.steps.find(
+        (s: GitHubActionsStep) => s.name === "Run ESLint",
+      )!;
       expect(lintStep).toBeDefined();
       expect(lintStep.run).toBe(
         "HASURA_ADMIN_SECRET=ci-lint-placeholder-not-a-real-secret pnpm lint",
@@ -391,7 +401,9 @@ describe("CI Pipeline Configuration", () => {
     it("should run tests with jest", () => {
       // CI uses --no-coverage to avoid OOM; coverage is collected in test.yml
       const test = ciWorkflow.jobs.test;
-      const testStep = test.steps.find((s: GitHubActionsStep) => s.name === "Run tests")!;
+      const testStep = test.steps.find(
+        (s: GitHubActionsStep) => s.name === "Run tests",
+      )!;
       expect(testStep).toBeDefined();
       expect(testStep.run).toContain("jest");
     });

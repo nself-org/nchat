@@ -4,7 +4,11 @@
  * and imports them to configured channels
  */
 
-import { gql, type ApolloClient, type NormalizedCacheObject } from "@apollo/client";
+import {
+  gql,
+  type ApolloClient,
+  type NormalizedCacheObject,
+} from "@apollo/client";
 import { TwitterClient } from "./twitter-client";
 import { InstagramClient } from "./instagram-client";
 import { LinkedInClient } from "./linkedin-client";
@@ -247,10 +251,7 @@ const GET_SOCIAL_ACCOUNT = gql`
 const GET_ACCOUNT_INTEGRATIONS = gql`
   query GetAccountIntegrations($accountId: uuid!) {
     nchat_social_integrations(
-      where: {
-        account_id: { _eq: $accountId }
-        auto_post: { _eq: true }
-      }
+      where: { account_id: { _eq: $accountId }, auto_post: { _eq: true } }
     ) {
       id
       channel_id

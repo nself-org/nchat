@@ -785,7 +785,9 @@ export class OneToOneCallService extends EventEmitter {
     await this.peerConnection.setRemoteDescription(payload.sdp);
   }
 
-  private async handleIceCandidate(payload: CallIceCandidatePayload): Promise<void> {
+  private async handleIceCandidate(
+    payload: CallIceCandidatePayload,
+  ): Promise<void> {
     if (!this.peerConnection || this.currentCall?.id !== payload.callId) return;
 
     await this.peerConnection.addIceCandidate(payload.candidate);
@@ -858,14 +860,20 @@ export class OneToOneCallService extends EventEmitter {
     }
   }
 
-  private handleRemoteScreenShareStart(payload: { callId: string; userId: string }): void {
+  private handleRemoteScreenShareStart(payload: {
+    callId: string;
+    userId: string;
+  }): void {
     if (this.currentCall?.remoteParticipant) {
       this.currentCall.remoteParticipant.isScreenSharing = true;
       this.emit("remote-screen-share-start", { userId: payload.userId });
     }
   }
 
-  private handleRemoteScreenShareStop(payload: { callId: string; userId: string }): void {
+  private handleRemoteScreenShareStop(payload: {
+    callId: string;
+    userId: string;
+  }): void {
     if (this.currentCall?.remoteParticipant) {
       this.currentCall.remoteParticipant.isScreenSharing = false;
       this.emit("remote-screen-share-stop", { userId: payload.userId });

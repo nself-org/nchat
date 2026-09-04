@@ -162,7 +162,8 @@ export function useSafetyNumbers(): UseSafetyNumbersReturn {
         setSafetyNumber(result);
         return result;
       } catch (err) {
-        const errorMessage = getErrorMessage(err) || "Failed to generate safety number";
+        const errorMessage =
+          getErrorMessage(err) || "Failed to generate safety number";
         setError(errorMessage);
 
         toast({

@@ -232,8 +232,7 @@ export class TwitterClient implements SocialAPIClient {
     return data.data.map((tweet: TwitterApiTweet) => {
       const author = userMap.get(tweet.author_id) || {};
       const hashtags = tweet.entities?.hashtags?.map((h) => h.tag) || [];
-      const mentions =
-        tweet.entities?.mentions?.map((m) => m.username) || [];
+      const mentions = tweet.entities?.mentions?.map((m) => m.username) || [];
 
       // Get media
       const mediaUrls: string[] = [];

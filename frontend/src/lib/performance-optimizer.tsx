@@ -311,7 +311,9 @@ export const LazyImage = memo(function LazyImage({
  * Deep comparison for useMemo and useCallback
  */
 export function useDeepMemo<T>(factory: () => T, deps: unknown[]): T {
-  const ref = React.useRef<{ deps: unknown[]; value: T } | undefined>(undefined);
+  const ref = React.useRef<{ deps: unknown[]; value: T } | undefined>(
+    undefined,
+  );
 
   if (
     !ref.current ||

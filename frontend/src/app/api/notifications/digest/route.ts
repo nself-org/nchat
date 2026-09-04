@@ -309,7 +309,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     const result = await executeGraphQL<{
-      nchat_notification_preferences: Array<{ metadata: NotificationPreferencesMetadata }>;
+      nchat_notification_preferences: Array<{
+        metadata: NotificationPreferencesMetadata;
+      }>;
     }>(GET_DIGEST_SETTINGS, { userId }, authToken);
 
     if (result.errors) {
@@ -365,7 +367,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Get digest settings
     const settingsResult = await executeGraphQL<{
-      nchat_notification_preferences: Array<{ metadata: NotificationPreferencesMetadata }>;
+      nchat_notification_preferences: Array<{
+        metadata: NotificationPreferencesMetadata;
+      }>;
     }>(GET_DIGEST_SETTINGS, { userId }, authToken);
 
     const prefs = settingsResult.data?.nchat_notification_preferences?.[0];

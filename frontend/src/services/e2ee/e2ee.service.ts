@@ -202,7 +202,8 @@ export class E2EEService {
   private preKeyManager: PreKeyBundleManager | null = null;
   private initialized = false;
   private lastSyncAt: Date | null = null;
-  private eventListeners: Map<string, Array<(event: unknown) => void>> = new Map();
+  private eventListeners: Map<string, Array<(event: unknown) => void>> =
+    new Map();
 
   constructor(config: E2EEServiceConfig) {
     this.config = {

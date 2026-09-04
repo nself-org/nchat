@@ -459,7 +459,11 @@ export class OptimizedWebSocket {
     connected: boolean;
     latency: number;
     queueSize: number;
-    poolStats?: { totalConnections: number; connectedCount: number; averageLatency: number };
+    poolStats?: {
+      totalConnections: number;
+      connectedCount: number;
+      averageLatency: number;
+    };
   } {
     return {
       connected: this.isConnected(),

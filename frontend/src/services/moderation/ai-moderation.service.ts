@@ -343,7 +343,9 @@ export class AIModerationService {
   ): number {
     // Simple average of non-zero scores
     const scores = results
-      .filter((r): r is Record<string, unknown> => r != null && typeof r === "object")
+      .filter(
+        (r): r is Record<string, unknown> => r != null && typeof r === "object",
+      )
       .map((r) => Number(r.confidence ?? r.score ?? 0))
       .filter((s) => s > 0);
 

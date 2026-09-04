@@ -95,7 +95,8 @@ export function useE2EE(): UseE2EEReturn {
           });
         }
       } catch (err) {
-        const errorMessage = getErrorMessage(err) || "Failed to initialize E2EE";
+        const errorMessage =
+          getErrorMessage(err) || "Failed to initialize E2EE";
         setError(errorMessage);
 
         toast({
@@ -165,7 +166,8 @@ export function useE2EE(): UseE2EEReturn {
         );
         return result.encryptedPayload;
       } catch (err) {
-        const errorMessage = getErrorMessage(err) || "Failed to encrypt message";
+        const errorMessage =
+          getErrorMessage(err) || "Failed to encrypt message";
         setError(errorMessage);
 
         toast({
@@ -196,7 +198,8 @@ export function useE2EE(): UseE2EEReturn {
           senderDeviceId,
         );
       } catch (err) {
-        const errorMessage = getErrorMessage(err) || "Failed to decrypt message";
+        const errorMessage =
+          getErrorMessage(err) || "Failed to decrypt message";
         setError(errorMessage);
 
         toast({

@@ -99,9 +99,12 @@ export class VoIPPushManager {
     });
 
     // Registration error
-    PushNotifications.addListener("registrationError", (error: PushRegistrationErrorEvent) => {
-      logger.error("Push registration error:", error);
-    });
+    PushNotifications.addListener(
+      "registrationError",
+      (error: PushRegistrationErrorEvent) => {
+        logger.error("Push registration error:", error);
+      },
+    );
 
     // Push notification received
     PushNotifications.addListener(

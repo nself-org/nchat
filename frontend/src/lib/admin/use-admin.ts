@@ -217,23 +217,25 @@ export function useAdminUsers() {
     },
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
-      const transformedUsers: AdminUser[] = data.nchat_users.map((u: AdminUserRow) => ({
-        id: u.id,
-        username: u.username,
-        displayName: u.display_name,
-        email: u.email,
-        avatarUrl: u.avatar_url,
-        role: u.role,
-        isActive: u.is_active,
-        isBanned: u.is_banned,
-        bannedAt: u.banned_at,
-        bannedUntil: u.banned_until,
-        banReason: u.ban_reason,
-        createdAt: u.created_at,
-        lastSeenAt: u.presence?.last_seen_at,
-        messagesCount: u.messages_aggregate?.aggregate?.count ?? 0,
-        channelsCount: u.channel_memberships_aggregate?.aggregate?.count ?? 0,
-      }));
+      const transformedUsers: AdminUser[] = data.nchat_users.map(
+        (u: AdminUserRow) => ({
+          id: u.id,
+          username: u.username,
+          displayName: u.display_name,
+          email: u.email,
+          avatarUrl: u.avatar_url,
+          role: u.role,
+          isActive: u.is_active,
+          isBanned: u.is_banned,
+          bannedAt: u.banned_at,
+          bannedUntil: u.banned_until,
+          banReason: u.ban_reason,
+          createdAt: u.created_at,
+          lastSeenAt: u.presence?.last_seen_at,
+          messagesCount: u.messages_aggregate?.aggregate?.count ?? 0,
+          channelsCount: u.channel_memberships_aggregate?.aggregate?.count ?? 0,
+        }),
+      );
       setUsers(
         transformedUsers,
         data.nchat_users_aggregate?.aggregate?.count ?? 0,
@@ -762,19 +764,21 @@ export function useActivityLogs() {
     },
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
-      const transformedLogs = data.nchat_activity_logs.map((log: AdminActivityLogRow) => ({
-        id: log.id,
-        type: log.type,
-        description: log.description,
-        metadata: log.metadata,
-        createdAt: log.created_at,
-        actor: {
-          id: log.actor.id,
-          username: log.actor.username,
-          displayName: log.actor.display_name,
-          avatarUrl: log.actor.avatar_url,
-        },
-      }));
+      const transformedLogs = data.nchat_activity_logs.map(
+        (log: AdminActivityLogRow) => ({
+          id: log.id,
+          type: log.type,
+          description: log.description,
+          metadata: log.metadata,
+          createdAt: log.created_at,
+          actor: {
+            id: log.actor.id,
+            username: log.actor.username,
+            displayName: log.actor.display_name,
+            avatarUrl: log.actor.avatar_url,
+          },
+        }),
+      );
       setActivityLogs(transformedLogs);
     },
   });
@@ -787,19 +791,21 @@ export function useActivityLogs() {
   useSubscription(ACTIVITY_LOGS_SUBSCRIPTION, {
     onData: ({ data }) => {
       if (data.data?.nchat_activity_logs) {
-        const newLogs = data.data.nchat_activity_logs.map((log: AdminActivityLogRow) => ({
-          id: log.id,
-          type: log.type,
-          description: log.description,
-          metadata: log.metadata,
-          createdAt: log.created_at,
-          actor: {
-            id: log.actor.id,
-            username: log.actor.username,
-            displayName: log.actor.display_name,
-            avatarUrl: log.actor.avatar_url,
-          },
-        }));
+        const newLogs = data.data.nchat_activity_logs.map(
+          (log: AdminActivityLogRow) => ({
+            id: log.id,
+            type: log.type,
+            description: log.description,
+            metadata: log.metadata,
+            createdAt: log.created_at,
+            actor: {
+              id: log.actor.id,
+              username: log.actor.username,
+              displayName: log.actor.display_name,
+              avatarUrl: log.actor.avatar_url,
+            },
+          }),
+        );
         setActivityLogs(newLogs);
       }
     },

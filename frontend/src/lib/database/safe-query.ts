@@ -99,7 +99,11 @@ export interface SafeQueryOptions {
  */
 export async function executeQuery<
   T extends Record<string, any> = Record<string, any>,
->(pool: Pool, query: string, values: QueryParamValue[] = []): Promise<QueryResult<T>> {
+>(
+  pool: Pool,
+  query: string,
+  values: QueryParamValue[] = [],
+): Promise<QueryResult<T>> {
   // Validate query doesn't contain template literal patterns
   if (query.includes("${") || query.includes("`")) {
     throw new Error(

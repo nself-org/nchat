@@ -330,7 +330,9 @@ export function createUserLoader(client: ApolloClient<any>) {
       });
 
       // Map results back to input order
-      const userMap = new Map(data.nchat_users.map((u: UserLoaderRow) => [u.id, u]));
+      const userMap = new Map(
+        data.nchat_users.map((u: UserLoaderRow) => [u.id, u]),
+      );
       return userIds.map((id) => userMap.get(id) || null);
     },
     { cacheTTL: 30000 }, // 30 seconds

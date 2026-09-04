@@ -1040,7 +1040,10 @@ export class CryptoPaymentService {
   /**
    * Process webhook from payment provider
    */
-  async processWebhook(provider: CryptoProvider, event: CoinbaseWebhookEvent): Promise<void> {
+  async processWebhook(
+    provider: CryptoProvider,
+    event: CoinbaseWebhookEvent,
+  ): Promise<void> {
     switch (provider) {
       case "coinbase_commerce":
         await this.processCoinbaseWebhook(event);
@@ -1054,7 +1057,9 @@ export class CryptoPaymentService {
   /**
    * Process Coinbase Commerce webhook
    */
-  private async processCoinbaseWebhook(event: CoinbaseWebhookEvent): Promise<void> {
+  private async processCoinbaseWebhook(
+    event: CoinbaseWebhookEvent,
+  ): Promise<void> {
     // Handle different event types
     switch (event.type) {
       case "charge:confirmed":
