@@ -9,7 +9,12 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useMutation, useSubscription } from "@apollo/client";
-import { useCallStore, type CallEndReason } from "@/stores/call-store";
+import {
+  useCallStore,
+  type CallEndReason,
+  type CallParticipant,
+  type IncomingCall,
+} from "@/stores/call-store";
 import { useAuth } from "@/contexts/auth-context";
 import {
   PeerConnectionManager,
@@ -56,10 +61,10 @@ export interface UseCallReturn {
     | "ended";
   callType: "voice" | "video" | null;
   callDuration: number;
-  participants: any[];
+  participants: CallParticipant[];
 
   // Incoming calls
-  incomingCalls: any[];
+  incomingCalls: IncomingCall[];
   hasIncomingCall: boolean;
 
   // Media state
@@ -149,13 +154,24 @@ export function useCall(options: UseCallOptions = {}): UseCallReturn {
     variables: { userId: user?.id },
     skip: !user?.id,
     onData: ({ data }) => {
-      const calls = data.data?.nchat_calls || [];
-      calls.forEach((call: any) => {
+      const calls: Array<{
+        call_id: string;
+        type: "voice" | "video";
+        channel_id?: string;
+        started_at: string;
+        caller?: {
+          id?: string;
+          display_name?: string;
+          username?: string;
+          avatar_url?: string;
+        };
+      }> = data.data?.nchat_calls || [];
+      calls.forEach((call) => {
         const caller = call.caller || {};
         receiveIncomingCall({
           id: call.call_id,
-          callerId: caller.id,
-          callerName: caller.display_name || caller.username,
+          callerId: caller.id ?? "",
+          callerName: caller.display_name || caller.username || "",
           callerAvatarUrl: caller.avatar_url,
           type: call.type,
           channelId: call.channel_id,

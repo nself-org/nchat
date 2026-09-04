@@ -35,7 +35,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useE2EEContext } from "@/contexts/e2ee-context";
 import { cn } from "@/lib/utils";
-
+import { getErrorMessage } from "@/lib/utils/error";
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -107,8 +107,8 @@ export function SafetyNumberVerification({
       setSafetyNumber(data.safetyNumber);
       setFormattedSafetyNumber(data.formattedSafetyNumber);
       setQrCodeData(data.qrCodeData);
-    } catch (err: any) {
-      setError(err.message || "Failed to load safety number");
+    } catch (err) {
+      setError(getErrorMessage(err) || "Failed to load safety number");
       toast({
         title: "Error",
         description: "Failed to generate safety number",
@@ -174,7 +174,7 @@ export function SafetyNumberVerification({
           variant: "destructive",
         });
       }
-    } catch (err: any) {
+    } catch (err) {
       toast({
         title: "Error",
         description: "Failed to verify safety number",

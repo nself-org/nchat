@@ -804,9 +804,9 @@ export class SyncService {
         indexed: result.successful,
         failed: result.failed,
         duration: Date.now() - startTime,
-        errors: result.errors.map((e: any) => ({
-          documentId: e.documentId || e.id || "unknown",
-          error: e.error || e.message || "Unknown error",
+        errors: result.errors.map((e: { id: string; error: string }) => ({
+          documentId: e.id || "unknown", // real errors[] shape has no `documentId` field
+          error: e.error || "Unknown error", // real errors[] shape has no `message` field
           timestamp: new Date(),
           retryCount: 0,
         })) as SyncError[],
@@ -1005,9 +1005,9 @@ export class SyncService {
         indexed: result.successful,
         failed: result.failed,
         duration: Date.now() - startTime,
-        errors: result.errors.map((e: any) => ({
-          documentId: e.documentId || e.id || "unknown",
-          error: e.error || e.message || "Unknown error",
+        errors: result.errors.map((e: { id: string; error: string }) => ({
+          documentId: e.id || "unknown", // real errors[] shape has no `documentId` field
+          error: e.error || "Unknown error", // real errors[] shape has no `message` field
           timestamp: new Date(),
           retryCount: 0,
         })) as SyncError[],

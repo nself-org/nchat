@@ -43,6 +43,14 @@ export interface Reaction {
   userId: string;
 }
 
+/** Raw `nchat_channel_members` row shape (query has no camelCase aliasing). */
+export interface ChannelMemberRow {
+  channel_id: string;
+  user_id: string;
+  role: string;
+  joined_at: string;
+}
+
 // ============================================================================
 // GraphQL Queries for Batch Loading
 // ============================================================================
@@ -77,10 +85,10 @@ const GET_MESSAGES_BY_IDS = gql`
     nchat_messages(where: { id: { _in: $ids } }) {
       id
       content
-      channel_id
-      user_id
+      channelId: channel_id
+      userId: user_id
       message_type
-      created_at
+      createdAt: created_at
       updated_at
     }
   }
@@ -91,8 +99,8 @@ const GET_REACTIONS_BY_MESSAGE_IDS = gql`
     nchat_reactions(where: { message_id: { _in: $messageIds } }) {
       id
       emoji
-      message_id
-      user_id
+      messageId: message_id
+      userId: user_id
       created_at
     }
   }
@@ -158,7 +166,7 @@ async function batchLoadUsers(
   });
 
   const userMap = new Map<string, User>(
-    data.users.map((user: any) => [user.id, user]),
+    data.users.map((user: User) => [user.id, user]),
   );
 
   return ids.map((id) => userMap.get(id) || null);
@@ -174,7 +182,7 @@ async function batchLoadChannels(
   });
 
   const channelMap = new Map<string, Channel>(
-    data.nchat_channels.map((channel: any) => [channel.id, channel]),
+    data.nchat_channels.map((channel: Channel) => [channel.id, channel]),
   );
 
   return ids.map((id) => channelMap.get(id) || null);
@@ -190,7 +198,7 @@ async function batchLoadMessages(
   });
 
   const messageMap = new Map<string, Message>(
-    data.nchat_messages.map((message: any) => [message.id, message]),
+    data.nchat_messages.map((message: Message) => [message.id, message]),
   );
 
   return ids.map((id) => messageMap.get(id) || null);
@@ -206,10 +214,10 @@ async function batchLoadReactionsByMessage(
   });
 
   const reactionsMap = new Map<string, Reaction[]>();
-  data.nchat_reactions.forEach((reaction: any) => {
-    const messageReactions = reactionsMap.get(reaction.message_id) || [];
+  data.nchat_reactions.forEach((reaction: Reaction) => {
+    const messageReactions = reactionsMap.get(reaction.messageId) || [];
     messageReactions.push(reaction);
-    reactionsMap.set(reaction.message_id, messageReactions);
+    reactionsMap.set(reaction.messageId, messageReactions);
   });
 
   return messageIds.map((id) => reactionsMap.get(id) || []);
@@ -217,15 +225,15 @@ async function batchLoadReactionsByMessage(
 
 async function batchLoadChannelMembers(
   channelIds: readonly string[],
-): Promise<any[][]> {
+): Promise<ChannelMemberRow[][]> {
   const { data } = await apolloClient.query({
     query: GET_CHANNEL_MEMBERS_BY_CHANNEL_IDS,
     variables: { channelIds },
     fetchPolicy: "cache-first",
   });
 
-  const membersMap = new Map<string, any[]>();
-  data.nchat_channel_members.forEach((member: any) => {
+  const membersMap = new Map<string, ChannelMemberRow[]>();
+  data.nchat_channel_members.forEach((member: ChannelMemberRow) => {
     const channelMembers = membersMap.get(member.channel_id) || [];
     channelMembers.push(member);
     membersMap.set(member.channel_id, channelMembers);
@@ -243,7 +251,7 @@ export class DataLoaderService {
   private channelLoader: DataLoader<string, Channel | null>;
   private messageLoader: DataLoader<string, Message | null>;
   private reactionsLoader: DataLoader<string, Reaction[]>;
-  private channelMembersLoader: DataLoader<string, any[]>;
+  private channelMembersLoader: DataLoader<string, ChannelMemberRow[]>;
 
   constructor() {
     // User loader with caching
@@ -284,7 +292,7 @@ export class DataLoaderService {
     );
 
     // Channel members loader
-    this.channelMembersLoader = new DataLoader<string, any[]>(
+    this.channelMembersLoader = new DataLoader<string, ChannelMemberRow[]>(
       batchLoadChannelMembers,
       {
         cache: true,

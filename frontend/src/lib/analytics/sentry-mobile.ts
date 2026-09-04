@@ -8,6 +8,22 @@ import type { AnalyticsConfig, UserProperties } from "./types";
 
 import { logger } from "@/lib/logger";
 
+/**
+ * Structural view of a Sentry event covering only the fields
+ * {@link SentryMobile.filterSensitiveData} reads or mutates. The real
+ * `Sentry.Event` type isn't imported here since the Sentry SDK is loaded
+ * dynamically per-platform (Electron vs Capacitor) rather than statically.
+ */
+interface SentryEventLike {
+  request?: {
+    cookies?: unknown;
+    headers?: Record<string, unknown>;
+  };
+  breadcrumbs?: Array<{
+    data?: Record<string, unknown>;
+  }>;
+}
+
 // Platform detection
 const isElectron =
   typeof window !== "undefined" && (window as any).electron !== undefined;
@@ -17,7 +33,7 @@ const isCapacitor =
 class SentryMobile {
   private initialized = false;
   private config: AnalyticsConfig | null = null;
-  private nativePlugin: any = null;
+  private nativePlugin: unknown = null;
 
   /**
    * Initialize Sentry
@@ -90,7 +106,7 @@ class SentryMobile {
 
         // Filter sensitive data
         beforeSend: (event) => {
-          return this.filterSensitiveData(event);
+          return this.filterSensitiveData(event) as unknown as typeof event;
         },
 
         // Debug mode
@@ -137,7 +153,7 @@ class SentryMobile {
 
         // Filter sensitive data
         beforeSend: (event) => {
-          return this.filterSensitiveData(event);
+          return this.filterSensitiveData(event) as unknown as typeof event;
         },
 
         // Debug mode
@@ -175,7 +191,7 @@ class SentryMobile {
         ],
 
         beforeSend: (event) => {
-          return this.filterSensitiveData(event);
+          return this.filterSensitiveData(event) as unknown as typeof event;
         },
 
         debug: this.config.debugMode,
@@ -189,23 +205,25 @@ class SentryMobile {
   /**
    * Filter sensitive data from events
    */
-  private filterSensitiveData(event: any): any {
+  private filterSensitiveData(event: SentryEventLike): SentryEventLike {
     // Remove sensitive fields
     if (event.request?.cookies) {
       delete event.request.cookies;
     }
 
-    if (event.request?.headers) {
+    const headers = event.request?.headers;
+    if (headers) {
       const sensitiveHeaders = ["authorization", "cookie", "x-api-key"];
       sensitiveHeaders.forEach((header) => {
-        delete event.request.headers[header];
+        delete headers[header];
       });
     }
 
     // Scrub sensitive data from breadcrumbs
     if (event.breadcrumbs) {
-      event.breadcrumbs = event.breadcrumbs.map((breadcrumb: any) => {
-        if (breadcrumb.data) {
+      event.breadcrumbs = event.breadcrumbs.map((breadcrumb) => {
+        const data = breadcrumb.data;
+        if (data) {
           const sensitiveKeys = [
             "password",
             "token",
@@ -214,8 +232,8 @@ class SentryMobile {
             "accessToken",
           ];
           sensitiveKeys.forEach((key) => {
-            if (breadcrumb.data[key]) {
-              breadcrumb.data[key] = "[Filtered]";
+            if (data[key]) {
+              data[key] = "[Filtered]";
             }
           });
         }

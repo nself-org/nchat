@@ -138,7 +138,7 @@ export function QuickSwitcher({ adapter, open = true, className }: QuickSwitcher
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="Jump to channel, DM…"
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 placeholder:text-muted-foreground"
           />
           {isLoading && (
             <svg className="h-4 w-4 animate-spin text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M21 12a9 9 0 1 1-6.219-8.56" strokeLinecap="round" /></svg>

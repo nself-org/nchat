@@ -11,6 +11,10 @@ import {
   createSignalingManager,
   generateCallId,
   type CallEndReason,
+  type CallParticipantPayload,
+  type CallOfferPayload,
+  type CallAnswerPayload,
+  type CallIceCandidatePayload,
 } from "@/lib/webrtc/signaling";
 import { logger } from "@/lib/logger";
 
@@ -990,7 +994,7 @@ export class HuddleService extends EventEmitter {
     }
   }
 
-  private handleParticipantJoined(payload: any): void {
+  private handleParticipantJoined(payload: CallParticipantPayload): void {
     if (!this.currentHuddle) return;
 
     const participant: HuddleParticipant = {
@@ -1013,7 +1017,7 @@ export class HuddleService extends EventEmitter {
     this.emit("participant-joined", { participant });
   }
 
-  private handleParticipantLeft(payload: any): void {
+  private handleParticipantLeft(payload: CallParticipantPayload): void {
     if (!this.currentHuddle) return;
 
     const participant = this.currentHuddle.participants.get(
@@ -1064,7 +1068,7 @@ export class HuddleService extends EventEmitter {
     this.cleanup();
   }
 
-  private async handleOffer(payload: any): Promise<void> {
+  private async handleOffer(payload: CallOfferPayload): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc || !this.currentHuddle) return;
 
@@ -1080,14 +1084,16 @@ export class HuddleService extends EventEmitter {
     });
   }
 
-  private async handleAnswer(payload: any): Promise<void> {
+  private async handleAnswer(payload: CallAnswerPayload): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc) return;
 
     await pc.setRemoteDescription(payload.sdp);
   }
 
-  private async handleIceCandidate(payload: any): Promise<void> {
+  private async handleIceCandidate(
+    payload: CallIceCandidatePayload,
+  ): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc) return;
 

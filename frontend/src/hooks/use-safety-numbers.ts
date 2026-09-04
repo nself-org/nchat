@@ -7,6 +7,7 @@ import { useState, useCallback } from "react";
 import { useApolloClient } from "@apollo/client";
 import { gql } from "@apollo/client";
 import { useToast } from "./use-toast";
+import { getErrorMessage } from "@/lib/utils/error";
 
 const SAVE_SAFETY_NUMBER = gql`
   mutation SaveSafetyNumber(
@@ -160,8 +161,9 @@ export function useSafetyNumbers(): UseSafetyNumbersReturn {
 
         setSafetyNumber(result);
         return result;
-      } catch (err: any) {
-        const errorMessage = err.message || "Failed to generate safety number";
+      } catch (err) {
+        const errorMessage =
+          getErrorMessage(err) || "Failed to generate safety number";
         setError(errorMessage);
 
         toast({
@@ -201,10 +203,10 @@ export function useSafetyNumbers(): UseSafetyNumbersReturn {
           title: "Safety Number Verified",
           description: "The identity has been verified successfully",
         });
-      } catch (err: any) {
+      } catch (err) {
         toast({
           title: "Verification Failed",
-          description: err.message,
+          description: getErrorMessage(err),
           variant: "destructive",
         });
 
@@ -251,8 +253,8 @@ export function useSafetyNumbers(): UseSafetyNumbersReturn {
 
         setSafetyNumber(result);
         return result;
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(getErrorMessage(err));
         return null;
       } finally {
         setIsLoading(false);

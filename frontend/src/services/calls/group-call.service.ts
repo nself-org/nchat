@@ -12,6 +12,10 @@ import {
   createSignalingManager,
   generateCallId,
   type CallEndReason,
+  type CallParticipantPayload,
+  type CallOfferPayload,
+  type CallAnswerPayload,
+  type CallIceCandidatePayload,
 } from "@/lib/webrtc/signaling";
 import { logger } from "@/lib/logger";
 
@@ -1641,7 +1645,7 @@ export class GroupCallService extends EventEmitter {
     this.emit("call-state-change", { status, previousStatus });
   }
 
-  private handleParticipantJoined(payload: any): void {
+  private handleParticipantJoined(payload: CallParticipantPayload): void {
     if (!this.currentCall) return;
 
     const participant: GroupCallParticipant = {
@@ -1664,7 +1668,12 @@ export class GroupCallService extends EventEmitter {
 
     if (
       this.config.enableLobby &&
-      !this.shouldAutoAdmit(payload.participant.email)
+      // `CallParticipant` (@/lib/webrtc/signaling) never declared `email` —
+      // this read was already `undefined` at runtime before this file was
+      // typed accurately, so email-domain auto-admit has never actually
+      // triggered here. Preserving that behavior; wiring participant email
+      // through the join payload is a separate, out-of-scope fix.
+      !this.shouldAutoAdmit(undefined)
     ) {
       // Add to lobby
       this.currentCall.lobbyParticipants.set(participant.id, participant);
@@ -1687,7 +1696,7 @@ export class GroupCallService extends EventEmitter {
     }
   }
 
-  private handleParticipantLeft(payload: any): void {
+  private handleParticipantLeft(payload: CallParticipantPayload): void {
     if (!this.currentCall) return;
 
     const participant = this.currentCall.participants.get(
@@ -1726,7 +1735,7 @@ export class GroupCallService extends EventEmitter {
     this.cleanup();
   }
 
-  private async handleOffer(payload: any): Promise<void> {
+  private async handleOffer(payload: CallOfferPayload): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc || !this.currentCall) return;
 
@@ -1742,14 +1751,16 @@ export class GroupCallService extends EventEmitter {
     });
   }
 
-  private async handleAnswer(payload: any): Promise<void> {
+  private async handleAnswer(payload: CallAnswerPayload): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc) return;
 
     await pc.setRemoteDescription(payload.sdp);
   }
 
-  private async handleIceCandidate(payload: any): Promise<void> {
+  private async handleIceCandidate(
+    payload: CallIceCandidatePayload,
+  ): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc) return;
 

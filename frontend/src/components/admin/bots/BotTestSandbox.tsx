@@ -44,6 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getErrorMessage } from "@/lib/utils/error";
 
 interface TestEvent {
   type: string;
@@ -196,10 +197,10 @@ export function BotTestSandbox({
         { event, result, timestamp: new Date() },
         ...prev.slice(0, 9),
       ]);
-    } catch (error: any) {
+    } catch (error) {
       setTestResult({
         success: false,
-        error: error.message,
+        error: getErrorMessage(error),
         executionTime: 0,
       });
     } finally {

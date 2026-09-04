@@ -1078,6 +1078,14 @@ export const ALL_SLACK_FEATURES: SlackFeature[] = [
 // ---------------------------------------------------------------------------
 // Legacy Aliases (backward compatibility)
 // ---------------------------------------------------------------------------
+// P4 deferred-backlog row 22 / P6-E11-W2-S3-T16: these 13 aliases were
+// briefly deleted in this same ticket after a `git grep` for production
+// (.ts/.tsx) importers came back empty — but __tests__/slack-features.test.ts
+// ("Slack Feature Map - Legacy Aliases") asserts each one by name, so the
+// grep's premise ("zero importers") was wrong; the test IS a real consumer.
+// Restored rather than masked by editing/skipping that test. Kept
+// deliberately for backward compatibility — prefer the UPPER_SNAKE_CASE
+// exports in new code.
 
 /** @deprecated Use CHANNEL_FEATURES instead */
 export const channelFeatures = CHANNEL_FEATURES;

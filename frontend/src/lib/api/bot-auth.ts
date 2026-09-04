@@ -16,6 +16,23 @@ import {
 import { BotPermission, tokenHasPermission } from "@/lib/bots/permissions";
 
 import { logger } from "@/lib/logger";
+import { getErrorMessage } from "@/lib/utils/error";
+
+/**
+ * Thrown by {@link checkBotRateLimit} when a bot exceeds its request quota.
+ * Carries `resetAt` (epoch ms) so callers can surface a `Retry-After` header
+ * without re-widening the error to `any`.
+ */
+export class BotRateLimitError extends Error {
+  readonly statusCode = 429;
+  readonly resetAt: number;
+
+  constructor(resetAt: number) {
+    super("Rate limit exceeded");
+    this.name = "BotRateLimitError";
+    this.resetAt = resetAt;
+  }
+}
 
 /**
  * Bot authentication result
@@ -225,10 +242,7 @@ export function checkBotRateLimit(
   const result = checkRateLimit(botId, limit, windowMs);
 
   if (!result.allowed) {
-    const error = new Error("Rate limit exceeded") as any;
-    error.statusCode = 429;
-    error.resetAt = result.resetAt;
-    throw error;
+    throw new BotRateLimitError(result.resetAt);
   }
 
   return {
@@ -320,9 +334,11 @@ export function withBotAuth(
           "X-RateLimit-Reset",
           new Date(rateLimit.resetAt).toISOString(),
         );
-      } catch (error: any) {
+      } catch (error) {
         statusCode = 429;
-        const resetAt = new Date(error.resetAt).toISOString();
+        const resetAtMs =
+          error instanceof BotRateLimitError ? error.resetAt : Date.now();
+        const resetAt = new Date(resetAtMs).toISOString();
         return NextResponse.json(
           {
             error: "Rate limit exceeded",
@@ -335,7 +351,7 @@ export function withBotAuth(
               "X-RateLimit-Remaining": "0",
               "X-RateLimit-Reset": resetAt,
               "Retry-After": Math.ceil(
-                (error.resetAt - Date.now()) / 1000,
+                (resetAtMs - Date.now()) / 1000,
               ).toString(),
             },
           },
@@ -346,9 +362,9 @@ export function withBotAuth(
       if (requiredPermission) {
         try {
           await checkPermission(auth, requiredPermission);
-        } catch (error: any) {
+        } catch (error) {
           statusCode = 403;
-          return errorResponse(error.message, 403);
+          return errorResponse(getErrorMessage(error), 403);
         }
       }
 
@@ -363,11 +379,11 @@ export function withBotAuth(
       });
 
       return response;
-    } catch (error: any) {
+    } catch (error) {
       logger.error("Bot API error:", error);
-      statusCode = error.statusCode || 500;
+      statusCode = error instanceof BotRateLimitError ? error.statusCode : 500;
       return errorResponse(
-        error.message || "Internal server error",
+        getErrorMessage(error) || "Internal server error",
         statusCode,
       );
     }

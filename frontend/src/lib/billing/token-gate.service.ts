@@ -5,7 +5,7 @@
  * Supports ERC-20, ERC-721, and ERC-1155 tokens across multiple chains.
  */
 
-import { getTokenManager } from "@/lib/wallet/token-manager";
+import { getTokenManager, TokenManager } from "@/lib/wallet/token-manager";
 import { getWalletConnector } from "@/lib/wallet/wallet-connector";
 import type { ChainId } from "@/lib/wallet/wallet-connector";
 
@@ -16,6 +16,23 @@ import { logger } from "@/lib/logger";
 // ============================================================================
 
 export type TokenGateType = "erc20" | "erc721" | "erc1155";
+
+/** Raw `public.token_gates` row shape as returned by `pg`. */
+interface TokenGateRow {
+  id: string;
+  channel_id: string;
+  gate_type: TokenGateType;
+  contract_address: string;
+  chain_id: ChainId;
+  network_name: string;
+  token_name?: string;
+  token_symbol?: string;
+  minimum_balance?: string;
+  required_token_ids?: string[];
+  is_active: boolean;
+  bypass_roles?: string[];
+  cache_ttl?: number;
+}
 
 export interface TokenGateConfig {
   id: string;
@@ -226,7 +243,7 @@ export class TokenGateService {
     config: TokenGateConfig,
     userId: string,
     walletAddress: string,
-    tokenManager: any,
+    tokenManager: TokenManager,
     now: Date,
     expiresAt: Date,
   ): Promise<TokenGateVerification> {
@@ -280,7 +297,7 @@ export class TokenGateService {
     config: TokenGateConfig,
     userId: string,
     walletAddress: string,
-    tokenManager: any,
+    tokenManager: TokenManager,
     now: Date,
     expiresAt: Date,
   ): Promise<TokenGateVerification> {
@@ -672,10 +689,8 @@ export class TokenGateService {
     }
   }
 
-  /**
-   * Map database row to TokenGateConfig
-   */
-  private mapRowToTokenGate(row: any): TokenGateConfig {
+  /** Raw `public.token_gates` row shape as returned by `pg`. */
+  private mapRowToTokenGate(row: TokenGateRow): TokenGateConfig {
     return {
       id: row.id,
       channelId: row.channel_id,
@@ -781,7 +796,7 @@ export class TokenGateService {
 
       let query =
         "SELECT * FROM public.token_gate_verifications WHERE user_id = $1";
-      const params: any[] = [userId];
+      const params: string[] = [userId];
 
       if (channelId) {
         query += " AND channel_id = $2";

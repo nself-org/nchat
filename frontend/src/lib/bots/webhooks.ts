@@ -8,6 +8,7 @@ import { getApolloClient } from "@/lib/apollo-client";
 import { signWebhookPayload } from "./tokens";
 
 import { logger } from "@/lib/logger";
+import { getErrorMessage } from "@/lib/utils/error";
 
 /**
  * Webhook event types
@@ -189,7 +190,7 @@ async function deliverWebhookWithRetry(
     }
 
     return result;
-  } catch (error: any) {
+  } catch (error) {
     logger.error(
       `Webhook delivery error (attempt ${attemptNumber}/${maxAttempts}):`,
       error,
@@ -197,7 +198,7 @@ async function deliverWebhookWithRetry(
 
     const result: WebhookDeliveryResult = {
       success: false,
-      error: error.message,
+      error: getErrorMessage(error),
       attemptNumber,
     };
 
@@ -211,7 +212,7 @@ async function deliverWebhookWithRetry(
           eventType: payload.event,
           payload: payload.data,
           statusCode: null,
-          responseBody: error.message,
+          responseBody: getErrorMessage(error),
           success: false,
           attemptNumber,
         },

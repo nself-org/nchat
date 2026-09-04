@@ -61,6 +61,8 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SettingsColorPicker } from "./SettingsColorPicker";
 import { useThemeCustomizer } from "@/hooks/use-theme-customizer";
+import type { CustomThemeConfig } from "@/lib/theme/custom-theme";
+import type { ThemeColors } from "@/lib/theme-presets";
 import { useToast } from "@/hooks/use-toast";
 import {
   colorProperties,
@@ -648,8 +650,8 @@ interface PresetCardProps {
   preset: {
     name: string;
     preset: string;
-    light: any;
-    dark: any;
+    light: ThemeColors;
+    dark: ThemeColors;
   };
   isActive: boolean;
   colorScheme: "light" | "dark";
@@ -715,7 +717,7 @@ function PresetCard({
 /**
  * Theme Preview Component
  */
-function ThemePreview({ theme }: { theme: any }) {
+function ThemePreview({ theme }: { theme: CustomThemeConfig }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {/* Buttons */}

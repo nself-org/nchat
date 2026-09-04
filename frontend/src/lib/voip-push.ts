@@ -34,6 +34,21 @@ export interface VoIPPushToken {
   platform: "ios" | "android" | "web";
 }
 
+/**
+ * Capacitor's `registrationError` / `pushNotificationActionPerformed` event
+ * payloads. The `@capacitor/push-notifications` import above is
+ * `@ts-ignore`'d as an optional dependency, so these are modeled locally
+ * from Capacitor's documented shapes rather than imported.
+ */
+interface PushRegistrationErrorEvent {
+  error: string;
+}
+
+interface PushActionPerformedEvent {
+  actionId: string;
+  notification: PushNotificationSchema;
+}
+
 // =============================================================================
 // VoIP Push Manager
 // =============================================================================
@@ -84,9 +99,12 @@ export class VoIPPushManager {
     });
 
     // Registration error
-    PushNotifications.addListener("registrationError", (error: any) => {
-      logger.error("Push registration error:", error);
-    });
+    PushNotifications.addListener(
+      "registrationError",
+      (error: PushRegistrationErrorEvent) => {
+        logger.error("Push registration error:", error);
+      },
+    );
 
     // Push notification received
     PushNotifications.addListener(
@@ -104,7 +122,7 @@ export class VoIPPushManager {
     // Push notification tapped
     PushNotifications.addListener(
       "pushNotificationActionPerformed",
-      async (notification: any) => {
+      async (notification: PushActionPerformedEvent) => {
         const payload = this.parseVoIPPayload(notification.notification.data);
 
         if (payload) {
@@ -118,7 +136,7 @@ export class VoIPPushManager {
   /**
    * Parse VoIP push payload
    */
-  private parseVoIPPayload(data: any): VoIPPushPayload | null {
+  private parseVoIPPayload(data: unknown): VoIPPushPayload | null {
     try {
       // Handle both direct object and stringified JSON
       const payload = typeof data === "string" ? JSON.parse(data) : data;

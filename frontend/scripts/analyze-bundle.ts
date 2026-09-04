@@ -99,9 +99,16 @@ function parseBuildOutput(): AnalysisResult {
     })
 
     return parseBuildStats(output)
-  } catch (error: any) {
-    // Even if build has warnings, we can still parse output
-    return parseBuildStats(error.stdout || '')
+  } catch (error) {
+    // Even if build has warnings, we can still parse output. `execSync`
+    // attaches `stdout`/`stderr` to the thrown Error at runtime, but Node's
+    // types don't model that — narrow structurally instead of widening to
+    // `any`.
+    const stdout =
+      error instanceof Error && 'stdout' in error
+        ? String((error as Error & { stdout?: unknown }).stdout ?? '')
+        : ''
+    return parseBuildStats(stdout)
   }
 }
 
