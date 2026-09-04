@@ -525,17 +525,17 @@ export function resetCache(): void {
 // ============================================================================
 
 export function cached<T>(
-  keyFn: (...args: any[]) => string,
+  keyFn: (...args: unknown[]) => string,
   ttl: number = CacheTTL.channelMessages,
 ) {
   return function (
-    target: any,
+    target: object,
     propertyName: string,
     descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]): Promise<T> {
+    descriptor.value = async function (...args: unknown[]): Promise<T> {
       const cache = getCache();
       const key = keyFn(...args);
 

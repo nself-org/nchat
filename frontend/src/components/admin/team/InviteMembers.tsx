@@ -51,7 +51,12 @@ import {
 
 import { useTeamStore } from "@/stores/team-store";
 import { teamManager } from "@/lib/team/team-manager";
-import type { TeamRole, InviteBulkResult } from "@/lib/team/team-types";
+import type {
+  TeamRole,
+  InviteBulkResult,
+  TeamInvitation,
+  InviteLink,
+} from "@/lib/team/team-types";
 
 import { logger } from "@/lib/logger";
 
@@ -164,7 +169,7 @@ function EmailInvite({
   onSuccess,
 }: {
   teamId: string;
-  onSuccess: (invitation: any) => void;
+  onSuccess: (invitation: TeamInvitation) => void;
 }) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<TeamRole>("member");
@@ -298,7 +303,7 @@ function LinkInvite({
   onSuccess,
 }: {
   teamId: string;
-  onSuccess: (link: any) => void;
+  onSuccess: (link: InviteLink) => void;
 }) {
   const [role, setRole] = useState<TeamRole>("member");
   const [maxUses, setMaxUses] = useState<string>("unlimited");
@@ -630,7 +635,7 @@ function PendingInvitations({
   invitations,
 }: {
   teamId: string;
-  invitations: any[];
+  invitations: TeamInvitation[];
 }) {
   const { removeInvitation, updateInvitation } = useTeamStore();
   const [canceling, setCanceling] = useState<string | null>(null);

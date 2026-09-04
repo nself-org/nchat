@@ -4,6 +4,7 @@
  */
 
 import { crypto } from "./crypto";
+import { getErrorMessage } from "@/lib/utils/error";
 
 // ============================================================================
 // TYPES
@@ -354,8 +355,8 @@ export class DeviceLockManager {
 
       this.state.isConfigured = true;
       this.saveState();
-    } catch (error: any) {
-      throw new Error(`Biometric setup failed: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Biometric setup failed: ${getErrorMessage(error)}`);
     }
   }
 
@@ -411,7 +412,7 @@ export class DeviceLockManager {
       this.state.lastUnlockedAt = Date.now();
       this.unlock();
       return true;
-    } catch (error: any) {
+    } catch (error) {
       this.state.failedAttempts++;
       if (this.state.failedAttempts >= this.config.maxAttempts) {
         this.state.lockedUntil = Date.now() + this.config.lockoutDuration;

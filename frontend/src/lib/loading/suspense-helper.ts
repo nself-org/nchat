@@ -272,14 +272,18 @@ export function raceResources<T>(resources: Array<{ read: () => T }>): {
 /**
  * Utility to check if a value is a promise
  */
-export function isPromise(value: any): value is Promise<any> {
-  return value && typeof value.then === "function";
+export function isPromise(value: unknown): value is Promise<unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { then?: unknown }).then === "function"
+  );
 }
 
 /**
  * Utility to check if an error is a Suspense promise
  */
-export function isSuspensePromise(error: any): error is Promise<any> {
+export function isSuspensePromise(error: unknown): error is Promise<unknown> {
   return isPromise(error);
 }
 
@@ -312,11 +316,13 @@ export function createDeferredResource<T>(): {
  * Type guard for lazy components
  */
 export function isLazyComponent(
-  component: any,
+  component: unknown,
+  // `LazyExoticComponent<T>`'s own type param is constrained to
+  // `ComponentType<any>` by React's typings, so `any` here is required.
 ): component is LazyExoticComponent<any> {
   return (
-    component &&
     typeof component === "object" &&
+    component !== null &&
     "$$typeof" in component &&
     "_payload" in component
   );

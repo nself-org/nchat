@@ -170,12 +170,16 @@ export class GroupCallManager {
   /**
    * Get default RTP capabilities (for development)
    */
-  private getDefaultRtpCapabilities(): any {
+  private getDefaultRtpCapabilities(): types.RtpCapabilities {
     return {
       codecs: [
         {
           kind: "audio",
           mimeType: "audio/opus",
+          // Dev-only default; a real SFU deployment negotiates this from the
+          // server's actual RTP capabilities instead of a static mock like
+          // this one. 100 is within the dynamic payload-type range (96-127).
+          preferredPayloadType: 100,
           clockRate: 48000,
           channels: 2,
           parameters: {
@@ -212,7 +216,7 @@ export class GroupCallManager {
     this.sendTransport.on(
       "connect",
       async (
-        { dtlsParameters }: any,
+        { dtlsParameters }: { dtlsParameters: types.DtlsParameters },
         callback: () => void,
         errback: (error: Error) => void,
       ) => {
@@ -228,7 +232,10 @@ export class GroupCallManager {
     this.sendTransport.on(
       "produce",
       async (
-        { kind, rtpParameters }: any,
+        {
+          kind,
+          rtpParameters,
+        }: { kind: types.MediaKind; rtpParameters: types.RtpParameters },
         callback: (params: { id: string }) => void,
         errback: (error: Error) => void,
       ) => {
@@ -248,7 +255,7 @@ export class GroupCallManager {
     this.recvTransport.on(
       "connect",
       async (
-        { dtlsParameters }: any,
+        { dtlsParameters }: { dtlsParameters: types.DtlsParameters },
         callback: () => void,
         errback: (error: Error) => void,
       ) => {
@@ -265,7 +272,9 @@ export class GroupCallManager {
   /**
    * Request transport from SFU server
    */
-  private async requestTransport(direction: "send" | "recv"): Promise<any> {
+  private async requestTransport(
+    direction: "send" | "recv",
+  ): Promise<types.TransportOptions> {
     try {
       const response = await fetch(`${this.config.sfuUrl}/transport/create`, {
         method: "POST",
@@ -294,7 +303,7 @@ export class GroupCallManager {
   /**
    * Get mock transport params (for development)
    */
-  private getMockTransportParams(): any {
+  private getMockTransportParams(): types.TransportOptions {
     return {
       id: `transport-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       iceParameters: {
@@ -327,7 +336,7 @@ export class GroupCallManager {
    */
   private async connectTransport(
     direction: "send" | "recv",
-    dtlsParameters: any,
+    dtlsParameters: types.DtlsParameters,
   ): Promise<void> {
     try {
       await fetch(`${this.config.sfuUrl}/transport/connect`, {
@@ -382,7 +391,7 @@ export class GroupCallManager {
    */
   private async produce(
     kind: string,
-    rtpParameters: any,
+    rtpParameters: types.RtpParameters,
   ): Promise<{ id: string }> {
     try {
       const response = await fetch(`${this.config.sfuUrl}/produce`, {

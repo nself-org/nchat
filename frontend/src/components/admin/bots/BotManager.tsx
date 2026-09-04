@@ -27,6 +27,7 @@ import {
   SortAsc,
   SortDesc,
   RefreshCw,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +46,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+import { Badge, type BadgeProps } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -111,8 +112,8 @@ export function BotManager({
 
     // Sort
     result.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: string | number;
+      let bValue: string | number;
 
       switch (sortField) {
         case "name":
@@ -179,7 +180,10 @@ export function BotManager({
 
   // Status badge
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; icon: any }> = {
+    const variants: Record<
+      string,
+      { variant: BadgeProps["variant"]; icon: LucideIcon }
+    > = {
       online: { variant: "default", icon: CheckCircle },
       offline: { variant: "secondary", icon: PowerOff },
       maintenance: { variant: "outline", icon: Clock },

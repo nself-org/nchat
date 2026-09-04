@@ -13,6 +13,7 @@ import type {
   BillingPlan,
   BillingInterval,
 } from "@/lib/tenants/types";
+import { getErrorMessage } from "@/lib/utils/error";
 
 /**
  * Hook for tenant management operations
@@ -44,8 +45,8 @@ export function useTenantManagement() {
 
       const tenant = await response.json();
       return tenant;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setIsLoading(false);
@@ -76,8 +77,8 @@ export function useTenantManagement() {
 
       const tenant = await response.json();
       return tenant;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setIsLoading(false);
@@ -102,8 +103,8 @@ export function useTenantManagement() {
       }
 
       return true;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return false;
     } finally {
       setIsLoading(false);
@@ -152,8 +153,8 @@ export function useTenantBillingOperations() {
 
       const data = await response.json();
       return data;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setIsLoading(false);
@@ -183,8 +184,8 @@ export function useTenantBillingOperations() {
 
       const data = await response.json();
       return data;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setIsLoading(false);
@@ -214,8 +215,8 @@ export function useTenantBillingOperations() {
       }
 
       return true;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return false;
     } finally {
       setIsLoading(false);
@@ -244,8 +245,8 @@ export function useTenantBillingOperations() {
       }
 
       return true;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return false;
     } finally {
       setIsLoading(false);
@@ -285,8 +286,8 @@ export function useTenantUsage() {
 
       const data = await response.json();
       return data;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setIsLoading(false);

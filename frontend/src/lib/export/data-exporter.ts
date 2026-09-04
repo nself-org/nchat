@@ -19,6 +19,101 @@ import type {
 } from "./types";
 
 // ============================================================================
+// Raw GraphQL row shapes
+// These queries aren't codegen'd, so `data.<field>` comes back as `any` from
+// Apollo — the interfaces below model exactly the fields this module reads
+// off each row instead of leaving that `any` unnarrowed.
+// ============================================================================
+
+interface ExportRawUserRef {
+  username?: string;
+  display_name?: string;
+}
+
+interface ExportRawAttachment {
+  id?: string;
+  file_id?: string;
+  file_name?: string;
+  name?: string;
+  file_type?: string;
+  type?: string;
+  file_size?: number;
+  size?: number;
+  url: string;
+  uploaded_at?: string;
+  created_at?: string;
+}
+
+interface ExportRawReaction {
+  emoji: string;
+  user_id: string;
+  user?: ExportRawUserRef;
+  created_at: string;
+}
+
+interface ExportRawReply {
+  id: string;
+  content: string;
+  user_id: string;
+  user?: ExportRawUserRef;
+  created_at: string;
+}
+
+interface ExportRawMessage {
+  id: string;
+  channel_id: string;
+  channel?: { name?: string };
+  user_id: string;
+  user?: ExportRawUserRef;
+  content: string;
+  type: string;
+  created_at: string;
+  updated_at: string;
+  is_edited: boolean;
+  is_deleted: boolean;
+  is_pinned: boolean;
+  edited_at?: string;
+  deleted_at?: string;
+  attachments?: ExportRawAttachment[];
+  reactions?: ExportRawReaction[];
+  replies?: ExportRawReply[];
+  reply_to?: { id: string; content: string; user?: ExportRawUserRef };
+  mentions?: string[];
+  metadata?: Record<string, unknown>;
+}
+
+interface ExportRawMessageHistory {
+  message_id: string;
+  content: string;
+  edited_at: string;
+  editor?: ExportRawUserRef;
+}
+
+interface ExportRawChannel {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  type: string;
+  is_private: boolean;
+  created_at: string;
+  creator?: { id?: string; username?: string };
+  members_aggregate?: { aggregate?: { count?: number } };
+  messages_aggregate?: { aggregate?: { count?: number } };
+}
+
+interface ExportRawUser {
+  id: string;
+  email: string;
+  username: string;
+  display_name: string;
+  role: string;
+  created_at: string;
+  avatar_url?: string;
+  status: string;
+}
+
+// ============================================================================
 // GraphQL Queries
 // ============================================================================
 
@@ -385,7 +480,7 @@ export class DataExporter {
    * Process raw messages into export format
    */
   private async processMessages(
-    rawMessages: any[],
+    rawMessages: ExportRawMessage[],
     options: ExportOptions,
   ): Promise<ExportedMessage[]> {
     const messages: ExportedMessage[] = [];
@@ -456,18 +551,18 @@ export class DataExporter {
    * Process attachments
    */
   private processAttachments(
-    attachments: any,
+    attachments: ExportRawAttachment[],
     embedFiles: boolean,
   ): ExportedAttachment[] {
     if (!Array.isArray(attachments)) return [];
 
     return attachments.map((att) => ({
-      id: att.id || att.file_id,
-      fileName: att.file_name || att.name,
-      fileType: att.file_type || att.type,
-      fileSize: att.file_size || att.size,
+      id: att.id || att.file_id || "",
+      fileName: att.file_name || att.name || "",
+      fileType: att.file_type || att.type || "",
+      fileSize: att.file_size || att.size || 0,
       url: att.url,
-      uploadedAt: att.uploaded_at || att.created_at,
+      uploadedAt: att.uploaded_at || att.created_at || new Date().toISOString(),
       // embedData would be populated by separate file download logic if needed
     }));
   }
@@ -475,7 +570,7 @@ export class DataExporter {
   /**
    * Process reactions
    */
-  private processReactions(reactions: any[]): ExportedReaction[] {
+  private processReactions(reactions: ExportRawReaction[]): ExportedReaction[] {
     return reactions.map((reaction) => ({
       emoji: reaction.emoji,
       userId: reaction.user_id,
@@ -488,7 +583,7 @@ export class DataExporter {
   /**
    * Process thread replies
    */
-  private processThread(replies: any[]): ExportedThread {
+  private processThread(replies: ExportRawReply[]): ExportedThread {
     return {
       totalReplies: replies.length,
       replies: replies.map((reply) => ({
@@ -516,7 +611,7 @@ export class DataExporter {
       variables: { messageIds: editedMessageIds },
     });
 
-    const historyByMessageId = new Map<string, any[]>();
+    const historyByMessageId = new Map<string, ExportRawMessageHistory[]>();
     for (const history of data.nchat_message_history) {
       const existing = historyByMessageId.get(history.message_id) || [];
       existing.push(history);
@@ -548,7 +643,7 @@ export class DataExporter {
       variables: { channelIds },
     });
 
-    return data.nchat_channels.map((channel: any) => ({
+    return data.nchat_channels.map((channel: ExportRawChannel) => ({
       id: channel.id,
       name: channel.name,
       slug: channel.slug,
@@ -576,7 +671,7 @@ export class DataExporter {
       variables: { userIds },
     });
 
-    return data.nchat_users.map((user: any) => ({
+    return data.nchat_users.map((user: ExportRawUser) => ({
       id: user.id,
       email: user.email,
       username: user.username,

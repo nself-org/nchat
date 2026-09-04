@@ -61,10 +61,41 @@ interface ModerationStats {
     avgResponseTime: number;
     flaggedRate: number;
   };
-  queueStats: any;
-  actionStats: any;
-  topViolators: any[];
-  violationTrends: any;
+  // Shapes below mirror the response built by `GET /api/moderation/stats`
+  // (processQueueStats/processActionStats/calculateViolationTrends and the
+  // raw `nchat_user_moderation_history` rows for topViolators).
+  queueStats: {
+    total: number;
+    byStatus: Record<string, number>;
+    byPriority: Record<string, number>;
+    byAutoAction: Record<string, number>;
+  };
+  actionStats: {
+    total: number;
+    byType: Record<string, number>;
+    automatedCount: number;
+    manualCount: number;
+    aiCount: number;
+    ruleBasedCount: number;
+  };
+  topViolators: Array<{
+    user_id: string;
+    total_violations: number;
+    toxic_violations: number;
+    nsfw_violations: number;
+    spam_violations: number;
+    profanity_violations: number;
+    trust_score: number;
+    warnings_received: number;
+    mutes_received: number;
+    bans_received: number;
+  }>;
+  violationTrends: {
+    toxicity: number[];
+    spam: number[];
+    profanity: number[];
+    nsfw: number[];
+  };
 }
 
 export function ModerationDashboard() {

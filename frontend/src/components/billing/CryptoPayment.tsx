@@ -37,7 +37,7 @@ import type { WalletInfo } from "@/lib/crypto/wallet-connector";
 import type { CryptoNetwork, PlanTier, BillingInterval } from "@/types/billing";
 import { CRYPTO_NETWORKS, PLANS } from "@/config/billing-plans";
 import { cn } from "@/lib/utils";
-
+import { getErrorMessage } from "@/lib/utils/error";
 interface CryptoPaymentProps {
   planId: PlanTier;
   interval: BillingInterval;
@@ -126,8 +126,8 @@ export function CryptoPayment({
       if (onPaymentComplete) {
         onPaymentComplete(mockTxHash);
       }
-    } catch (err: any) {
-      setError(err.message || "Payment failed");
+    } catch (err) {
+      setError(getErrorMessage(err) || "Payment failed");
     } finally {
       setProcessing(false);
     }

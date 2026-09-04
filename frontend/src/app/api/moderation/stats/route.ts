@@ -241,10 +241,30 @@ function calculateDateRange(
   return { start, end };
 }
 
+/** Raw shape of the `queue_stats` aggregate selection in `GET_MODERATION_STATS`. */
+interface QueueStatsAggregate {
+  aggregate: { count: number };
+  nodes: Array<{
+    status?: string;
+    priority?: string;
+    auto_action?: string;
+  }>;
+}
+
+/** Raw shape of the `action_stats` aggregate selection in `GET_MODERATION_STATS`. */
+interface ActionStatsAggregate {
+  aggregate: { count: number };
+  nodes: Array<{
+    action_type?: string;
+    is_automated?: boolean;
+    automation_type?: string;
+  }>;
+}
+
 /**
  * Process queue statistics
  */
-function processQueueStats(queueStats: any) {
+function processQueueStats(queueStats: QueueStatsAggregate) {
   const nodes = queueStats.nodes || [];
 
   const byStatus = {
@@ -289,7 +309,7 @@ function processQueueStats(queueStats: any) {
 /**
  * Process action statistics
  */
-function processActionStats(actionStats: any) {
+function processActionStats(actionStats: ActionStatsAggregate) {
   const nodes = actionStats.nodes || [];
 
   const byType = {
@@ -332,7 +352,7 @@ function processActionStats(actionStats: any) {
 /**
  * Calculate average response time
  */
-function calculateAvgResponseTime(nodes: any[]): number {
+function calculateAvgResponseTime(nodes: unknown[]): number {
   // Placeholder - would need reviewed_at and created_at timestamps
   return 0;
 }
@@ -348,7 +368,7 @@ function calculateFlaggedRate(totalFlagged: number, period: string): number {
 /**
  * Calculate response time distribution
  */
-function calculateResponseTimeDistribution(nodes: any[]) {
+function calculateResponseTimeDistribution(nodes: unknown[]) {
   return {
     under1h: 0,
     under6h: 0,
@@ -360,7 +380,7 @@ function calculateResponseTimeDistribution(nodes: any[]) {
 /**
  * Calculate violation trends
  */
-function calculateViolationTrends(nodes: any[], period: string) {
+function calculateViolationTrends(nodes: unknown[], period: string) {
   return {
     toxicity: [],
     spam: [],
@@ -372,14 +392,14 @@ function calculateViolationTrends(nodes: any[], period: string) {
 /**
  * Calculate top violation categories
  */
-function calculateTopCategories(nodes: any[]) {
+function calculateTopCategories(nodes: unknown[]) {
   return [];
 }
 
 /**
  * Calculate auto-action effectiveness
  */
-function calculateAutoActionEffectiveness(nodes: any[]) {
+function calculateAutoActionEffectiveness(nodes: unknown[]) {
   return {
     accuracy: 0,
     falsePositiveRate: 0,

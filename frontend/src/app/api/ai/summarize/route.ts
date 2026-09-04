@@ -8,9 +8,15 @@ import {
   getMessageSummarizer,
   type Message,
   type SummaryOptions,
+  type ChannelDigest,
+  type ThreadSummary,
 } from "@/lib/ai/message-summarizer";
 import { getThreadSummarizer } from "@/lib/ai/thread-summarizer";
-import { getMeetingNotesGenerator } from "@/lib/ai/meeting-notes";
+import {
+  getMeetingNotesGenerator,
+  type MeetingNotesOptions,
+  type MeetingNotesResult,
+} from "@/lib/ai/meeting-notes";
 import { captureError } from "@/lib/sentry-utils";
 
 import { logger } from "@/lib/logger";
@@ -22,15 +28,15 @@ interface SummarizeRequest {
   messages: Message[];
   type?: "brief" | "digest" | "thread" | "catchup" | "meeting-notes";
   options?: SummaryOptions;
-  meetingOptions?: any;
+  meetingOptions?: MeetingNotesOptions;
 }
 
 interface SummarizeResponse {
   success: boolean;
   summary?: string;
-  digest?: any;
-  threadSummary?: any;
-  meetingNotes?: any;
+  digest?: ChannelDigest;
+  threadSummary?: ThreadSummary;
+  meetingNotes?: MeetingNotesResult;
   qualityScore?: number;
   costInfo?: {
     totalCost: number;

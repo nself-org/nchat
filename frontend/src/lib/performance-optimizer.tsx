@@ -135,7 +135,7 @@ export interface Message {
   content: string;
   userId: string;
   createdAt: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface VirtualMessageListProps {
@@ -310,8 +310,10 @@ export const LazyImage = memo(function LazyImage({
 /**
  * Deep comparison for useMemo and useCallback
  */
-export function useDeepMemo<T>(factory: () => T, deps: any[]): T {
-  const ref = React.useRef<{ deps: any[]; value: T } | undefined>(undefined);
+export function useDeepMemo<T>(factory: () => T, deps: unknown[]): T {
+  const ref = React.useRef<{ deps: unknown[]; value: T } | undefined>(
+    undefined,
+  );
 
   if (
     !ref.current ||

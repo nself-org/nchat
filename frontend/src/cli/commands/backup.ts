@@ -8,8 +8,28 @@ import ora from "ora";
 import Table from "cli-table3";
 import inquirer from "inquirer";
 
+// Option shapes mirror the `.option(...)` flags registered for each
+// subcommand in `@/cli/index.ts` — commander parses every flag value as a
+// string (or boolean for value-less flags) unless a coercion fn is given.
+interface CreateBackupOptions {
+  output?: string;
+  includeMedia?: boolean;
+}
+
+interface RestoreBackupOptions {
+  force?: boolean;
+}
+
+interface ListBackupsOptions {
+  limit: string;
+}
+
+interface DeleteBackupOptions {
+  force?: boolean;
+}
+
 export const backupCommands = {
-  async create(options: any) {
+  async create(options: CreateBackupOptions) {
     const spinner = ora("Creating backup...").start();
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const output =
@@ -20,7 +40,7 @@ export const backupCommands = {
     spinner.succeed(`Backup created: ${output}`);
   },
 
-  async restore(file: string, options: any) {
+  async restore(file: string, options: RestoreBackupOptions) {
     if (!options.force) {
       const { confirm } = await inquirer.prompt([
         {
@@ -39,7 +59,7 @@ export const backupCommands = {
     spinner.succeed("Restore completed successfully");
   },
 
-  async list(options: any) {
+  async list(options: ListBackupsOptions) {
     const spinner = ora("Listing backups...").start();
     spinner.succeed("Backups retrieved");
 
@@ -49,7 +69,7 @@ export const backupCommands = {
     // REMOVED: console.log(table.toString())
   },
 
-  async delete(file: string, options: any) {
+  async delete(file: string, options: DeleteBackupOptions) {
     if (!options.force) {
       const { confirm } = await inquirer.prompt([
         {

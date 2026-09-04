@@ -17,6 +17,7 @@ import { useApolloClient } from "@apollo/client";
 import { getE2EEManager, type E2EEStatus } from "@/lib/e2ee";
 import { useAuth } from "@/contexts/auth-context";
 import { useAppConfig } from "@/contexts/app-config-context";
+import { getErrorMessage } from "@/lib/utils/error";
 
 // ============================================================================
 // TYPES
@@ -251,8 +252,8 @@ export function E2EEProvider({ children }: E2EEProviderProps) {
       setIsLoading(true);
       try {
         await e2eeManager.replenishOneTimePreKeys(count);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(getErrorMessage(err));
         throw err;
       } finally {
         setIsLoading(false);
@@ -299,8 +300,8 @@ export function E2EEProvider({ children }: E2EEProviderProps) {
           peerUserId,
           peerIdentityKey,
         );
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(getErrorMessage(err));
         throw err;
       }
     },
