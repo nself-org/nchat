@@ -1,0 +1,54 @@
+name: 'GATE: OpenAPI Spec Diff'
+
+# P6-E11-W2-S3-T16 row 12: backend/openapi.yaml and frontend/public/openapi.yaml are two
+# hand-maintained copies of the same spec (both currently v0.9.1, byte-identical). This gate
+# fails the build the moment they diverge without both sides being updated in the same PR, so a
+# backend-only or frontend-only edit can never silently drift the two specs apart again.
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/openapi.yaml'
+      - 'frontend/public/openapi.yaml'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/openapi.yaml'
+      - 'frontend/public/openapi.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  diff-openapi-specs:
+    name: Diff backend vs frontend OpenAPI spec
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Fail if backend and frontend OpenAPI specs diverge
+        run: |
+          if [ ! -f backend/openapi.yaml ]; then
+            echo "::error::backend/openapi.yaml is missing"
+            exit 1
+          fi
+          if [ ! -f frontend/public/openapi.yaml ]; then
+            echo "::error::frontend/public/openapi.yaml is missing"
+            exit 1
+          fi
+          if ! diff -u backend/openapi.yaml frontend/public/openapi.yaml; then
+            echo ""
+            echo "::error::backend/openapi.yaml and frontend/public/openapi.yaml have diverged."
+            echo "These two files must describe the same API contract. If the backend API"
+            echo "changed, update frontend/public/openapi.yaml (or vice versa) in this same PR,"
+            echo "or document why the divergence is intentional and adjust this gate."
+            exit 1
+          fi
+          echo "backend/openapi.yaml and frontend/public/openapi.yaml are identical."
