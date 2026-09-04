@@ -53,8 +53,77 @@ const KB_SERVICE_URL =
   (typeof process !== "undefined" && process.env.KB_SERVICE_URL) ||
   "http://localhost:3734";
 
+/**
+ * Raw shape of a "Document" record as returned by the knowledge-base plugin's
+ * REST API (port 3734). The plugin has drifted between snake_case and
+ * camelCase across versions, so every field is optional and
+ * {@link pluginDocToArticle} falls back across both spellings.
+ */
+interface PluginDocumentRaw {
+  id: string;
+  slug?: string;
+  title?: string;
+  excerpt?: string;
+  content?: string;
+  content_type?: string;
+  contentType?: string;
+  status?: string;
+  visibility?: string;
+  collection_id?: string;
+  categoryId?: string;
+  tags?: string[];
+  keywords?: string[];
+  author_id?: string;
+  author_name?: string;
+  related_article_ids?: string[];
+  relatedArticleIds?: string[];
+  attachments?: KBAttachment[];
+  custom_fields?: Record<string, unknown>;
+  customFields?: Record<string, unknown>;
+  version?: number;
+  views?: number;
+  view_count?: number;
+  unique_view_count?: number;
+  helpful_count?: number;
+  not_helpful_count?: number;
+  search_appearances?: number;
+  avg_time_on_page?: number;
+  bounce_rate?: number;
+  is_featured?: boolean;
+  isFeatured?: boolean;
+  is_pinned?: boolean;
+  isPinned?: boolean;
+  published_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
+  updated_by?: string;
+  kind?: string;
+}
+
+/** Raw shape of a "FAQ" record as returned by the knowledge-base plugin's REST API. */
+interface PluginFaqRaw {
+  id: string;
+  question?: string;
+  answer?: string;
+  alternative_questions?: string[];
+  alternativeQuestions?: string[];
+  keywords?: string[];
+  collection_id?: string;
+  category?: string;
+  order_index?: number;
+  priority?: number;
+  is_active?: boolean;
+  isActive?: boolean;
+  article_id?: string;
+  articleId?: string;
+  created_at?: string;
+  updated_at?: string;
+  kind?: string;
+}
+
 // Map plugin Document shape → KBArticle
-function pluginDocToArticle(d: any): KBArticle {
+function pluginDocToArticle(d: PluginDocumentRaw): KBArticle {
   const now = d.created_at ? new Date(d.created_at) : new Date();
   return {
     id: d.id,
@@ -94,7 +163,7 @@ function pluginDocToArticle(d: any): KBArticle {
 }
 
 // Map plugin FAQ shape → FAQEntry
-function pluginFaqToEntry(f: any): FAQEntry {
+function pluginFaqToEntry(f: PluginFaqRaw): FAQEntry {
   const now = f.created_at ? new Date(f.created_at) : new Date();
   return {
     id: f.id,
@@ -563,8 +632,8 @@ export class KnowledgeBaseService {
       const slug = input.slug || generateSlug(input.title);
       // Check for duplicate slug by scanning existing articles
       const existingJson = await kbFetch("/api/v1/documents");
-      const existingDocs: any[] = existingJson.data ?? [];
-      if (existingDocs.some((d: any) => d.slug === slug)) {
+      const existingDocs: PluginDocumentRaw[] = existingJson.data ?? [];
+      if (existingDocs.some((d: PluginDocumentRaw) => d.slug === slug)) {
         return {
           success: false,
           error: {
@@ -655,8 +724,8 @@ export class KnowledgeBaseService {
     try {
       // Plugin has no by-slug endpoint; search all and match slug
       const json = await kbFetch("/api/v1/documents");
-      const docs: any[] = json.data ?? [];
-      const doc = docs.find((d: any) => d.slug === slug) ?? null;
+      const docs: PluginDocumentRaw[] = json.data ?? [];
+      const doc = docs.find((d: PluginDocumentRaw) => d.slug === slug) ?? null;
       return { success: true, data: doc ? pluginDocToArticle(doc) : null };
     } catch (error) {
       log.error("Failed to get article by slug", error);
@@ -793,7 +862,7 @@ export class KnowledgeBaseService {
       // Remove references to this article from all other articles' relatedArticleIds
       try {
         const allJson = await kbFetch("/api/v1/documents");
-        const allDocs: any[] = allJson.data ?? [];
+        const allDocs: PluginDocumentRaw[] = allJson.data ?? [];
         for (const doc of allDocs) {
           const relatedIds: string[] = doc.related_article_ids ?? [];
           if (relatedIds.includes(id)) {
@@ -933,7 +1002,7 @@ export class KnowledgeBaseService {
       const json = await kbFetch(
         `/api/v1/search?q=${encodeURIComponent(query)}`,
       );
-      const raw: any[] = json.data ?? [];
+      const raw: (PluginDocumentRaw & PluginFaqRaw)[] = json.data ?? [];
       const q = query.toLowerCase();
       // Plugin returns { id, kind, title, slug, ...} — filter articles, skip FAQs
       // By default, only return published articles unless a status override is given
@@ -1185,7 +1254,9 @@ export class KnowledgeBaseService {
       }
       // Plugin returns { id }; get full list to find new entry
       const listJson = await kbFetch("/api/v1/faqs");
-      const raw = (listJson.data ?? []).find((f: any) => f.id === json.id);
+      const raw = (listJson.data ?? []).find(
+        (f: PluginFaqRaw) => f.id === json.id,
+      );
       const faq = raw
         ? pluginFaqToEntry(raw)
         : pluginFaqToEntry({
@@ -1237,7 +1308,8 @@ export class KnowledgeBaseService {
     try {
       // Plugin has no by-id GET for FAQs; list and filter
       const json = await kbFetch("/api/v1/faqs");
-      const raw = (json.data ?? []).find((f: any) => f.id === id) ?? null;
+      const raw =
+        (json.data ?? []).find((f: PluginFaqRaw) => f.id === id) ?? null;
       return { success: true, data: raw ? pluginFaqToEntry(raw) : null };
     } catch (error) {
       log.error("Failed to get FAQ", error);
@@ -1278,7 +1350,7 @@ export class KnowledgeBaseService {
       });
       // Fetch updated entry via list
       const listJson = await kbFetch("/api/v1/faqs");
-      const raw = (listJson.data ?? []).find((f: any) => f.id === id);
+      const raw = (listJson.data ?? []).find((f: PluginFaqRaw) => f.id === id);
       if (!raw) {
         return {
           success: false,
@@ -1381,7 +1453,7 @@ export class KnowledgeBaseService {
         `/api/v1/search?q=${encodeURIComponent(query)}`,
       );
       let results: FAQEntry[] = (json.data ?? [])
-        .filter((r: any) => r.kind === "faq")
+        .filter((r: PluginFaqRaw) => r.kind === "faq")
         .map(pluginFaqToEntry)
         // By default only return active FAQs
         .filter((f: FAQEntry) => f.isActive);

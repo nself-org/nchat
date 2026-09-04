@@ -220,14 +220,23 @@ export class VectorStore {
         throw new Error(`Vector search failed: ${errors[0].message}`);
       }
 
-      return data.search_messages_by_embedding.map((result: any) => ({
-        messageId: result.message_id,
-        content: result.content,
-        similarity: result.similarity,
-        channelId: result.channel_id,
-        userId: result.user_id,
-        createdAt: result.created_at,
-      }));
+      return data.search_messages_by_embedding.map(
+        (result: {
+          message_id: string;
+          content: string;
+          similarity: number;
+          channel_id?: string;
+          user_id?: string;
+          created_at: string;
+        }) => ({
+          messageId: result.message_id,
+          content: result.content,
+          similarity: result.similarity,
+          channelId: result.channel_id,
+          userId: result.user_id,
+          createdAt: result.created_at,
+        }),
+      );
     } catch (error) {
       logger.error("Vector search error:", error);
       throw error;
@@ -296,7 +305,8 @@ export class VectorStore {
       }
 
       return data.update_nchat_messages_many.reduce(
-        (sum: number, result: any) => sum + result.affected_rows,
+        (sum: number, result: { affected_rows: number }) =>
+          sum + result.affected_rows,
         0,
       );
     } catch (error) {
@@ -581,13 +591,21 @@ export class VectorStore {
         throw new Error(`Get queue batch failed: ${errors[0].message}`);
       }
 
-      return (data.nchat_embedding_queue || []).map((item: any) => ({
-        id: item.id,
-        messageId: item.message_id,
-        priority: item.priority,
-        status: item.status,
-        retryCount: item.retry_count,
-      }));
+      return (data.nchat_embedding_queue || []).map(
+        (item: {
+          id: string;
+          message_id: string;
+          priority: number;
+          status: string;
+          retry_count: number;
+        }) => ({
+          id: item.id,
+          messageId: item.message_id,
+          priority: item.priority,
+          status: item.status,
+          retryCount: item.retry_count,
+        }),
+      );
     } catch (error) {
       logger.error("Get queue batch error:", error);
       return [];

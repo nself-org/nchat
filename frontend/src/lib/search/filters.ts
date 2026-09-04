@@ -88,9 +88,12 @@ export interface AdvancedSearchFilters {
   offset?: number;
 }
 
+/** A single bound value for a `$1, $2, ...` parameterized search SQL placeholder. */
+export type SearchParamValue = string | number | boolean | Date | string[];
+
 export interface ParsedFilter {
   sql: string;
-  params: any[];
+  params: SearchParamValue[];
   paramIndex: number;
 }
 
@@ -102,7 +105,7 @@ export class SearchFilterBuilder {
   private filters: AdvancedSearchFilters = {};
   private paramIndex = 1;
   private whereClauses: string[] = [];
-  private params: any[] = [];
+  private params: SearchParamValue[] = [];
 
   /**
    * Set text query
@@ -449,7 +452,7 @@ export class SearchFilterBuilder {
   /**
    * Add WHERE clause and parameter
    */
-  private addWhere(clause: string, param?: any): void {
+  private addWhere(clause: string, param?: SearchParamValue): void {
     this.whereClauses.push(clause);
     if (param !== undefined) {
       this.params.push(param);
@@ -479,9 +482,9 @@ export class SearchFilterBuilder {
   /**
    * Build LIMIT/OFFSET clause
    */
-  buildPaginationClause(): { sql: string; params: any[] } {
+  buildPaginationClause(): { sql: string; params: SearchParamValue[] } {
     const clauses: string[] = [];
-    const params: any[] = [];
+    const params: SearchParamValue[] = [];
 
     if (this.filters.limit) {
       clauses.push(`LIMIT $${this.paramIndex}`);
@@ -522,7 +525,10 @@ export class SearchFilterBuilder {
   /**
    * Build complete SQL query
    */
-  buildQuery(schema: string = "nchat"): { sql: string; params: any[] } {
+  buildQuery(schema: string = "nchat"): {
+    sql: string;
+    params: SearchParamValue[];
+  } {
     const where = this.buildWhereClause(schema);
     const orderBy = this.buildOrderByClause();
     const pagination = this.buildPaginationClause();

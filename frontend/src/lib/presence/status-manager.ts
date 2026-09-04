@@ -86,7 +86,7 @@ export interface StatusManagerOptions {
 }
 
 export interface StatusStorage {
-  save(key: string, value: any): Promise<void>;
+  save(key: string, value: unknown): Promise<void>;
   load(key: string): Promise<any>;
   remove(key: string): Promise<void>;
 }
@@ -98,7 +98,7 @@ export interface StatusStorage {
 class LocalStatusStorage implements StatusStorage {
   private prefix = "nchat:status:";
 
-  async save(key: string, value: any): Promise<void> {
+  async save(key: string, value: unknown): Promise<void> {
     if (typeof localStorage === "undefined") return;
     localStorage.setItem(this.prefix + key, JSON.stringify(value));
   }

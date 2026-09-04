@@ -334,11 +334,19 @@ export class AIModerationService {
   /**
    * Calculate overall confidence score
    */
-  private calculateConfidence(...results: any[]): number {
+  private calculateConfidence(
+    // Callers pass results with genuinely different shapes (the OpenAI check
+    // result has no `confidence`/`score` field at all — only
+    // `toxicity`/`nsfw`/`categories`), so this stays structurally generic
+    // and reads whichever of `confidence`/`score` is actually present.
+    ...results: Array<Record<string, unknown> | null | undefined>
+  ): number {
     // Simple average of non-zero scores
     const scores = results
-      .filter((r) => r && typeof r === "object")
-      .map((r) => r.confidence || r.score || 0)
+      .filter(
+        (r): r is Record<string, unknown> => r != null && typeof r === "object",
+      )
+      .map((r) => Number(r.confidence ?? r.score ?? 0))
       .filter((s) => s > 0);
 
     if (scores.length === 0) return 0.5;
@@ -388,7 +396,18 @@ export class AIModerationService {
 /**
  * Create AI moderation service instance from app config
  */
-export function createAIModerationService(appConfig: any): AIModerationService {
+interface AppConfigLike {
+  moderation?: {
+    aiModeration?: { enabled?: boolean };
+    thresholds?: ModerationConfig["thresholds"];
+    autoActions?: ModerationConfig["autoActions"];
+    customWords?: ModerationConfig["customWords"];
+  };
+}
+
+export function createAIModerationService(
+  appConfig: AppConfigLike,
+): AIModerationService {
   const config: ModerationConfig = {
     enabled: appConfig.moderation?.aiModeration?.enabled ?? true,
     providers: {

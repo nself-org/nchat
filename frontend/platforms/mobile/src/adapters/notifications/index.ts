@@ -33,7 +33,7 @@ export interface NotificationsAdapter {
     handler: (action: ActionPerformed) => void
   ): () => void
   addRegistrationListener(handler: (token: string) => void): () => void
-  addRegistrationErrorListener(handler: (error: any) => void): () => void
+  addRegistrationErrorListener(handler: (error: unknown) => void): () => void
 }
 
 /**
@@ -183,10 +183,10 @@ export const mobileNotifications: NotificationsAdapter = {
   /**
    * Listen for registration errors
    */
-  addRegistrationErrorListener(handler: (error: any) => void) {
+  addRegistrationErrorListener(handler: (error: unknown) => void) {
     const listenerPromise = PushNotifications.addListener(
       'registrationError',
-      (error: any) => {
+      (error: unknown) => {
         console.error('[Notifications] Registration error:', error)
         handler(error)
       }

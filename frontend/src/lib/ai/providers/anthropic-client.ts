@@ -10,6 +10,7 @@
 import { captureError, addSentryBreadcrumb } from "@/lib/sentry-utils";
 
 import { logger } from "@/lib/logger";
+import { getErrorName } from "@/lib/utils/error";
 
 // ============================================================================
 // Types
@@ -110,12 +111,29 @@ export class AnthropicError extends Error {
     public type: AnthropicErrorType,
     message: string,
     public statusCode?: number,
-    public details?: any,
+    public details?: unknown,
   ) {
     super(message);
     this.name = "AnthropicError";
   }
 }
+
+/**
+ * Everything `categorizeError` may receive: a native fetch/abort error, an
+ * already-categorized `AnthropicError`, or the plain `{status, statusText,
+ * data}` object `makeRequest`'s catch block throws for a non-OK response.
+ */
+type AnthropicRequestError =
+  | TypeError
+  | AnthropicError
+  | {
+      name?: string;
+      message?: string;
+      status?: number;
+      statusCode?: number;
+      statusText?: string;
+      data?: { error?: { type?: string; message?: string } };
+    };
 
 // ============================================================================
 // Anthropic Client
@@ -295,7 +313,11 @@ export class AnthropicClient {
     try {
       return await fn();
     } catch (error) {
-      const anthropicError = this.categorizeError(error);
+      // `error` is `unknown` per strict catch typing; `makeRequest` only
+      // ever throws TypeError, AnthropicError, or its {status, data} object.
+      const anthropicError = this.categorizeError(
+        error as AnthropicRequestError,
+      );
 
       // Don't retry on authentication or invalid request errors
       if (
@@ -332,7 +354,7 @@ export class AnthropicClient {
 
   private async makeRequest<T>(
     endpoint: string,
-    body: any,
+    body: Record<string, unknown>,
     requestId: string,
   ): Promise<T> {
     const url = `${this.config.baseURL}${endpoint}`;
@@ -359,10 +381,10 @@ export class AnthropicClient {
       }
 
       return await response.json();
-    } catch (error: any) {
+    } catch (error) {
       clearTimeout(timeoutId);
 
-      if (error.name === "AbortError") {
+      if (getErrorName(error) === "AbortError") {
         throw new AnthropicError(
           AnthropicErrorType.TIMEOUT,
           `Request timeout after ${this.config.timeout}ms`,
@@ -376,7 +398,7 @@ export class AnthropicClient {
 
   private async makeStreamRequest(
     endpoint: string,
-    body: any,
+    body: Record<string, unknown>,
     requestId: string,
   ): Promise<Response> {
     const url = `${this.config.baseURL}${endpoint}`;
@@ -406,10 +428,10 @@ export class AnthropicClient {
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error) {
       clearTimeout(timeoutId);
 
-      if (error.name === "AbortError") {
+      if (getErrorName(error) === "AbortError") {
         throw new AnthropicError(
           AnthropicErrorType.TIMEOUT,
           `Stream request timeout after ${this.config.timeout * 2}ms`,
@@ -433,7 +455,7 @@ export class AnthropicClient {
   // Error Handling
   // ============================================================================
 
-  private categorizeError(error: any): AnthropicError {
+  private categorizeError(error: AnthropicRequestError): AnthropicError {
     // Handle fetch/network errors
     if (error instanceof TypeError || error.name === "NetworkError") {
       return new AnthropicError(
@@ -452,11 +474,20 @@ export class AnthropicClient {
       return error;
     }
 
-    // Handle HTTP errors
-    const status = error.status || error.statusCode;
-    const errorData = error.data?.error || {};
+    // Handle HTTP errors. Neither TypeError nor a bare `{status, statusText,
+    // data}` object exposes every field below on a shared shape, so narrow
+    // via a single structural view of what's actually read from here on.
+    const httpError = error as {
+      status?: number;
+      statusCode?: number;
+      data?: { error?: { type?: string; message?: string } };
+      message?: string;
+    };
+    const status = httpError.status || httpError.statusCode;
+    const errorData = httpError.data?.error || {};
     const errorType = errorData.type || "";
-    const errorMessage = errorData.message || error.message || "Unknown error";
+    const errorMessage =
+      errorData.message || httpError.message || "Unknown error";
 
     switch (status) {
       case 401:
@@ -464,14 +495,14 @@ export class AnthropicClient {
           AnthropicErrorType.AUTHENTICATION,
           "Invalid API key or authentication failed",
           401,
-          error.data,
+          httpError.data,
         );
       case 429:
         return new AnthropicError(
           AnthropicErrorType.RATE_LIMIT,
           "Rate limit exceeded",
           429,
-          error.data,
+          httpError.data,
         );
       case 400:
       case 404:
@@ -479,14 +510,14 @@ export class AnthropicClient {
           AnthropicErrorType.INVALID_REQUEST,
           errorMessage,
           status,
-          error.data,
+          httpError.data,
         );
       case 529:
         return new AnthropicError(
           AnthropicErrorType.OVERLOADED,
           "Anthropic API is temporarily overloaded",
           529,
-          error.data,
+          httpError.data,
         );
       case 500:
       case 502:
@@ -496,14 +527,14 @@ export class AnthropicClient {
           AnthropicErrorType.SERVER_ERROR,
           "Anthropic server error",
           status,
-          error.data,
+          httpError.data,
         );
       default:
         return new AnthropicError(
           AnthropicErrorType.UNKNOWN,
           errorMessage,
           status,
-          error.data,
+          httpError.data,
         );
     }
   }

@@ -22,6 +22,11 @@ import {
   createSignalingManager,
   generateCallId,
   type CallEndReason,
+  type CallRingPayload,
+  type CallOfferPayload,
+  type CallAnswerPayload,
+  type CallIceCandidatePayload,
+  type CallMediaChangePayload,
 } from "@/lib/webrtc/signaling";
 import { logger } from "@/lib/logger";
 
@@ -700,7 +705,7 @@ export class OneToOneCallService extends EventEmitter {
     this.emit("call-state-change", { status, previousStatus });
   }
 
-  private handleIncomingCall(payload: any): void {
+  private handleIncomingCall(payload: CallRingPayload): void {
     if (this.isInCall) {
       // Already in a call, send busy signal
       this.signaling?.reportBusy(payload.callId, this.config.userId);
@@ -760,7 +765,7 @@ export class OneToOneCallService extends EventEmitter {
     this.cleanup();
   }
 
-  private async handleOffer(payload: any): Promise<void> {
+  private async handleOffer(payload: CallOfferPayload): Promise<void> {
     if (!this.peerConnection || this.currentCall?.id !== payload.callId) return;
 
     await this.peerConnection.setRemoteDescription(payload.sdp);
@@ -774,13 +779,15 @@ export class OneToOneCallService extends EventEmitter {
     });
   }
 
-  private async handleAnswer(payload: any): Promise<void> {
+  private async handleAnswer(payload: CallAnswerPayload): Promise<void> {
     if (!this.peerConnection || this.currentCall?.id !== payload.callId) return;
 
     await this.peerConnection.setRemoteDescription(payload.sdp);
   }
 
-  private async handleIceCandidate(payload: any): Promise<void> {
+  private async handleIceCandidate(
+    payload: CallIceCandidatePayload,
+  ): Promise<void> {
     if (!this.peerConnection || this.currentCall?.id !== payload.callId) return;
 
     await this.peerConnection.addIceCandidate(payload.candidate);
@@ -833,7 +840,7 @@ export class OneToOneCallService extends EventEmitter {
     }
   }
 
-  private handleRemoteMuteChange(payload: any): void {
+  private handleRemoteMuteChange(payload: CallMediaChangePayload): void {
     if (this.currentCall?.remoteParticipant) {
       this.currentCall.remoteParticipant.isMuted = !payload.enabled;
       this.emit("remote-mute-change", {
@@ -843,7 +850,7 @@ export class OneToOneCallService extends EventEmitter {
     }
   }
 
-  private handleRemoteVideoChange(payload: any): void {
+  private handleRemoteVideoChange(payload: CallMediaChangePayload): void {
     if (this.currentCall?.remoteParticipant) {
       this.currentCall.remoteParticipant.isVideoEnabled = payload.enabled;
       this.emit("remote-video-change", {
@@ -853,14 +860,20 @@ export class OneToOneCallService extends EventEmitter {
     }
   }
 
-  private handleRemoteScreenShareStart(payload: any): void {
+  private handleRemoteScreenShareStart(payload: {
+    callId: string;
+    userId: string;
+  }): void {
     if (this.currentCall?.remoteParticipant) {
       this.currentCall.remoteParticipant.isScreenSharing = true;
       this.emit("remote-screen-share-start", { userId: payload.userId });
     }
   }
 
-  private handleRemoteScreenShareStop(payload: any): void {
+  private handleRemoteScreenShareStop(payload: {
+    callId: string;
+    userId: string;
+  }): void {
     if (this.currentCall?.remoteParticipant) {
       this.currentCall.remoteParticipant.isScreenSharing = false;
       this.emit("remote-screen-share-stop", { userId: payload.userId });

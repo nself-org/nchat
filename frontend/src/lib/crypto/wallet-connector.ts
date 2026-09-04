@@ -8,6 +8,7 @@
 
 import type { CryptoNetwork } from "@/types/billing";
 import { CRYPTO_NETWORKS } from "@/config/billing-plans";
+import { getErrorMessage } from "@/lib/utils/error";
 
 export type WalletProvider = "metamask" | "coinbase" | "walletconnect";
 
@@ -237,11 +238,11 @@ export async function connectMetaMask(): Promise<ConnectResult> {
       address: accounts[0],
       network,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("MetaMask connection error:", error);
     return {
       success: false,
-      error: error.message || "Failed to connect to MetaMask",
+      error: getErrorMessage(error) || "Failed to connect to MetaMask",
     };
   }
 }
@@ -282,11 +283,11 @@ export async function connectCoinbaseWallet(): Promise<ConnectResult> {
       address: accounts[0],
       network,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Coinbase Wallet connection error:", error);
     return {
       success: false,
-      error: error.message || "Failed to connect to Coinbase Wallet",
+      error: getErrorMessage(error) || "Failed to connect to Coinbase Wallet",
     };
   }
 }
@@ -833,9 +834,9 @@ export async function switchNetwork(network: CryptoNetwork): Promise<boolean> {
       params: [{ chainId: chainIdHex }],
     });
     return true;
-  } catch (error: any) {
+  } catch (error) {
     // This error code indicates that the chain has not been added to MetaMask
-    if (error.code === 4902) {
+    if ((error as { code?: number })?.code === 4902) {
       try {
         await ethereum.request({
           method: "wallet_addEthereumChain",

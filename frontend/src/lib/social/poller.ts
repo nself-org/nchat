@@ -4,6 +4,11 @@
  * and imports them to configured channels
  */
 
+import {
+  gql,
+  type ApolloClient,
+  type NormalizedCacheObject,
+} from "@apollo/client";
 import { TwitterClient } from "./twitter-client";
 import { InstagramClient } from "./instagram-client";
 import { LinkedInClient } from "./linkedin-client";
@@ -38,7 +43,7 @@ function getClients(): Record<SocialPlatform, SocialAPIClient> {
  * Poll all active social accounts for new posts
  */
 export async function pollAllAccounts(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
 ): Promise<ImportResult> {
   const result: ImportResult = {
     fetched: 0,
@@ -86,7 +91,7 @@ export async function pollAllAccounts(
  * Poll a single social account for new posts
  */
 export async function pollAccount(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   account: SocialAccount,
 ): Promise<ImportResult> {
   const result: ImportResult = {
@@ -194,7 +199,7 @@ export async function pollAccount(
  * Manually trigger import for an account
  */
 export async function manualImport(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   accountId: string,
 ): Promise<ImportResult> {
   const { data } = await apolloClient.query({
@@ -212,7 +217,7 @@ export async function manualImport(
 
 // GraphQL Queries and Mutations
 
-const GET_ACTIVE_SOCIAL_ACCOUNTS = `
+const GET_ACTIVE_SOCIAL_ACCOUNTS = gql`
   query GetActiveSocialAccounts {
     nchat_social_accounts(where: { is_active: { _eq: true } }) {
       id
@@ -227,7 +232,7 @@ const GET_ACTIVE_SOCIAL_ACCOUNTS = `
   }
 `;
 
-const GET_SOCIAL_ACCOUNT = `
+const GET_SOCIAL_ACCOUNT = gql`
   query GetSocialAccount($id: uuid!) {
     nchat_social_accounts_by_pk(id: $id) {
       id
@@ -243,13 +248,10 @@ const GET_SOCIAL_ACCOUNT = `
   }
 `;
 
-const GET_ACCOUNT_INTEGRATIONS = `
+const GET_ACCOUNT_INTEGRATIONS = gql`
   query GetAccountIntegrations($accountId: uuid!) {
     nchat_social_integrations(
-      where: {
-        account_id: { _eq: $accountId }
-        auto_post: { _eq: true }
-      }
+      where: { account_id: { _eq: $accountId }, auto_post: { _eq: true } }
     ) {
       id
       channel_id
@@ -263,7 +265,7 @@ const GET_ACCOUNT_INTEGRATIONS = `
   }
 `;
 
-const GET_LAST_POST_ID = `
+const GET_LAST_POST_ID = gql`
   query GetLastPostId($accountId: uuid!) {
     nchat_social_posts(
       where: { account_id: { _eq: $accountId } }
@@ -275,7 +277,7 @@ const GET_LAST_POST_ID = `
   }
 `;
 
-const SAVE_POST = `
+const SAVE_POST = gql`
   mutation SavePost($post: nchat_social_posts_insert_input!) {
     insert_nchat_social_posts_one(
       object: $post
@@ -301,7 +303,7 @@ const SAVE_POST = `
   }
 `;
 
-const POST_TO_CHANNEL = `
+const POST_TO_CHANNEL = gql`
   mutation PostToChannel($message: nchat_messages_insert_input!) {
     insert_nchat_messages_one(object: $message) {
       id
@@ -310,7 +312,7 @@ const POST_TO_CHANNEL = `
   }
 `;
 
-const MARK_POST_AS_POSTED = `
+const MARK_POST_AS_POSTED = gql`
   mutation MarkPostAsPosted($postId: uuid!, $channelId: uuid!) {
     update_nchat_social_posts_by_pk(
       pk_columns: { id: $postId }
@@ -324,7 +326,7 @@ const MARK_POST_AS_POSTED = `
   }
 `;
 
-const CREATE_IMPORT_LOG = `
+const CREATE_IMPORT_LOG = gql`
   mutation CreateImportLog($accountId: uuid!, $importType: String!) {
     insert_nchat_social_import_logs_one(
       object: {
@@ -338,7 +340,7 @@ const CREATE_IMPORT_LOG = `
   }
 `;
 
-const UPDATE_IMPORT_LOG = `
+const UPDATE_IMPORT_LOG = gql`
   mutation UpdateImportLog(
     $id: uuid!
     $fetched: Int!
@@ -365,7 +367,7 @@ const UPDATE_IMPORT_LOG = `
   }
 `;
 
-const UPDATE_LAST_POLL_TIME = `
+const UPDATE_LAST_POLL_TIME = gql`
   mutation UpdateLastPollTime($accountId: uuid!) {
     update_nchat_social_accounts_by_pk(
       pk_columns: { id: $accountId }
@@ -379,7 +381,7 @@ const UPDATE_LAST_POLL_TIME = `
 // Helper functions
 
 async function getAccountIntegrations(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   accountId: string,
 ): Promise<SocialIntegration[]> {
   const { data } = await apolloClient.query({
@@ -392,7 +394,7 @@ async function getAccountIntegrations(
 }
 
 async function getLastPostId(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   accountId: string,
 ): Promise<string | undefined> {
   const { data } = await apolloClient.query({
@@ -405,7 +407,7 @@ async function getLastPostId(
 }
 
 async function savePost(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   accountId: string,
   post: SocialPost,
 ): Promise<SocialPost> {
@@ -423,7 +425,7 @@ async function savePost(
 }
 
 async function postToChannel(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   post: SocialPost,
   integration: SocialIntegration,
   platform: SocialPlatform,
@@ -445,7 +447,7 @@ async function postToChannel(
 }
 
 async function markPostAsPosted(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   postId: string,
   channelId: string,
 ): Promise<void> {
@@ -456,7 +458,7 @@ async function markPostAsPosted(
 }
 
 async function createImportLog(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   accountId: string,
   importType: string,
 ): Promise<string> {
@@ -469,7 +471,7 @@ async function createImportLog(
 }
 
 async function updateImportLog(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   logId: string,
   result: ImportResult,
   status: string,
@@ -489,7 +491,7 @@ async function updateImportLog(
 }
 
 async function updateLastPollTime(
-  apolloClient: any,
+  apolloClient: ApolloClient<NormalizedCacheObject>,
   accountId: string,
 ): Promise<void> {
   await apolloClient.mutate({
