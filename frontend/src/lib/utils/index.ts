@@ -305,6 +305,9 @@ export {
   type CompressionOptions,
 } from "./media";
 
+// Error utilities
+export { getErrorMessage, getErrorName } from "./error";
+
 // Crypto utilities
 export {
   generateId,
