@@ -51,6 +51,48 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
+/** A single collected Web Vitals sample as rendered by {@link MetricsTable}. */
+interface PerformanceMetricRow {
+  id: string;
+  name: string;
+  value: number;
+  rating: "good" | "needs-improvement" | "poor";
+  timestamp: number;
+}
+
+/** A single collected custom metric sample as rendered by {@link CustomMetricsTable}. */
+interface CustomMetricRow {
+  name: string;
+  value: number;
+  unit: "ms" | "bytes" | "count" | "percent";
+  tags?: Record<string, unknown>;
+  timestamp: number;
+}
+
+/**
+ * `usePerformance()`'s current stub implementation (`@/hooks/use-performance`)
+ * only populates these five fields per stat bucket — not the full
+ * `MetricStats` shape (`p75`/`p99`/`count`) that a future real
+ * implementation would report. `MetricCard` only reads these five.
+ */
+interface MetricSummaryStats {
+  avg: number;
+  p95: number;
+  min: number;
+  median: number;
+  max: number;
+}
+
+/** Matches `usePerformance()`'s stub `trends` shape — only `direction` is read here. */
+interface MetricSummaryTrend {
+  // `usePerformance()`'s stub builds this object inline with no return-type
+  // annotation, so `direction` widens to plain `string` at the source
+  // rather than narrowing to a literal union — matching that here instead
+  // of asserting a precision the hook doesn't actually provide.
+  direction: string;
+  change: number;
+}
+
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -534,8 +576,8 @@ function VitalCard({
 
 interface MetricCardProps {
   title: string;
-  stats: any;
-  trend: any;
+  stats: MetricSummaryStats;
+  trend: MetricSummaryTrend;
   unit: string;
   icon: React.ComponentType<{ className?: string }>;
 }
@@ -634,7 +676,7 @@ function MetricCard({
   );
 }
 
-function MetricsTable({ metrics }: { metrics: any[] }) {
+function MetricsTable({ metrics }: { metrics: PerformanceMetricRow[] }) {
   return (
     <div className="rounded-lg border">
       <table className="w-full">
@@ -678,7 +720,7 @@ function MetricsTable({ metrics }: { metrics: any[] }) {
   );
 }
 
-function CustomMetricsTable({ metrics }: { metrics: any[] }) {
+function CustomMetricsTable({ metrics }: { metrics: CustomMetricRow[] }) {
   return (
     <div className="rounded-lg border">
       <table className="w-full">
