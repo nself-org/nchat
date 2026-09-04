@@ -44,7 +44,9 @@ overrides:
   websocket-driver: '>=0.7.5'
   axios: '>=1.18.0'
   next-auth: '>=4.24.15'
-  fast-uri: '>=3.1.3'
+  fast-uri: '>=4.1.3'
+  fflate: '>=0.8.3'
+  stream-json: '>=3.5.0'
   ip-address: '>=10.3.1'
   js-yaml: '>=4.3.1'
   linkify-it: '>=5.0.2'
@@ -10467,8 +10469,8 @@ packages:
   fast-string-width@3.0.2:
     resolution: {integrity: sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==}
 
-  fast-uri@4.1.2:
-    resolution: {integrity: sha512-TyGmBcbDTZXcb2cj5MV89DrF42DKvb3y5DDUNh95iO+IMeAzMkVSxK1PZRrRIpc9yg8U2GhGdbofNa0LS/a4Bw==}
+  fast-uri@4.1.4:
+    resolution: {integrity: sha512-dODXrIxlS9JSdgAnhIUKOosKV1oMtU2VtVw87QRaHzyl5jxO290Ii5tEZfCfzfWNHi3jKWwBSdQj0qIyshdZdQ==}
 
   fast-wrap-ansi@0.2.2:
     resolution: {integrity: sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q==}
@@ -10531,11 +10533,8 @@ packages:
   fetch-ponyfill@7.1.0:
     resolution: {integrity: sha512-FhbbL55dj/qdVO3YNK7ZEkshvj3eQ7EuIGV2I6ic/2YiocvyWv+7jg2s4AyS0wdRU75s3tA8ZxI/xPigb0v5Aw==}
 
-  fflate@0.8.1:
-    resolution: {integrity: sha512-/exOvEuc+/iaUm105QIiOt4LpBdMTWsXxqR0HDF35vx3fmaKzw7354gTilCh5rkzEt8WYyG//ku3h3nRmd7CHQ==}
-
-  fflate@0.8.2:
-    resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   ffmpeg-static@5.3.0:
     resolution: {integrity: sha512-H+K6sW6TiIX6VGend0KQwthe+kaceeH/luE8dIZyOP35ik7ahYojDuqlTV1bOrtEwl01sy2HFNGQfi5IDJvotg==}
@@ -15142,14 +15141,15 @@ packages:
     resolution: {integrity: sha512-pqMqwQCso0PBJt2PQmDO0cFj0lyqmiwOMiMSkVtRokl7e+ZTRYgDHKnuZNbqjiJXgsg4nuqtD/zxuo9KqTp0Yw==}
     engines: {node: '>= 0.10.0'}
 
-  stream-chain@2.2.5:
-    resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
+  stream-chain@4.2.5:
+    resolution: {integrity: sha512-Wtyq3bNE3ggLR0v2vftqvuhltym3WbZAkZpfIrkr5F/6vpeUmWmwTgXa16zD87gpahwJ/Qulq3zVfUlgIc0J2A==}
+    engines: {node: '>=22'}
 
   stream-combiner@0.2.2:
     resolution: {integrity: sha512-6yHMqgLYDzQDcAkL+tjJDC5nSNuNIx0vZtRZeiPh7Saef7VHX9H5Ijn9l2VIol2zaNYlYEX6KyuT/237A58qEQ==}
 
-  stream-json@1.9.1:
-    resolution: {integrity: sha512-uWkjJ+2Nt/LO9Z/JyKZbMusL8Dkh97uUBTv3AJQ74y07lVahLY4eEFsPsE97pxYBwr8nnjMAIch5eqI0gPShyw==}
+  stream-json@3.6.0:
+    resolution: {integrity: sha512-NiJdqxKyau579z/E8vfqcjWfSDWxW/AT99javFXdPXF147Z5za85LRXSHEmSX9TKOakB7gaIccfD0fOIctb7KQ==}
 
   streamx@2.25.0:
     resolution: {integrity: sha512-0nQuG6jf1w+wddNEEXCF4nTg3LtufWINB5eFEN+5TNZW7KWJp6x87+JFL43vaAUPyCfH1wID+mNVyW6OHtFamg==}
@@ -23146,7 +23146,7 @@ snapshots:
     dependencies:
       '@smithy/core': 3.24.3
       '@smithy/types': 4.14.2
-      fflate: 0.8.1
+      fflate: 0.8.3
       tslib: 2.8.1
 
   '@smithy/node-http-handler@4.7.3':
@@ -25620,7 +25620,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 4.1.2
+      fast-uri: 4.1.4
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -26849,7 +26849,7 @@ snapshots:
     dependencies:
       '@flatten-js/interval-tree': 1.1.4
       multi-sort-stream: 1.0.4
-      stream-json: 1.9.1
+      stream-json: 3.6.0
       trace-event-lib: 1.4.1
     optionalDependencies:
       bunyan: 2.0.5
@@ -27910,7 +27910,7 @@ snapshots:
       serialize-error: 8.1.0
       shell-quote: 1.10.0
       signal-exit: 3.0.7
-      stream-json: 1.9.1
+      stream-json: 3.6.0
       strip-ansi: 6.0.1
       telnet-client: 1.2.8
       tmp: 0.2.7
@@ -29023,7 +29023,7 @@ snapshots:
     dependencies:
       fast-string-truncated-width: 3.0.3
 
-  fast-uri@4.1.2: {}
+  fast-uri@4.1.4: {}
 
   fast-wrap-ansi@0.2.2:
     dependencies:
@@ -29096,9 +29096,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  fflate@0.8.1: {}
-
-  fflate@0.8.2: {}
+  fflate@0.8.3: {}
 
   ffmpeg-static@5.3.0:
     dependencies:
@@ -31316,7 +31314,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.2
       fast-png: 6.4.0
-      fflate: 0.8.2
+      fflate: 0.8.3
     optionalDependencies:
       canvg: 3.0.11
       core-js: 3.49.0
@@ -34724,16 +34722,16 @@ snapshots:
 
   stream-buffers@3.0.3: {}
 
-  stream-chain@2.2.5: {}
+  stream-chain@4.2.5: {}
 
   stream-combiner@0.2.2:
     dependencies:
       duplexer: 0.1.2
       through: 2.3.8
 
-  stream-json@1.9.1:
+  stream-json@3.6.0:
     dependencies:
-      stream-chain: 2.2.5
+      stream-chain: 4.2.5
 
   streamx@2.25.0:
     dependencies:
