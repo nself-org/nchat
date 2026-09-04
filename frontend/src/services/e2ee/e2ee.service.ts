@@ -202,7 +202,7 @@ export class E2EEService {
   private preKeyManager: PreKeyBundleManager | null = null;
   private initialized = false;
   private lastSyncAt: Date | null = null;
-  private eventListeners: Map<string, Array<(event: any) => void>> = new Map();
+  private eventListeners: Map<string, Array<(event: unknown) => void>> = new Map();
 
   constructor(config: E2EEServiceConfig) {
     this.config = {
@@ -684,7 +684,7 @@ export class E2EEService {
    */
   on(
     eventType: SessionEventType | "prekey_consumed" | "prekey_low",
-    callback: (event: any) => void,
+    callback: (event: unknown) => void,
   ): () => void {
     const listeners = this.eventListeners.get(eventType) ?? [];
     listeners.push(callback);
@@ -727,7 +727,7 @@ export class E2EEService {
   /**
    * Emits an event to listeners
    */
-  private emitEvent(eventType: string, data: any): void {
+  private emitEvent(eventType: string, data: unknown): void {
     const listeners = this.eventListeners.get(eventType) ?? [];
     for (const listener of listeners) {
       try {
