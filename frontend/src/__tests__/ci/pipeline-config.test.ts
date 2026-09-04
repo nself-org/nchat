@@ -17,6 +17,30 @@ import path from "path";
 // @ts-ignore - mocked module
 import YAML from "yaml";
 
+/** A single step in a GitHub Actions job — only the fields these tests read. */
+interface GitHubActionsStep {
+  id?: string;
+  name?: string;
+  run?: string;
+  if?: string;
+  uses?: string;
+  with: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/** A single job in a GitHub Actions workflow — only the fields these tests read. */
+interface GitHubActionsJob {
+  needs?: string | string[];
+  steps: GitHubActionsStep[];
+  [key: string]: unknown;
+}
+
+/** Minimal shape of a parsed `.github/workflows/*.yml` file. */
+interface GitHubActionsWorkflow {
+  jobs: Record<string, GitHubActionsJob>;
+  [key: string]: unknown;
+}
+
 describe("CI Pipeline Configuration", () => {
   // .github/ lives at repo root; tests run from frontend/ so go up one level
   const ciPath = path.join(
@@ -34,8 +58,8 @@ describe("CI Pipeline Configuration", () => {
     "pr-checks.yml",
   );
 
-  let ciWorkflow: any;
-  let prChecksWorkflow: any;
+  let ciWorkflow: GitHubActionsWorkflow;
+  let prChecksWorkflow: GitHubActionsWorkflow;
 
   beforeAll(() => {
     const ciContent = fs.readFileSync(ciPath, "utf8");
@@ -121,7 +145,7 @@ describe("CI Pipeline Configuration", () => {
     it("should have test job with jest runner", () => {
       // CI runs without coverage (--no-coverage) to avoid OOM; coverage is in test.yml
       const test = ciWorkflow.jobs.test;
-      const testStep = test.steps.find((s: any) => s.name === "Run tests");
+      const testStep = test.steps.find((s: GitHubActionsStep) => s.name === "Run tests")!;
       expect(testStep).toBeDefined();
       expect(testStep.run).toContain("jest");
     });
@@ -207,8 +231,8 @@ describe("CI Pipeline Configuration", () => {
     it("ci.yml should filter backend paths correctly", () => {
       const detectChanges = ciWorkflow.jobs["detect-changes"];
       const filterStep = detectChanges.steps.find(
-        (s: any) => s.id === "filter",
-      );
+        (s: GitHubActionsStep) => s.id === "filter",
+      )!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("backend:");
@@ -219,8 +243,8 @@ describe("CI Pipeline Configuration", () => {
     it("ci.yml should filter frontend paths correctly", () => {
       const detectChanges = ciWorkflow.jobs["detect-changes"];
       const filterStep = detectChanges.steps.find(
-        (s: any) => s.id === "filter",
-      );
+        (s: GitHubActionsStep) => s.id === "filter",
+      )!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("frontend:");
@@ -230,8 +254,8 @@ describe("CI Pipeline Configuration", () => {
     it("ci.yml should filter package paths correctly", () => {
       const detectChanges = ciWorkflow.jobs["detect-changes"];
       const filterStep = detectChanges.steps.find(
-        (s: any) => s.id === "filter",
-      );
+        (s: GitHubActionsStep) => s.id === "filter",
+      )!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("packages:");
@@ -241,8 +265,8 @@ describe("CI Pipeline Configuration", () => {
     it("ci.yml should filter web/frontend paths correctly", () => {
       const detectChanges = ciWorkflow.jobs["detect-changes"];
       const filterStep = detectChanges.steps.find(
-        (s: any) => s.id === "filter",
-      );
+        (s: GitHubActionsStep) => s.id === "filter",
+      )!;
       const filters = filterStep.with.filters;
 
       // ci.yml uses 'web:' filter (not 'legacy:') pointing to frontend/src
@@ -253,7 +277,7 @@ describe("CI Pipeline Configuration", () => {
 
     it("pr-checks.yml should have backend filter", () => {
       const changes = prChecksWorkflow.jobs.changes;
-      const filterStep = changes.steps.find((s: any) => s.id === "changes");
+      const filterStep = changes.steps.find((s: GitHubActionsStep) => s.id === "changes")!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("backend:");
@@ -262,7 +286,7 @@ describe("CI Pipeline Configuration", () => {
 
     it("pr-checks.yml should have frontend filter", () => {
       const changes = prChecksWorkflow.jobs.changes;
-      const filterStep = changes.steps.find((s: any) => s.id === "changes");
+      const filterStep = changes.steps.find((s: GitHubActionsStep) => s.id === "changes")!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("frontend:");
@@ -271,7 +295,7 @@ describe("CI Pipeline Configuration", () => {
 
     it("pr-checks.yml should have packages filter", () => {
       const changes = prChecksWorkflow.jobs.changes;
-      const filterStep = changes.steps.find((s: any) => s.id === "changes");
+      const filterStep = changes.steps.find((s: GitHubActionsStep) => s.id === "changes")!;
       const filters = filterStep.with.filters;
 
       expect(filters).toContain("packages:");
@@ -339,7 +363,7 @@ describe("CI Pipeline Configuration", () => {
   describe("Quality Gate Enforcement", () => {
     it("should run lint with correct command", () => {
       const lint = ciWorkflow.jobs.lint;
-      const lintStep = lint.steps.find((s: any) => s.name === "Run ESLint");
+      const lintStep = lint.steps.find((s: GitHubActionsStep) => s.name === "Run ESLint")!;
       expect(lintStep).toBeDefined();
       expect(lintStep.run).toBe(
         "HASURA_ADMIN_SECRET=ci-lint-placeholder-not-a-real-secret pnpm lint",
@@ -348,18 +372,18 @@ describe("CI Pipeline Configuration", () => {
 
     it("should run format check with correct command", () => {
       const lint = ciWorkflow.jobs.lint;
-      const formatStep = lint.steps.find((s: any) =>
-        s.name.includes("formatting"),
-      );
+      const formatStep = lint.steps.find((s: GitHubActionsStep) =>
+        s.name?.includes("formatting"),
+      )!;
       expect(formatStep).toBeDefined();
       expect(formatStep.run).toBe("pnpm format:check");
     });
 
     it("should run type check with correct command", () => {
       const typeCheck = ciWorkflow.jobs["type-check"];
-      const typeCheckStep = typeCheck.steps.find((s: any) =>
-        s.name.includes("TypeScript"),
-      );
+      const typeCheckStep = typeCheck.steps.find((s: GitHubActionsStep) =>
+        s.name?.includes("TypeScript"),
+      )!;
       expect(typeCheckStep).toBeDefined();
       expect(typeCheckStep.run).toBe("pnpm type-check");
     });
@@ -367,25 +391,25 @@ describe("CI Pipeline Configuration", () => {
     it("should run tests with jest", () => {
       // CI uses --no-coverage to avoid OOM; coverage is collected in test.yml
       const test = ciWorkflow.jobs.test;
-      const testStep = test.steps.find((s: any) => s.name === "Run tests");
+      const testStep = test.steps.find((s: GitHubActionsStep) => s.name === "Run tests")!;
       expect(testStep).toBeDefined();
       expect(testStep.run).toContain("jest");
     });
 
     it("should run production hygiene check", () => {
       const hygiene = ciWorkflow.jobs.hygiene;
-      const hygieneStep = hygiene.steps.find((s: any) =>
-        s.name.includes("hygiene"),
-      );
+      const hygieneStep = hygiene.steps.find((s: GitHubActionsStep) =>
+        s.name?.includes("hygiene"),
+      )!;
       expect(hygieneStep).toBeDefined();
       expect(hygieneStep.run).toContain("scripts/check-production-hygiene.sh");
     });
 
     it("should run security audit", () => {
       const security = ciWorkflow.jobs.security;
-      const auditStep = security.steps.find((s: any) =>
-        s.name.includes("audit"),
-      );
+      const auditStep = security.steps.find((s: GitHubActionsStep) =>
+        s.name?.includes("audit"),
+      )!;
       expect(auditStep).toBeDefined();
       expect(auditStep.run).toContain("pnpm audit");
     });
@@ -423,9 +447,9 @@ describe("CI Pipeline Configuration", () => {
 
     it("should use pnpm with frozen lockfile", () => {
       const lint = ciWorkflow.jobs.lint;
-      const installStep = lint.steps.find((s: any) =>
-        s.name.includes("Install dependencies"),
-      );
+      const installStep = lint.steps.find((s: GitHubActionsStep) =>
+        s.name?.includes("Install dependencies"),
+      )!;
       expect(installStep).toBeDefined();
       // --ignore-scripts was removed: it silently skipped postinstall for
       // every native module (canvas, sharp, @node-rs/argon2), causing
@@ -437,7 +461,7 @@ describe("CI Pipeline Configuration", () => {
 
     it("should setup pnpm before Node.js", () => {
       const lint = ciWorkflow.jobs.lint;
-      const stepNames = lint.steps.map((s: any) => s.name);
+      const stepNames = lint.steps.map((s: GitHubActionsStep) => s.name);
       const pnpmIndex = stepNames.indexOf("Setup pnpm");
       const nodeIndex = stepNames.indexOf("Setup Node.js");
 

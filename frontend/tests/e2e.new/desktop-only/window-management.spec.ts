@@ -12,6 +12,7 @@
  */
 
 import { test, expect, _electron as electron } from '@playwright/test'
+import type { ElectronApplication, Page } from '@playwright/test'
 import { generateTestId } from '../fixtures/test-helpers'
 
 // Skip on non-desktop platforms
@@ -20,9 +21,61 @@ test.skip(
   'Desktop-only tests'
 )
 
+/**
+ * Minimal structural shape of the Electron main-process module as destructured
+ * inside `electronApp.evaluate(...)` callbacks below. The `electron` package is
+ * not a dependency of this frontend workspace (it lives in `desktop/`), so we
+ * model exactly the surface these tests actually call rather than importing
+ * `electron`'s own types or falling back to `any`.
+ */
+interface ElectronBrowserWindowLike {
+  id: number
+  minimize(): void
+  restore(): void
+  maximize(): void
+  unmaximize(): void
+  isMinimized(): boolean
+  isMaximized(): boolean
+  isFullScreen(): boolean
+  setFullScreen(value: boolean): void
+  setPosition(x: number, y: number): void
+  setSize(width: number, height: number): void
+  getPosition(): [number, number]
+  getSize(): [number, number]
+  getBounds(): { x: number; y: number; width: number; height: number }
+  center(): void
+  focus(): void
+  close(): void
+}
+
+interface ElectronBrowserWindowCtorLike {
+  new (options: { width: number; height: number }): ElectronBrowserWindowLike
+  getFocusedWindow(): ElectronBrowserWindowLike | null
+  getAllWindows(): ElectronBrowserWindowLike[]
+  fromId(id: number): ElectronBrowserWindowLike | null
+}
+
+interface ElectronMainAPI {
+  app: { isQuitting(): boolean }
+  BrowserWindow: ElectronBrowserWindowCtorLike
+  screen: {
+    getPrimaryDisplay(): { bounds: { x: number; y: number; width: number; height: number } }
+  }
+}
+
+interface Point {
+  x: number
+  y: number
+}
+
+interface Size {
+  width: number
+  height: number
+}
+
 test.describe('Window Management', () => {
-  let electronApp: any
-  let mainWindow: any
+  let electronApp: ElectronApplication
+  let mainWindow: Page
 
   test.beforeAll(async () => {
     // Launch Electron app
@@ -71,7 +124,7 @@ test.describe('Window Management', () => {
       const windowCount = (await electronApp.windows()).length
 
       // Trigger new window (via IPC or menu)
-      await electronApp.evaluate(async ({ app }: any) => {
+      await electronApp.evaluate(async ({ app }: ElectronMainAPI) => {
         const { BrowserWindow } = require('electron')
         new BrowserWindow({
           width: 800,
@@ -89,12 +142,12 @@ test.describe('Window Management', () => {
 
   test.describe('Window States', () => {
     test('should minimize window', async () => {
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.minimize()
       })
 
-      const isMinimized = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const isMinimized = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.isMinimized() || false
       })
@@ -104,18 +157,18 @@ test.describe('Window Management', () => {
 
     test('should restore minimized window', async () => {
       // First minimize
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.minimize()
       })
 
       // Then restore
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.restore()
       })
 
-      const isMinimized = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const isMinimized = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.isMinimized() || false
       })
@@ -124,12 +177,12 @@ test.describe('Window Management', () => {
     })
 
     test('should maximize window', async () => {
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win && !win.isMaximized()) win.maximize()
       })
 
-      const isMaximized = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const isMaximized = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.isMaximized() || false
       })
@@ -139,18 +192,18 @@ test.describe('Window Management', () => {
 
     test('should unmaximize window', async () => {
       // First maximize
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win && !win.isMaximized()) win.maximize()
       })
 
       // Then unmaximize
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win && win.isMaximized()) win.unmaximize()
       })
 
-      const isMaximized = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const isMaximized = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.isMaximized() || false
       })
@@ -159,7 +212,7 @@ test.describe('Window Management', () => {
     })
 
     test('should enter fullscreen mode', async () => {
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.setFullScreen(true)
       })
@@ -167,7 +220,7 @@ test.describe('Window Management', () => {
       // Wait for fullscreen transition
       await mainWindow.waitForTimeout(1000)
 
-      const isFullScreen = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const isFullScreen = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.isFullScreen() || false
       })
@@ -177,7 +230,7 @@ test.describe('Window Management', () => {
 
     test('should exit fullscreen mode', async () => {
       // First enter fullscreen
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.setFullScreen(true)
       })
@@ -185,14 +238,14 @@ test.describe('Window Management', () => {
       await mainWindow.waitForTimeout(1000)
 
       // Then exit
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.setFullScreen(false)
       })
 
       await mainWindow.waitForTimeout(1000)
 
-      const isFullScreen = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const isFullScreen = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.isFullScreen() || false
       })
@@ -206,12 +259,12 @@ test.describe('Window Management', () => {
       const x = 100
       const y = 100
 
-      await electronApp.evaluate(({ BrowserWindow }: any, pos: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI, pos: Point) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.setPosition(pos.x, pos.y)
       }, { x, y })
 
-      const [actualX, actualY] = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const [actualX, actualY] = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.getPosition() || [0, 0]
       })
@@ -225,12 +278,12 @@ test.describe('Window Management', () => {
       const width = 1024
       const height = 768
 
-      await electronApp.evaluate(({ BrowserWindow }: any, size: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI, size: Size) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.setSize(size.width, size.height)
       }, { width, height })
 
-      const [actualWidth, actualHeight] = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const [actualWidth, actualHeight] = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.getSize() || [0, 0]
       })
@@ -240,12 +293,12 @@ test.describe('Window Management', () => {
     })
 
     test('should center window on screen', async () => {
-      await electronApp.evaluate(({ BrowserWindow }: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.center()
       })
 
-      const bounds = await electronApp.evaluate(({ BrowserWindow, screen }: any) => {
+      const bounds = await electronApp.evaluate(({ BrowserWindow, screen }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         if (!win) return null
 
@@ -276,7 +329,7 @@ test.describe('Window Management', () => {
       const initialCount = (await electronApp.windows()).length
 
       // Create 2 additional windows
-      await electronApp.evaluate(async ({ BrowserWindow }: any) => {
+      await electronApp.evaluate(async ({ BrowserWindow }: ElectronMainAPI) => {
         const { BrowserWindow: BW } = require('electron')
         new BW({ width: 800, height: 600 })
         new BW({ width: 800, height: 600 })
@@ -290,7 +343,7 @@ test.describe('Window Management', () => {
 
     test('should close individual window without closing app', async () => {
       // Create new window
-      await electronApp.evaluate(async ({ BrowserWindow }: any) => {
+      await electronApp.evaluate(async ({ BrowserWindow }: ElectronMainAPI) => {
         const { BrowserWindow: BW } = require('electron')
         const win = new BW({ width: 800, height: 600 })
         return win.id
@@ -299,7 +352,7 @@ test.describe('Window Management', () => {
       const beforeCount = (await electronApp.windows()).length
 
       // Close the new window (not main)
-      await electronApp.evaluate(async ({ BrowserWindow }: any) => {
+      await electronApp.evaluate(async ({ BrowserWindow }: ElectronMainAPI) => {
         const windows = BrowserWindow.getAllWindows()
         if (windows.length > 1) {
           windows[windows.length - 1].close()
@@ -312,7 +365,7 @@ test.describe('Window Management', () => {
       expect(afterCount).toBe(beforeCount - 1)
 
       // App should still be running
-      const isRunning = await electronApp.evaluate(({ app }: any) => {
+      const isRunning = await electronApp.evaluate(({ app }: ElectronMainAPI) => {
         return !app.isQuitting()
       })
       expect(isRunning).toBe(true)
@@ -320,21 +373,21 @@ test.describe('Window Management', () => {
 
     test('should switch focus between windows', async () => {
       // Create second window
-      const secondWindowId = await electronApp.evaluate(async ({ BrowserWindow }: any) => {
+      const secondWindowId = await electronApp.evaluate(async ({ BrowserWindow }: ElectronMainAPI) => {
         const { BrowserWindow: BW } = require('electron')
         const win = new BW({ width: 800, height: 600 })
         return win.id
       })
 
       // Focus second window
-      await electronApp.evaluate(async ({ BrowserWindow }: any, id: number) => {
+      await electronApp.evaluate(async ({ BrowserWindow }: ElectronMainAPI, id: number) => {
         const win = BrowserWindow.fromId(id)
         if (win) win.focus()
       }, secondWindowId)
 
       await mainWindow.waitForTimeout(300)
 
-      const focusedId = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const focusedId = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.id
       })
@@ -349,7 +402,7 @@ test.describe('Window Management', () => {
       const testHeight = 850
 
       // Set window size
-      await electronApp.evaluate(({ BrowserWindow }: any, size: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI, size: Size) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.setSize(size.width, size.height)
       }, { width: testWidth, height: testHeight })
@@ -381,19 +434,19 @@ test.describe('Window Management', () => {
       const testY = 150
 
       // Set position
-      await electronApp.evaluate(({ BrowserWindow }: any, pos: any) => {
+      await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI, pos: Point) => {
         const win = BrowserWindow.getFocusedWindow()
         if (win) win.setPosition(pos.x, pos.y)
       }, { x: testX, y: testY })
 
       // Save position
-      const [x, y] = await electronApp.evaluate(({ BrowserWindow }: any) => {
+      const [x, y] = await electronApp.evaluate(({ BrowserWindow }: ElectronMainAPI) => {
         const win = BrowserWindow.getFocusedWindow()
         return win?.getPosition() || [0, 0]
       })
 
       await mainWindow.evaluate(
-        (pos: any) => {
+        (pos: Point) => {
           localStorage.setItem('window-position', JSON.stringify(pos))
         },
         { x, y }
