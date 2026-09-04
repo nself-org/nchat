@@ -46,11 +46,7 @@ plugins:
       tier: basic
       description: "WebRTC voice and video calls via LiveKit"
 
-    - name: recording
-      bundle: nchat
-      tier: basic
-      description: "Call and screen-share recording with storage egress (requires livekit)"
-
+    # recording delivered by livekit egress (D-IV-4)
     - name: moderation
       bundle: nchat
       tier: basic
