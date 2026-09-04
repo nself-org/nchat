@@ -160,7 +160,18 @@ export async function fetchOAuthUserProfile(
 }
 
 /**
- * Normalize user profile data from different OAuth providers
+ * Normalize user profile data from different OAuth providers.
+ *
+ * `data` is intentionally `any`: it's the raw user-info response body from
+ * whichever of 10 external OAuth providers is active, and each provider
+ * uses a genuinely different, provider-defined JSON shape (some flat, some
+ * nested under `data`/`user`, `name` as a string for most but an object for
+ * Apple, etc). A shared structural type would need most `OAuthUserProfile`
+ * fields force-unwrapped with non-null assertions at each of the ~10
+ * branches below to satisfy its required `id`/`email` fields, which is
+ * false precision — the fields really are provider-guaranteed, not
+ * statically provable from this file. Real types live only where each
+ * branch narrows onto `OAuthUserProfile`.
  */
 function normalizeUserProfile(
   provider: OAuthProviderName,
@@ -352,7 +363,7 @@ export async function handleOAuthCallback(
 
     // Get state parameter
     const state = searchParams.get("state");
-    let stateData: any = {};
+    let stateData: unknown = {};
     if (state) {
       try {
         stateData = JSON.parse(Buffer.from(state, "base64").toString());

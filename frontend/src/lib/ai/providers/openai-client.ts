@@ -11,6 +11,7 @@
 import { captureError, addSentryBreadcrumb } from "@/lib/sentry-utils";
 
 import { logger } from "@/lib/logger";
+import { getErrorName } from "@/lib/utils/error";
 
 // ============================================================================
 // Types
@@ -95,12 +96,29 @@ export class OpenAIError extends Error {
     public type: OpenAIErrorType,
     message: string,
     public statusCode?: number,
-    public details?: any,
+    public details?: unknown,
   ) {
     super(message);
     this.name = "OpenAIError";
   }
 }
+
+/**
+ * Everything `categorizeError` may receive: a native fetch/abort error, an
+ * already-categorized `OpenAIError`, or the plain `{status, statusText,
+ * data}` object `makeRequest`'s catch block throws for a non-OK response.
+ */
+type OpenAIRequestError =
+  | TypeError
+  | OpenAIError
+  | {
+      name?: string;
+      message?: string;
+      status?: number;
+      statusCode?: number;
+      statusText?: string;
+      data?: { error?: { message?: string } };
+    };
 
 // ============================================================================
 // OpenAI Client
@@ -298,7 +316,9 @@ export class OpenAIClient {
     try {
       return await fn();
     } catch (error) {
-      const openAIError = this.categorizeError(error);
+      // `error` is `unknown` per strict catch typing; `makeRequest` only
+      // ever throws TypeError, OpenAIError, or its {status, data} object.
+      const openAIError = this.categorizeError(error as OpenAIRequestError);
 
       // Don't retry on authentication or invalid request errors
       if (
@@ -335,7 +355,7 @@ export class OpenAIClient {
 
   private async makeRequest<T>(
     endpoint: string,
-    body: any,
+    body: Record<string, unknown>,
     requestId: string,
   ): Promise<T> {
     const url = `${this.config.baseURL}${endpoint}`;
@@ -362,10 +382,10 @@ export class OpenAIClient {
       }
 
       return await response.json();
-    } catch (error: any) {
+    } catch (error) {
       clearTimeout(timeoutId);
 
-      if (error.name === "AbortError") {
+      if (getErrorName(error) === "AbortError") {
         throw new OpenAIError(
           OpenAIErrorType.TIMEOUT,
           `Request timeout after ${this.config.timeout}ms`,
@@ -379,7 +399,7 @@ export class OpenAIClient {
 
   private async makeStreamRequest(
     endpoint: string,
-    body: any,
+    body: Record<string, unknown>,
     requestId: string,
   ): Promise<Response> {
     const url = `${this.config.baseURL}${endpoint}`;
@@ -409,10 +429,10 @@ export class OpenAIClient {
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error) {
       clearTimeout(timeoutId);
 
-      if (error.name === "AbortError") {
+      if (getErrorName(error) === "AbortError") {
         throw new OpenAIError(
           OpenAIErrorType.TIMEOUT,
           `Stream request timeout after ${this.config.timeout * 2}ms`,
@@ -441,7 +461,7 @@ export class OpenAIClient {
   // Error Handling
   // ============================================================================
 
-  private categorizeError(error: any): OpenAIError {
+  private categorizeError(error: OpenAIRequestError): OpenAIError {
     // Handle fetch/network errors
     if (error instanceof TypeError || error.name === "NetworkError") {
       return new OpenAIError(
@@ -460,10 +480,18 @@ export class OpenAIClient {
       return error;
     }
 
-    // Handle HTTP errors
-    const status = error.status || error.statusCode;
+    // Handle HTTP errors. Neither TypeError nor a bare `{status, statusText,
+    // data}` object exposes every field below on a shared shape, so narrow
+    // via a single structural view of what's actually read from here on.
+    const httpError = error as {
+      status?: number;
+      statusCode?: number;
+      data?: { error?: { message?: string } };
+      message?: string;
+    };
+    const status = httpError.status || httpError.statusCode;
     const errorMessage =
-      error.data?.error?.message || error.message || "Unknown error";
+      httpError.data?.error?.message || httpError.message || "Unknown error";
 
     switch (status) {
       case 401:
@@ -471,14 +499,14 @@ export class OpenAIClient {
           OpenAIErrorType.AUTHENTICATION,
           "Invalid API key or authentication failed",
           401,
-          error.data,
+          httpError.data,
         );
       case 429:
         return new OpenAIError(
           OpenAIErrorType.RATE_LIMIT,
           "Rate limit exceeded",
           429,
-          error.data,
+          httpError.data,
         );
       case 400:
       case 404:
@@ -486,7 +514,7 @@ export class OpenAIClient {
           OpenAIErrorType.INVALID_REQUEST,
           errorMessage,
           status,
-          error.data,
+          httpError.data,
         );
       case 500:
       case 502:
@@ -496,14 +524,14 @@ export class OpenAIClient {
           OpenAIErrorType.SERVER_ERROR,
           "OpenAI server error",
           status,
-          error.data,
+          httpError.data,
         );
       default:
         return new OpenAIError(
           OpenAIErrorType.UNKNOWN,
           errorMessage,
           status,
-          error.data,
+          httpError.data,
         );
     }
   }

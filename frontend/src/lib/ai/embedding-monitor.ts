@@ -262,7 +262,10 @@ export class EmbeddingMonitor {
         : 100;
 
     const recentErrors = errorsData.nchat_messages
-      .map((m: any) => `${m.id}: ${m.embedding_error}`)
+      .map(
+        (m: { id: string; embedding_error?: string }) =>
+          `${m.id}: ${m.embedding_error}`,
+      )
       .slice(0, 5);
 
     // Calculate quality metrics
@@ -295,11 +298,12 @@ export class EmbeddingMonitor {
     // Calculate cache metrics from database
     const dbStats = perfData.nchat_embedding_stats;
     const totalHits = dbStats.reduce(
-      (sum: number, s: any) => sum + s.cache_hit_count,
+      (sum: number, s: { cache_hit_count: number }) => sum + s.cache_hit_count,
       0,
     );
     const totalMisses = dbStats.reduce(
-      (sum: number, s: any) => sum + s.cache_miss_count,
+      (sum: number, s: { cache_miss_count: number }) =>
+        sum + s.cache_miss_count,
       0,
     );
     const hitRate =

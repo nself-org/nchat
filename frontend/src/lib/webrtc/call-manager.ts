@@ -8,13 +8,28 @@
 import { EventEmitter } from "events";
 import { PeerConnectionManager } from "./peer-connection";
 import { MediaManager } from "./media-manager";
-import { SignalingManager, type CallType } from "./signaling";
+import {
+  SignalingManager,
+  type CallType,
+  type CallRingPayload,
+  type CallAcceptPayload,
+  type CallDeclinePayload,
+  type CallEndPayload,
+  type CallOfferPayload,
+  type CallAnswerPayload,
+  type CallIceCandidatePayload,
+  type CallErrorPayload,
+} from "./signaling";
 import {
   CallStateMachine,
   type CallState,
   type CallEndReason,
+  type StateTransitionEvent,
 } from "../calls/call-state-machine";
-import { CallInvitationManager } from "../calls/call-invitation";
+import {
+  CallInvitationManager,
+  type CallInvitation,
+} from "../calls/call-invitation";
 import { getIceServers } from "./servers";
 
 import { logger } from "@/lib/logger";
@@ -258,7 +273,7 @@ export class CallManager extends EventEmitter {
   // Incoming Call
   // ===========================================================================
 
-  private handleIncomingInvitation(invitation: any): void {
+  private handleIncomingInvitation(invitation: CallInvitation): void {
     if (this.currentCall) {
       // Already in a call, send busy signal
       this.signaling!.reportBusy(invitation.id, this.config.userId);
@@ -466,14 +481,14 @@ export class CallManager extends EventEmitter {
   // Signaling Handlers
   // ===========================================================================
 
-  private handleCallRing(payload: any): void {
+  private handleCallRing(payload: CallRingPayload): void {
     if (this.currentCall && payload.callId === this.currentCall.callId) {
       // Call is ringing on the other end
       this.emit("call-ringing");
     }
   }
 
-  private handleCallAccepted(payload: any): void {
+  private handleCallAccepted(payload: CallAcceptPayload): void {
     if (this.currentCall && payload.callId === this.currentCall.callId) {
       this.stateMachine!.transition(
         "connecting",
@@ -486,7 +501,7 @@ export class CallManager extends EventEmitter {
     }
   }
 
-  private handleCallDeclined(payload: any): void {
+  private handleCallDeclined(payload: CallDeclinePayload): void {
     if (this.currentCall && payload.callId === this.currentCall.callId) {
       this.endCall("declined");
 
@@ -495,13 +510,18 @@ export class CallManager extends EventEmitter {
     }
   }
 
-  private handleCallEnded(payload: any): void {
+  private handleCallEnded(payload: CallEndPayload): void {
     if (this.currentCall && payload.callId === this.currentCall.callId) {
-      this.endCall(payload.reason || "completed");
+      // Pre-existing type split: signaling.ts's CallEndReason includes
+      // "failed" and "no_answer", which call-state-machine.ts's narrower
+      // CallEndReason (this.endCall's param type) doesn't declare. Typing
+      // payload accurately surfaced this; reconciling the two enums is out
+      // of scope here, so narrow at this boundary instead.
+      this.endCall((payload.reason as CallEndReason) || "completed");
     }
   }
 
-  private async handleOffer(payload: any): Promise<void> {
+  private async handleOffer(payload: CallOfferPayload): Promise<void> {
     if (!this.peerConnection) return;
 
     try {
@@ -522,7 +542,7 @@ export class CallManager extends EventEmitter {
     }
   }
 
-  private async handleAnswer(payload: any): Promise<void> {
+  private async handleAnswer(payload: CallAnswerPayload): Promise<void> {
     if (!this.peerConnection) return;
 
     try {
@@ -534,7 +554,9 @@ export class CallManager extends EventEmitter {
     }
   }
 
-  private async handleIceCandidate(payload: any): Promise<void> {
+  private async handleIceCandidate(
+    payload: CallIceCandidatePayload,
+  ): Promise<void> {
     if (!this.peerConnection) return;
 
     try {
@@ -544,7 +566,7 @@ export class CallManager extends EventEmitter {
     }
   }
 
-  private async handleRenegotiate(payload: any): Promise<void> {
+  private async handleRenegotiate(payload: CallOfferPayload): Promise<void> {
     // Handle renegotiation (e.g., when adding screen share)
     await this.handleOffer(payload);
   }
@@ -644,7 +666,7 @@ export class CallManager extends EventEmitter {
     this.handleError(error);
   }
 
-  private handleSignalingError(payload: any): void {
+  private handleSignalingError(payload: CallErrorPayload): void {
     this.handleError(new Error(payload.message || "Signaling error"));
   }
 
@@ -656,16 +678,16 @@ export class CallManager extends EventEmitter {
   // Invitation Handlers
   // ===========================================================================
 
-  private handleInvitationTimeout(invitation: any): void {
+  private handleInvitationTimeout(invitation: CallInvitation): void {
     // Call was not answered in time
     this.emit("call-timeout", invitation);
   }
 
-  private handleInvitationAccepted(invitation: any): void {
+  private handleInvitationAccepted(invitation: CallInvitation): void {
     // Local user accepted
   }
 
-  private handleInvitationDeclined(invitation: any): void {
+  private handleInvitationDeclined(invitation: CallInvitation): void {
     // Local user declined
   }
 
@@ -673,7 +695,7 @@ export class CallManager extends EventEmitter {
   // State Machine Handler
   // ===========================================================================
 
-  private handleStateTransition(event: any): void {
+  private handleStateTransition(event: StateTransitionEvent): void {
     this.emit("state-change", event.to);
     this.callbacks.onStateChange?.(event.to);
     this.config.onStateChange?.(event.to);

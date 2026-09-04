@@ -151,7 +151,9 @@ export function usePoll(pollId: string | undefined): UsePollResult {
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       if (data?.nchat_poll_votes && pollId) {
-        const optionIds = data.nchat_poll_votes.map((v: any) => v.option_id);
+        const optionIds = data.nchat_poll_votes.map(
+          (v: { option_id: string }) => v.option_id,
+        );
         store.setUserVotes(pollId, optionIds);
       }
     },
@@ -658,17 +660,25 @@ export function usePollResults(pollId: string | undefined) {
       createdAt: poll.created_at,
       closedAt: poll.closed_at,
       totalVotes,
-      options: poll.options.map((opt: any) => ({
-        id: opt.id,
-        text: opt.text,
-        position: opt.position,
-        voteCount: opt.votes_aggregate?.aggregate?.count || 0,
-        percentage: calculateVotePercentage(
-          opt.votes_aggregate?.aggregate?.count || 0,
-          totalVotes,
-        ),
-        voters: opt.votes.map((v: any) => v.user),
-      })),
+      options: poll.options.map(
+        (opt: {
+          id: string;
+          text: string;
+          position: number;
+          votes_aggregate?: { aggregate?: { count?: number } };
+          votes: Array<{ user: PollUser }>;
+        }) => ({
+          id: opt.id,
+          text: opt.text,
+          position: opt.position,
+          voteCount: opt.votes_aggregate?.aggregate?.count || 0,
+          percentage: calculateVotePercentage(
+            opt.votes_aggregate?.aggregate?.count || 0,
+            totalVotes,
+          ),
+          voters: opt.votes.map((v) => v.user),
+        }),
+      ),
     };
   }, [data]);
 

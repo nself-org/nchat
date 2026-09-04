@@ -334,25 +334,37 @@ export function isChannelType(value: unknown): value is ChannelType {
  * Check if channel is a direct message.
  */
 export function isDirectMessageChannel(
-  channel: any,
+  channel: unknown,
 ): channel is DirectMessageChannel {
-  return channel?.type === "direct" && "participant" in (channel || {});
+  return (
+    typeof channel === "object" &&
+    channel !== null &&
+    (channel as { type?: unknown }).type === "direct" &&
+    "participant" in channel
+  );
 }
 
 /**
  * Check if channel is a group DM.
  */
-export function isGroupDMChannel(channel: any): channel is GroupDMChannel {
-  return channel?.type === "group_dm" && "participants" in (channel || {});
+export function isGroupDMChannel(channel: unknown): channel is GroupDMChannel {
+  return (
+    typeof channel === "object" &&
+    channel !== null &&
+    (channel as { type?: unknown }).type === "group_dm" &&
+    "participants" in channel
+  );
 }
 
 /**
  * Check if channel is a DM (direct or group).
  */
 export function isDMChannel(
-  channel: any,
+  channel: unknown,
 ): channel is DirectMessageChannel | GroupDMChannel {
-  return channel?.type === "direct" || channel?.type === "group_dm";
+  if (typeof channel !== "object" || channel === null) return false;
+  const type = (channel as { type?: unknown }).type;
+  return type === "direct" || type === "group_dm";
 }
 
 /**

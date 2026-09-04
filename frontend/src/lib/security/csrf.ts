@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes, createHmac } from "crypto";
-import { ApiError } from "@/lib/api/middleware";
+import { ApiError, type RouteContext } from "@/lib/api/middleware";
 
 import { logger } from "@/lib/logger";
 
@@ -285,9 +285,9 @@ export function validateCsrfToken(request: NextRequest): boolean {
 export function withCsrfProtection(
   handler: (
     request: NextRequest,
-    context: any,
+    context: RouteContext,
   ) => Promise<NextResponse> | NextResponse,
-): (request: NextRequest, context: any) => Promise<NextResponse> {
+): (request: NextRequest, context: RouteContext) => Promise<NextResponse> {
   return async (request, context) => {
     // Validate CSRF token
     if (!validateCsrfToken(request)) {

@@ -12,6 +12,10 @@ import {
   createSignalingManager,
   generateCallId,
   type CallEndReason,
+  type CallParticipantPayload,
+  type CallOfferPayload,
+  type CallAnswerPayload,
+  type CallIceCandidatePayload,
 } from "@/lib/webrtc/signaling";
 import { logger } from "@/lib/logger";
 import { DEFAULT_VOICE_CHAT_SETTINGS } from "@/types/voice-chat";
@@ -1735,7 +1739,7 @@ export class VoiceChatService extends EventEmitter {
     }, SPEAKER_DEBOUNCE_MS);
   }
 
-  private handleParticipantJoined(payload: any): void {
+  private handleParticipantJoined(payload: CallParticipantPayload): void {
     if (!this.currentVoiceChat) return;
 
     const participant: VoiceChatParticipant = {
@@ -1775,7 +1779,7 @@ export class VoiceChatService extends EventEmitter {
     this.emit("participant-joined", { participant });
   }
 
-  private handleParticipantLeft(payload: any): void {
+  private handleParticipantLeft(payload: CallParticipantPayload): void {
     if (!this.currentVoiceChat) return;
 
     const participant = this.participants.get(payload.participant.id);
@@ -1821,7 +1825,7 @@ export class VoiceChatService extends EventEmitter {
     this.cleanup();
   }
 
-  private async handleOffer(payload: any): Promise<void> {
+  private async handleOffer(payload: CallOfferPayload): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc || !this.currentVoiceChat) return;
 
@@ -1837,14 +1841,16 @@ export class VoiceChatService extends EventEmitter {
     });
   }
 
-  private async handleAnswer(payload: any): Promise<void> {
+  private async handleAnswer(payload: CallAnswerPayload): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc) return;
 
     await pc.setRemoteDescription(payload.sdp);
   }
 
-  private async handleIceCandidate(payload: any): Promise<void> {
+  private async handleIceCandidate(
+    payload: CallIceCandidatePayload,
+  ): Promise<void> {
     const pc = this.peerConnections.get(payload.fromUserId);
     if (!pc) return;
 

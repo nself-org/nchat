@@ -189,13 +189,13 @@ export class ResponseCache {
   /**
    * Cache based on request payload hash
    */
-  async getByPayload<T = any>(payload: any): Promise<T | null> {
+  async getByPayload<T = unknown>(payload: unknown): Promise<T | null> {
     const hash = this.hashPayload(payload);
     return this.get<T>(hash);
   }
 
-  async setByPayload<T = any>(
-    payload: any,
+  async setByPayload<T = unknown>(
+    payload: unknown,
     data: T,
     options?: {
       ttl?: number;
@@ -337,7 +337,7 @@ export class ResponseCache {
     return `${this.config.keyPrefix}:${key}`;
   }
 
-  private hashPayload(payload: any): string {
+  private hashPayload(payload: unknown): string {
     const normalized = this.normalizePayload(payload);
     const str = JSON.stringify(normalized);
     return this.hashString(str);
@@ -444,18 +444,18 @@ export function getEmbeddingsCache(): ResponseCache {
 export function cached(
   cache: ResponseCache,
   options?: {
-    keyFn?: (...args: any[]) => string;
+    keyFn?: (...args: unknown[]) => string;
     ttl?: number;
   },
 ) {
   return function (
-    target: any,
+    target: object,
     propertyName: string,
     descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       // Generate cache key
       const key = options?.keyFn
         ? options.keyFn(...args)
