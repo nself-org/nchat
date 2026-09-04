@@ -1076,48 +1076,14 @@ export const ALL_SLACK_FEATURES: SlackFeature[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Legacy Aliases (backward compatibility)
-// ---------------------------------------------------------------------------
-
-/** @deprecated Use CHANNEL_FEATURES instead */
-export const channelFeatures = CHANNEL_FEATURES;
-
-/** @deprecated Use DM_FEATURES instead */
-export const dmFeatures = DM_FEATURES;
-
-/** @deprecated Use MESSAGING_FEATURES instead */
-export const messagingFeatures = MESSAGING_FEATURES;
-
-/** @deprecated Use THREAD_FEATURES instead */
-export const threadFeatures = THREAD_FEATURES;
-
-/** @deprecated Use SEARCH_FEATURES instead */
-export const searchFeatures = SEARCH_FEATURES;
-
-/** @deprecated Use FILE_FEATURES instead */
-export const fileFeatures = FILE_FEATURES;
-
-/** @deprecated Use APP_FEATURES instead */
-export const appFeatures = APP_FEATURES;
-
-/** @deprecated Use CALL_FEATURES instead */
-export const callFeatures = CALL_FEATURES;
-
-/** @deprecated Use WORKFLOW_FEATURES instead */
-export const workflowFeatures = WORKFLOW_FEATURES;
-
-/** @deprecated Use ADMIN_FEATURES instead */
-export const adminFeatures = ADMIN_FEATURES;
-
-/** @deprecated Use NOTIFICATION_FEATURES instead */
-export const notificationFeatures = NOTIFICATION_FEATURES;
-
-/** @deprecated Use ACCESSIBILITY_FEATURES instead */
-export const accessibilityFeatures = ACCESSIBILITY_FEATURES;
-
-/** @deprecated Use ALL_SLACK_FEATURES instead */
-export const allSlackFeatures = ALL_SLACK_FEATURES;
-
+// (P4 deferred-backlog row 22, P6-E11-W2-S3-T16: the 13 deprecated camelCase
+// legacy aliases formerly here — channelFeatures, dmFeatures,
+// messagingFeatures, threadFeatures, searchFeatures, fileFeatures,
+// appFeatures, callFeatures, workflowFeatures, adminFeatures,
+// notificationFeatures, accessibilityFeatures, allSlackFeatures — were
+// removed after verifying zero importers repo-wide via
+// `git grep -rlE "channelFeatures|dmFeatures|...|allSlackFeatures" -- '*.ts' '*.tsx'`
+// outside this file. Use the UPPER_SNAKE_CASE exports directly.)
 // ---------------------------------------------------------------------------
 // Legacy Feature Flags (backward compatibility - derived from SlackFeature[])
 // ---------------------------------------------------------------------------
