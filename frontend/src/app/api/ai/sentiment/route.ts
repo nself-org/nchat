@@ -8,6 +8,9 @@ import {
   getSentimentAnalyzer,
   type Message,
   type SentimentOptions,
+  type SentimentAnalysisResult,
+  type SentimentTrend,
+  type TeamMoraleReport,
 } from "@/lib/ai/sentiment-analyzer";
 import { captureError } from "@/lib/sentry-utils";
 
@@ -26,9 +29,9 @@ interface SentimentRequest {
 
 interface SentimentResponse {
   success: boolean;
-  result?: any;
-  trend?: any;
-  moraleReport?: any;
+  result?: SentimentAnalysisResult;
+  trend?: SentimentTrend;
+  moraleReport?: TeamMoraleReport;
   error?: string;
   provider?: string;
 }
