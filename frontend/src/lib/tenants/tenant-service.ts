@@ -5,7 +5,7 @@
  * Handles tenant CRUD operations, schema provisioning, and isolation.
  */
 
-import { Pool } from "pg";
+import { Pool, PoolClient } from "pg";
 import { DEFAULT_PLANS } from "./types";
 import type {
   Tenant,
@@ -16,6 +16,57 @@ import type {
   TenantSettings,
   BillingPlan,
 } from "./types";
+import type { QueryParamValue } from "@/lib/database/safe-query";
+
+/** Raw `public.tenants` row shape as returned by `pg`, before camelCase mapping. */
+interface TenantRow {
+  id: string;
+  name: string;
+  slug: string;
+  custom_domain: string | null;
+  status: Tenant["status"];
+  owner_id: string;
+  owner_email: string;
+  owner_name: string;
+  branding: Tenant["branding"];
+  billing_plan: Tenant["billing"]["plan"];
+  billing_interval: Tenant["billing"]["interval"];
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  stripe_price_id: string | null;
+  current_period_start: Date | null;
+  current_period_end: Date | null;
+  cancel_at_period_end: boolean | null;
+  last_payment_date: Date | null;
+  last_payment_amount: number | null;
+  last_payment_status: Tenant["billing"]["lastPaymentStatus"] | null;
+  limits: Tenant["limits"];
+  features: Tenant["features"];
+  schema_name: string;
+  metadata: Record<string, unknown> | null;
+  created_at: Date;
+  updated_at: Date;
+  trial_ends_at: Date | null;
+  suspended_at: Date | null;
+  cancelled_at: Date | null;
+}
+
+/** Raw `public.tenant_usage` row shape as returned by `pg`, before camelCase mapping. */
+interface TenantUsageRow {
+  tenant_id: string;
+  period: string;
+  users_active: number;
+  users_total: number;
+  messages_sent: number;
+  messages_total: number;
+  storage_bytes: number;
+  files_count: number;
+  calls_total_minutes: number;
+  calls_total_count: number;
+  api_calls_total: number;
+  api_calls_by_endpoint: Record<string, number> | null;
+  created_at: Date;
+}
 
 /**
  * Tenant Service Class
@@ -166,7 +217,7 @@ export class TenantService {
     request: UpdateTenantRequest,
   ): Promise<Tenant> {
     const updates: string[] = [];
-    const values: any[] = [];
+    const values: QueryParamValue[] = [];
     let paramIndex = 1;
 
     if (request.name !== undefined) {
@@ -271,7 +322,7 @@ export class TenantService {
     offset?: number;
   }): Promise<{ tenants: Tenant[]; total: number }> {
     const whereClauses: string[] = [];
-    const values: any[] = [];
+    const values: QueryParamValue[] = [];
     let paramIndex = 1;
 
     if (filters?.status) {
@@ -437,7 +488,7 @@ export class TenantService {
   }
 
   private async runTenantMigrations(
-    client: any,
+    client: PoolClient,
     schemaName: string,
   ): Promise<void> {
     // Run all nchat_* table creation in the tenant schema
@@ -478,7 +529,7 @@ export class TenantService {
   }
 
   private async createOwnerUser(
-    client: any,
+    client: PoolClient,
     schemaName: string,
     request: CreateTenantRequest,
   ): Promise<void> {
@@ -499,7 +550,7 @@ export class TenantService {
   }
 
   private async initializeTenantSettings(
-    client: any,
+    client: PoolClient,
     tenantId: string,
   ): Promise<void> {
     const query = `
@@ -520,12 +571,12 @@ export class TenantService {
     await client.query(query, [tenantId]);
   }
 
-  private mapRowToTenant(row: any): Tenant {
+  private mapRowToTenant(row: TenantRow): Tenant {
     return {
       id: row.id,
       name: row.name,
       slug: row.slug,
-      customDomain: row.custom_domain,
+      customDomain: row.custom_domain ?? undefined,
       status: row.status,
       ownerId: row.owner_id,
       ownerEmail: row.owner_email,
@@ -534,20 +585,20 @@ export class TenantService {
       billing: {
         plan: row.billing_plan,
         interval: row.billing_interval,
-        stripeCustomerId: row.stripe_customer_id,
-        stripeSubscriptionId: row.stripe_subscription_id,
-        stripePriceId: row.stripe_price_id,
-        currentPeriodStart: row.current_period_start,
-        currentPeriodEnd: row.current_period_end,
+        stripeCustomerId: row.stripe_customer_id ?? undefined,
+        stripeSubscriptionId: row.stripe_subscription_id ?? undefined,
+        stripePriceId: row.stripe_price_id ?? undefined,
+        currentPeriodStart: row.current_period_start ?? undefined,
+        currentPeriodEnd: row.current_period_end ?? undefined,
         cancelAtPeriodEnd: row.cancel_at_period_end || false,
         usageTracking: {
           users: 0,
           storageBytes: 0,
           apiCallsThisMonth: 0,
         },
-        lastPaymentDate: row.last_payment_date,
-        lastPaymentAmount: row.last_payment_amount,
-        lastPaymentStatus: row.last_payment_status,
+        lastPaymentDate: row.last_payment_date ?? undefined,
+        lastPaymentAmount: row.last_payment_amount ?? undefined,
+        lastPaymentStatus: row.last_payment_status ?? undefined,
       },
       limits: row.limits,
       features: row.features,
@@ -555,13 +606,13 @@ export class TenantService {
       metadata: row.metadata || {},
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      trialEndsAt: row.trial_ends_at,
-      suspendedAt: row.suspended_at,
-      cancelledAt: row.cancelled_at,
+      trialEndsAt: row.trial_ends_at ?? undefined,
+      suspendedAt: row.suspended_at ?? undefined,
+      cancelledAt: row.cancelled_at ?? undefined,
     };
   }
 
-  private mapRowToTenantUsage(row: any): TenantUsage {
+  private mapRowToTenantUsage(row: TenantUsageRow): TenantUsage {
     return {
       tenantId: row.tenant_id,
       period: row.period,

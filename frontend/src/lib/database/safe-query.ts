@@ -57,9 +57,12 @@ export interface WhereCondition {
   [key: string]: string | number | boolean | null | string[] | number[];
 }
 
+/** A single bound value for a `$1, $2, ...` parameterized SQL placeholder. */
+export type QueryParamValue = string | number | boolean | null;
+
 export interface WhereClauseResult {
   clause: string;
-  values: any[];
+  values: QueryParamValue[];
 }
 
 export interface SafeQueryOptions {
@@ -96,7 +99,7 @@ export interface SafeQueryOptions {
  */
 export async function executeQuery<
   T extends Record<string, any> = Record<string, any>,
->(pool: Pool, query: string, values: any[] = []): Promise<QueryResult<T>> {
+>(pool: Pool, query: string, values: QueryParamValue[] = []): Promise<QueryResult<T>> {
   // Validate query doesn't contain template literal patterns
   if (query.includes("${") || query.includes("`")) {
     throw new Error(
@@ -141,7 +144,7 @@ export function buildWhereClause(
   startIndex: number = 1,
 ): WhereClauseResult {
   const clauses: string[] = [];
-  const values: any[] = [];
+  const values: QueryParamValue[] = [];
   let paramIndex = startIndex;
 
   for (const [column, value] of Object.entries(conditions)) {
@@ -316,7 +319,7 @@ export function buildSelectQuery(
   table: string,
   conditions: WhereCondition = {},
   options: SafeQueryOptions = {},
-): { query: string; values: any[] } {
+): { query: string; values: QueryParamValue[] } {
   // Validate table name
   const safeTable = sanitizeColumnName(table);
 

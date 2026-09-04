@@ -818,17 +818,45 @@ export function validatePollCreator(creator: PollCreatorState): {
   };
 }
 
+/** Raw GraphQL poll option row (before `total_votes`/`vote_count` are derived from aggregates). */
+interface ApiPollOptionRaw {
+  id: string;
+  poll_id: string;
+  text: string;
+  position: number;
+  votes_aggregate?: { aggregate?: { count?: number } };
+  votes?: PollVote[];
+}
+
+/** Raw GraphQL poll row as returned by the polls query, before {@link normalizePoll} shapes it into {@link Poll}. */
+interface ApiPollRaw {
+  id: string;
+  channel_id: string;
+  message_id: string;
+  creator_id: string;
+  question: string;
+  options: ApiPollOptionRaw[];
+  settings?: PollSettings;
+  status: Poll["status"];
+  ends_at: string | null;
+  created_at: string;
+  updated_at: string;
+  closed_at: string | null;
+  creator: PollUser;
+  votes_aggregate?: { aggregate?: { count?: number } };
+}
+
 /**
  * Convert API response to Poll format
  */
-export function normalizePoll(apiPoll: any): Poll {
+export function normalizePoll(apiPoll: ApiPollRaw): Poll {
   return {
     id: apiPoll.id,
     channel_id: apiPoll.channel_id,
     message_id: apiPoll.message_id,
     creator_id: apiPoll.creator_id,
     question: apiPoll.question,
-    options: apiPoll.options.map((opt: any) => ({
+    options: apiPoll.options.map((opt) => ({
       id: opt.id,
       poll_id: opt.poll_id,
       text: opt.text,

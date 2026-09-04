@@ -42,6 +42,91 @@ import { useAuth } from "@/contexts/auth-context";
 // Types
 // ============================================================================
 
+/**
+ * Raw GraphQL row shapes below model exactly the fields these hooks read out
+ * of each `onCompleted`/`onData` payload. The queries (`@/graphql/admin`)
+ * aren't codegen'd, so Apollo's `useQuery`/`useSubscription` type the row as
+ * `any` — these interfaces replace that with the real accessed shape instead.
+ */
+interface AdminUserRow {
+  id: string;
+  username: string;
+  display_name: string;
+  email: string;
+  avatar_url?: string;
+  role: string;
+  is_active: boolean;
+  is_banned: boolean;
+  banned_at?: string;
+  banned_until?: string;
+  ban_reason?: string;
+  created_at: string;
+  presence?: { last_seen_at?: string };
+  messages_aggregate?: { aggregate?: { count?: number } };
+  channel_memberships_aggregate?: { aggregate?: { count?: number } };
+}
+
+interface AdminChannelRow {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  type: string;
+  is_private: boolean;
+  is_archived: boolean;
+  created_at: string;
+  creator?: { id: string; username: string; display_name: string };
+  members_aggregate?: { aggregate?: { count?: number } };
+  messages_aggregate?: { aggregate?: { count?: number } };
+}
+
+interface AdminReportUserRef {
+  id: string;
+  username: string;
+  display_name: string;
+}
+
+interface AdminReportRow {
+  id: string;
+  type: string;
+  reason: string;
+  status: string;
+  created_at: string;
+  resolved_at?: string;
+  reporter: AdminReportUserRef;
+  reported_user?: AdminReportUserRef;
+  reported_message?: {
+    id: string;
+    content: string;
+    user: AdminReportUserRef;
+    channel: { id: string; name: string };
+  };
+  moderator?: AdminReportUserRef;
+  resolution?: string;
+}
+
+interface AdminActivityLogRow {
+  id: string;
+  type: string;
+  description: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  actor: {
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
+}
+
+interface AdminRoleRow {
+  id: string;
+  name: string;
+  description?: string;
+  permissions: string[];
+  is_default: boolean;
+}
+
 interface BanUserInput {
   userId: string;
   reason: string;
@@ -132,7 +217,7 @@ export function useAdminUsers() {
     },
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
-      const transformedUsers: AdminUser[] = data.nchat_users.map((u: any) => ({
+      const transformedUsers: AdminUser[] = data.nchat_users.map((u: AdminUserRow) => ({
         id: u.id,
         username: u.username,
         displayName: u.display_name,
@@ -360,7 +445,7 @@ export function useAdminChannels() {
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       const transformedChannels: AdminChannel[] = data.nchat_channels.map(
-        (c: any) => ({
+        (c: AdminChannelRow) => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
@@ -501,7 +586,7 @@ export function useModeration() {
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
       const transformedReports: ModerationReport[] = data.nchat_reports.map(
-        (r: any) => ({
+        (r: AdminReportRow) => ({
           id: r.id,
           type: r.type,
           reason: r.reason,
@@ -677,7 +762,7 @@ export function useActivityLogs() {
     },
     fetchPolicy: "cache-and-network",
     onCompleted: (data) => {
-      const transformedLogs = data.nchat_activity_logs.map((log: any) => ({
+      const transformedLogs = data.nchat_activity_logs.map((log: AdminActivityLogRow) => ({
         id: log.id,
         type: log.type,
         description: log.description,
@@ -702,7 +787,7 @@ export function useActivityLogs() {
   useSubscription(ACTIVITY_LOGS_SUBSCRIPTION, {
     onData: ({ data }) => {
       if (data.data?.nchat_activity_logs) {
-        const newLogs = data.data.nchat_activity_logs.map((log: any) => ({
+        const newLogs = data.data.nchat_activity_logs.map((log: AdminActivityLogRow) => ({
           id: log.id,
           type: log.type,
           description: log.description,
@@ -738,7 +823,7 @@ export function useRoles() {
   const { loading, error, refetch } = useQuery(GET_ROLES, {
     fetchPolicy: "cache-first",
     onCompleted: (data) => {
-      const transformedRoles = data.nchat_roles.map((role: any) => ({
+      const transformedRoles = data.nchat_roles.map((role: AdminRoleRow) => ({
         id: role.id,
         name: role.name,
         description: role.description,

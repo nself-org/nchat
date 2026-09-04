@@ -10,7 +10,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { gql } from "@apollo/client";
-import { getSyncService, getIndexService } from "@/services/search";
+import {
+  getSyncService,
+  getIndexService,
+  type SyncError,
+} from "@/services/search";
 import { getApolloClient } from "@/lib/apollo-server";
 import {
   getAuthenticatedUser,
@@ -146,6 +150,72 @@ const REINDEX_FILES_QUERY = gql`
 `;
 
 // ============================================================================
+// Raw GraphQL row shapes
+// These bulk-reindex queries aren't codegen'd, so each `data.<field>` page
+// comes back as `any[]` from Apollo — model exactly what each fetcher reads
+// off a row instead of leaving that unnarrowed.
+// ============================================================================
+
+interface MessageRawRow {
+  channel?: { id: string; name: string };
+  user?: {
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url?: string;
+  };
+  [key: string]: unknown;
+}
+
+interface UserRawRow {
+  id: string;
+  username: string;
+  display_name: string;
+  email: string;
+  avatar_url?: string;
+  bio?: string;
+  role?: string;
+  is_active?: boolean;
+  is_bot?: boolean;
+  created_at: string;
+  last_seen_at?: string;
+}
+
+interface ChannelRawRow {
+  id: string;
+  name: string;
+  description?: string;
+  topic?: string;
+  type: string;
+  is_private?: boolean;
+  is_archived?: boolean;
+  is_default?: boolean;
+  created_by?: string;
+  created_at: string;
+  category_id?: string;
+  member_count?: number;
+  last_message_at?: string;
+  icon?: string;
+}
+
+interface FileRawRow {
+  id: string;
+  name?: string;
+  original_name?: string;
+  mime_type?: string;
+  size?: number;
+  url?: string;
+  thumbnail_url?: string;
+  channel_id?: string;
+  channel?: { name?: string };
+  message_id?: string;
+  user_id?: string;
+  user?: { display_name?: string; username?: string };
+  created_at?: string;
+  extracted_text?: string;
+}
+
+// ============================================================================
 // Data Fetchers (paginated bulk pulls via Hasura admin)
 // ============================================================================
 
@@ -170,7 +240,7 @@ async function fetchAllMessages(): Promise<
       query: REINDEX_MESSAGES_QUERY,
       variables: { limit: PAGE_SIZE, offset },
     });
-    const rows: any[] = data?.nchat_messages ?? [];
+    const rows: MessageRawRow[] = data?.nchat_messages ?? [];
     for (const r of rows) {
       results.push({
         message: r as unknown as Message,
@@ -203,7 +273,7 @@ async function fetchAllUsers(): Promise<UserInput[]> {
       query: REINDEX_USERS_QUERY,
       variables: { limit: PAGE_SIZE, offset },
     });
-    const rows: any[] = data?.nchat_users ?? [];
+    const rows: UserRawRow[] = data?.nchat_users ?? [];
     for (const r of rows) {
       results.push({
         id: r.id,
@@ -235,7 +305,7 @@ async function fetchAllChannels(): Promise<ChannelInput[]> {
       query: REINDEX_CHANNELS_QUERY,
       variables: { limit: PAGE_SIZE, offset },
     });
-    const rows: any[] = data?.nchat_channels ?? [];
+    const rows: ChannelRawRow[] = data?.nchat_channels ?? [];
     for (const r of rows) {
       results.push({
         id: r.id,
@@ -246,7 +316,7 @@ async function fetchAllChannels(): Promise<ChannelInput[]> {
         isPrivate: r.is_private,
         isArchived: r.is_archived,
         isDefault: r.is_default,
-        createdBy: r.created_by,
+        createdBy: r.created_by ?? "",
         createdAt: r.created_at,
         categoryId: r.category_id,
         memberCount: r.member_count ?? 0,
@@ -270,7 +340,7 @@ async function fetchAllFiles(): Promise<FileInput[]> {
       query: REINDEX_FILES_QUERY,
       variables: { limit: PAGE_SIZE, offset },
     });
-    const rows: any[] = data?.nchat_attachments ?? [];
+    const rows: FileRawRow[] = data?.nchat_attachments ?? [];
     for (const r of rows) {
       results.push({
         id: r.id,
@@ -280,13 +350,13 @@ async function fetchAllFiles(): Promise<FileInput[]> {
         size: r.size ?? 0,
         url: r.url ?? "",
         thumbnailUrl: r.thumbnail_url,
-        channelId: r.channel_id,
+        channelId: r.channel_id ?? "",
         channelName: r.channel?.name,
         messageId: r.message_id ?? "",
         uploaderId: r.user_id ?? "",
         uploaderName: r.user?.display_name,
         uploaderUsername: r.user?.username,
-        createdAt: r.created_at,
+        createdAt: r.created_at ?? new Date().toISOString(),
         extractedText: r.extracted_text,
       });
     }
@@ -339,7 +409,16 @@ async function handlePost(request: NextRequest): Promise<NextResponse> {
       "users",
       "channels",
     ];
-    const results: Record<string, unknown> = {};
+    const results: Record<
+      string,
+      {
+        success: boolean;
+        indexed?: number;
+        failed?: number;
+        errors?: SyncError[];
+        error?: string;
+      }
+    > = {};
 
     // If forceRebuild, clear indexes first
     if (body.forceRebuild) {
@@ -407,7 +486,7 @@ async function handlePost(request: NextRequest): Promise<NextResponse> {
     }
 
     // Check if all succeeded
-    const allSucceeded = Object.values(results).every((r: any) => r.success);
+    const allSucceeded = Object.values(results).every((r) => r.success);
 
     return NextResponse.json({
       success: allSucceeded,

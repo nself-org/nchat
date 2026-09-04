@@ -19,6 +19,23 @@ import { logger } from "@/lib/logger";
 // Types & Validation
 // ============================================================================
 
+/** Raw notification row as read by `formatDigestEmail`. */
+interface DigestNotificationRow {
+  is_read: boolean;
+  type: string;
+  actor?: { avatar_url?: string };
+  title: string;
+  body: string;
+  created_at: string;
+  channel?: { name?: string };
+  action_url?: string;
+}
+
+/** `nchat_notification_preferences.metadata` shape read by this route. */
+interface NotificationPreferencesMetadata {
+  digest?: UserNotificationPreferences["digest"];
+}
+
 const DigestSettingsSchema = z.object({
   enabled: z.boolean(),
   frequency: z.enum(["daily", "weekly"]),
@@ -176,7 +193,7 @@ function getDigestPeriod(frequency: "daily" | "weekly"): {
  * Format digest as HTML email
  */
 function formatDigestEmail(
-  notifications: any[],
+  notifications: DigestNotificationRow[],
   period: { start: Date; end: Date },
 ): string {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
@@ -292,7 +309,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     const result = await executeGraphQL<{
-      nchat_notification_preferences: Array<{ metadata: any }>;
+      nchat_notification_preferences: Array<{ metadata: NotificationPreferencesMetadata }>;
     }>(GET_DIGEST_SETTINGS, { userId }, authToken);
 
     if (result.errors) {
@@ -348,7 +365,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Get digest settings
     const settingsResult = await executeGraphQL<{
-      nchat_notification_preferences: Array<{ metadata: any }>;
+      nchat_notification_preferences: Array<{ metadata: NotificationPreferencesMetadata }>;
     }>(GET_DIGEST_SETTINGS, { userId }, authToken);
 
     const prefs = settingsResult.data?.nchat_notification_preferences?.[0];
@@ -370,7 +387,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Fetch notifications for period
     const notificationsResult = await executeGraphQL<{
-      nchat_notifications: any[];
+      nchat_notifications: DigestNotificationRow[];
     }>(
       GET_NOTIFICATIONS_FOR_DIGEST,
       {
