@@ -206,7 +206,32 @@ jobs:
             # (exits 0, prints "(N ignored)") but the raw JSON does not — so the
             # gate blocked every PR on CVEs already assessed. Apply the same list
             # here, using jq only (no heredocs: this is inside a YAML block scalar).
-            IGNORED=$(jq -r '(.pnpm.auditConfig.ignoreCves // [])[]' package.json 2>/dev/null | jq -R . | jq -s . )
+            #
+            # Read the list from the REPOSITORY ROOT, not from frontend/. This step
+            # runs with working-directory: frontend, so a bare `package.json` here
+            # is frontend/package.json — whose pnpm.auditConfig is empty. The
+            # curated list lives in the root package.json (image-size x2,
+            # extract-zip), so the gate silently applied NO ignores and re-blocked
+            # on advisories that had already been assessed and accepted. One list,
+            # at the root, is the point; two would drift.
+            #
+            # What is on that list, and why each entry is allowed to be there.
+            # An advisory may be ignored ONLY while it has no published fix; the
+            # moment one exists the entry comes off and the dependency is bumped.
+            #   CVE-2025-71330 / CVE-2025-71329  image-size  (GHSA-w3rx-r6r6-pgpr,
+            #     GHSA-5p2g-fcmc-qvqq)  ICNS/JXL/HEIF infinite-loop DoS.
+            #     first_patched_version NONE against <= 2.0.2, which is still npm
+            #     latest. Build-time only, via Metro.
+            #   CVE-2026-56876 / CVE-2026-19693  extract-zip  (GHSA-jmr9-qjv8-65gv,
+            #     GHSA-7pqw-9j4j-h8q3)  two symlink path-traversal advisories on the
+            #     same package. first_patched_version NONE against <= 2.0.1, and
+            #     2.0.1 IS npm latest, so there is nothing to upgrade to. Reaches
+            #     the tree only through devDependencies (@lhci/cli and
+            #     @wdio/appium-service, both via @puppeteer/browsers) unpacking
+            #     archives this repo's CI fetches itself; never shipped to users.
+            # Re-check each on any dependency sweep: `gh api /advisories/<GHSA>`
+            # reporting a first_patched_version means the entry must be removed.
+            IGNORED=$(jq -r '(.pnpm.auditConfig.ignoreCves // [])[]' "${GITHUB_WORKSPACE}/package.json" 2>/dev/null | jq -R . | jq -s . )
             IGNORED=${IGNORED:-[]}
             COUNTS=$(jq -r --argjson ign "$IGNORED" '
               (.advisories // {})
