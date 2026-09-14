@@ -32,7 +32,7 @@ jobs:
             runner: macos-14
             rust_target: aarch64-apple-darwin
           - arch: x64
-            runner: macos-13
+            runner: macos-15-intel
             rust_target: x86_64-apple-darwin
 
     name: Build (${{ matrix.arch }})
@@ -133,14 +133,36 @@ jobs:
 
       - name: Build Tauri (macOS ${{ matrix.arch }})
         working-directory: desktop
-        run: pnpm tauri build --target ${{ matrix.rust_target }} ${{ steps.updater.outputs.args }}
+        shell: bash
+        # This repo has ZERO APPLE_* secrets (checked by name, 2026-09-14), and
+        # `${{ secrets.X }}` for an unset secret yields an env var that is DEFINED
+        # AND EMPTY. tauri-bundler does not treat that as "no identity": it runs
+        # `security import` on an empty certificate and the build dies with
+        #   failed to bundle project failed codesign application:
+        #   failed to run command security import: failed to import keychain certificate
+        # The variable has to be genuinely ABSENT for signing to be skipped, so
+        # export each one only when its secret actually has a value. nclaw hit the
+        # identical trap and documents it in its own desktop-macos.yml.
+        # An unsigned .app/.dmg on a PR is the correct outcome; a tag build with
+        # the secrets present signs exactly as before.
+        # if/fi rather than `[ -n X ] && export`: both survive set -e (bash
+        # ignores a failing non-final command in an && list, verified locally),
+        # but the explicit form says what it means and matches nclaw.
+        run: |
+          if [ -n "$APPLE_CERTIFICATE_SECRET" ]; then export APPLE_CERTIFICATE="$APPLE_CERTIFICATE_SECRET"; fi
+          if [ -n "$APPLE_CERTIFICATE_PASSWORD_SECRET" ]; then export APPLE_CERTIFICATE_PASSWORD="$APPLE_CERTIFICATE_PASSWORD_SECRET"; fi
+          if [ -n "$APPLE_SIGNING_IDENTITY_SECRET" ]; then export APPLE_SIGNING_IDENTITY="$APPLE_SIGNING_IDENTITY_SECRET"; fi
+          if [ -n "$APPLE_ID_SECRET" ]; then export APPLE_ID="$APPLE_ID_SECRET"; fi
+          if [ -n "$APPLE_PASSWORD_SECRET" ]; then export APPLE_PASSWORD="$APPLE_PASSWORD_SECRET"; fi
+          if [ -n "$APPLE_TEAM_ID_SECRET" ]; then export APPLE_TEAM_ID="$APPLE_TEAM_ID_SECRET"; fi
+          pnpm tauri build --target ${{ matrix.rust_target }} ${{ steps.updater.outputs.args }}
         env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_CERTIFICATE_SECRET: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD_SECRET: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY_SECRET: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID_SECRET: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD_SECRET: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID_SECRET: ${{ secrets.APPLE_TEAM_ID }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
