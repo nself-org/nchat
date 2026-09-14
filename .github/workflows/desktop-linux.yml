@@ -50,6 +50,12 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: nself-org/packages
+          # Pinned, not floating: pnpm-lock.yaml below now contains importers for
+          # these 16 packages, so a frozen install only agrees with the sibling at
+          # this exact commit. Tracking main would red the desktop builds on the
+          # next push to nself-org/packages. Bump this sha and regenerate the
+          # lockfile together.
+          ref: 8a5cc53106fae71474f822003645d1f51dcfcd95
           path: _nself_packages
           persist-credentials: false
 
