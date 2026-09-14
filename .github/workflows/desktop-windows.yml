@@ -97,9 +97,22 @@ jobs:
       # headers on the runner, no Windows prebuilt binary for this version).
       # Explicitly excluding @nself-chat/web (frontend) from the install
       # graph is what actually skips it.
+      # The install scope must be a SUPERSET of the build scope below. It was not:
+      # `...@nself-chat/desktop` left packages/{ui,core,state,config} without a
+      # node_modules of their own, so the build step died with "'tsc' is not
+      # recognized" and "'tsup' is not recognized" -- their build tools had never
+      # been installed. Name the four explicitly rather than widening the filter,
+      # so the canvas exclusion above keeps working.
       - name: Install pnpm deps (desktop + workspace deps only)
         working-directory: .
-        run: pnpm install --frozen-lockfile --filter "...@nself-chat/desktop" --filter "!@nself-chat/web"
+        run: >-
+          pnpm install --frozen-lockfile
+          --filter "...@nself-chat/desktop"
+          --filter "@nself-chat/ui"
+          --filter "@nself-chat/core"
+          --filter "@nself-chat/state"
+          --filter "@nself-chat/config"
+          --filter "!@nself-chat/web"
 
       - name: Build workspace packages (@nself-chat/ui etc.)
         working-directory: .
