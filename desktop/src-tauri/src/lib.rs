@@ -5,7 +5,9 @@ mod menu;
 mod state;
 mod tray;
 
-use tauri::{Emitter, Listener, WindowEvent};
+// Manager is a trait, so it must be in scope for window.app_handle() and
+// handle.get_webview_window() below — both are trait methods, not inherent ones.
+use tauri::{Emitter, Listener, Manager, WindowEvent};
 
 pub fn run() {
     // T28: optional crash reporting via sentry-tauri.
