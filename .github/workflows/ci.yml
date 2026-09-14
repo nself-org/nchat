@@ -409,7 +409,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # packages: '' — do NOT let the action install its default package set.
+      # That set includes the obsolete `tools` package, which cmdline-tools 20.0
+      # (rolled into the runner image today) no longer serves:
+      #   Warning: Failed to find package 'tools'
+      #   Error: The process '.../cmdline-tools/20.0/bin/sdkmanager'
+      #          failed with exit code 1
+      # This job passed at 17:59 today and failed at 20:41 with no change to it,
+      # and it dies inside the action before any step of ours runs. The runner
+      # image already ships platform-tools and build-tools, which is all
+      # `gradlew assembleDebug` needs here.
       - uses: android-actions/setup-android@v4
+        with:
+          packages: ''
 
       - uses: pnpm/action-setup@v6
 
