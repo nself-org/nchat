@@ -254,7 +254,7 @@ services:
   # MinIO Storage (Production)
   # --------------------------------------------------------------------------
   storage:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: nchat-storage
     restart: unless-stopped
     environment:

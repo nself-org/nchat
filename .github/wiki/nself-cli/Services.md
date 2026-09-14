@@ -1204,7 +1204,7 @@ Enable these services via environment variables in `.backend/.env`.
 
 | Property         | Value                 |
 | ---------------- | --------------------- |
-| **Image**        | `minio/minio:latest`  |
+| **Image**        | `quay.io/minio/minio:latest`  |
 | **API Port**     | 9000                  |
 | **Console Port** | 9001                  |
 | **Console URL**  | http://localhost:9001 |
