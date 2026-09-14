@@ -36,6 +36,30 @@ jobs:
         with:
           fetch-depth: 0
 
+      # pnpm-workspace.yaml globs '../packages/@nself/*', i.e. the nself-org/packages
+      # repo as a SIBLING directory. desktop/package.json depends on five of them
+      # (auth-core, graphql-client, i18n, observability, ui) as workspace:*, and
+      # desktop/src/main.tsx imports @nself/observability directly. Checking out only
+      # nchat leaves those unresolvable, and the Vite build dies with
+      # 'Rollup failed to resolve import "@nself/observability"'.
+      #
+      # Check out into a subdirectory and MOVE it to the sibling path rather than
+      # symlinking: pnpm writes relative node_modules links that resolve against the
+      # physical path, so they dangle through a symlink (see nsentry ci.yml).
+      - name: Checkout @nself packages (sibling workspace dir)
+        uses: actions/checkout@v7
+        with:
+          repository: nself-org/packages
+          path: _nself_packages
+          persist-credentials: false
+
+      - name: Move @nself packages to the sibling path pnpm expects
+        shell: bash
+        run: |
+          PARENT_DIR="$(dirname "$GITHUB_WORKSPACE")"
+          rm -rf "$PARENT_DIR/packages"
+          mv "$GITHUB_WORKSPACE/_nself_packages" "$PARENT_DIR/packages"
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -91,11 +115,11 @@ jobs:
         with:
           name: desktop-linux-x64
           path: |
-            nchat/desktop/src-tauri/target/release/bundle/deb/*.deb
-            nchat/desktop/src-tauri/target/release/bundle/rpm/*.rpm
-            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage
-            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz
-            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig
+            desktop/src-tauri/target/release/bundle/deb/*.deb
+            desktop/src-tauri/target/release/bundle/rpm/*.rpm
+            desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+            desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz
+            desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig
           retention-days: 14
 
       # T18 — publish updater feed to S3 (tag pushes only)
@@ -107,7 +131,7 @@ jobs:
           AWS_DEFAULT_REGION: eu-central-1
           AWS_ENDPOINT_URL: https://fsn1.your-objectstorage.com
         run: |
-          for sig in nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig; do
+          for sig in desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig; do
             [ -f "$sig" ] || continue
             aws s3 cp "$sig" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
             aws s3 cp "${sig%.sig}" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"

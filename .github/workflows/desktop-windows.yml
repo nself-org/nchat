@@ -35,6 +35,30 @@ jobs:
         with:
           fetch-depth: 0
 
+      # pnpm-workspace.yaml globs '../packages/@nself/*', i.e. the nself-org/packages
+      # repo as a SIBLING directory. desktop/package.json depends on five of them
+      # (auth-core, graphql-client, i18n, observability, ui) as workspace:*, and
+      # desktop/src/main.tsx imports @nself/observability directly. Checking out only
+      # nchat leaves those unresolvable, and the Vite build dies with
+      # 'Rollup failed to resolve import "@nself/observability"'.
+      #
+      # Check out into a subdirectory and MOVE it to the sibling path rather than
+      # symlinking: pnpm writes relative node_modules links that resolve against the
+      # physical path, so they dangle through a symlink (see nsentry ci.yml).
+      - name: Checkout @nself packages (sibling workspace dir)
+        uses: actions/checkout@v7
+        with:
+          repository: nself-org/packages
+          path: _nself_packages
+          persist-credentials: false
+
+      - name: Move @nself packages to the sibling path pnpm expects
+        shell: bash
+        run: |
+          PARENT_DIR="$(dirname "$GITHUB_WORKSPACE")"
+          rm -rf "$PARENT_DIR/packages"
+          mv "$GITHUB_WORKSPACE/_nself_packages" "$PARENT_DIR/packages"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
 

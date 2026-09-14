@@ -45,6 +45,30 @@ jobs:
         with:
           fetch-depth: 0
 
+      # pnpm-workspace.yaml globs '../packages/@nself/*', i.e. the nself-org/packages
+      # repo as a SIBLING directory. desktop/package.json depends on five of them
+      # (auth-core, graphql-client, i18n, observability, ui) as workspace:*, and
+      # desktop/src/main.tsx imports @nself/observability directly. Checking out only
+      # nchat leaves those unresolvable, and the Vite build dies with
+      # 'Rollup failed to resolve import "@nself/observability"'.
+      #
+      # Check out into a subdirectory and MOVE it to the sibling path rather than
+      # symlinking: pnpm writes relative node_modules links that resolve against the
+      # physical path, so they dangle through a symlink (see nsentry ci.yml).
+      - name: Checkout @nself packages (sibling workspace dir)
+        uses: actions/checkout@v7
+        with:
+          repository: nself-org/packages
+          path: _nself_packages
+          persist-credentials: false
+
+      - name: Move @nself packages to the sibling path pnpm expects
+        shell: bash
+        run: |
+          PARENT_DIR="$(dirname "$GITHUB_WORKSPACE")"
+          rm -rf "$PARENT_DIR/packages"
+          mv "$GITHUB_WORKSPACE/_nself_packages" "$PARENT_DIR/packages"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
 
@@ -91,7 +115,7 @@ jobs:
       - name: Bundle size gate
         if: matrix.arch == 'aarch64'
         run: |
-          DMG=$(ls nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg 2>/dev/null | head -1)
+          DMG=$(ls desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg 2>/dev/null | head -1)
           if [ -z "$DMG" ]; then
             echo "ERROR: no DMG found"
             exit 1
@@ -108,9 +132,9 @@ jobs:
         with:
           name: desktop-macos-${{ matrix.arch }}
           path: |
-            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg
-            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz
-            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig
+            desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg
+            desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz
+            desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig
           retention-days: 14
 
       # T18 — publish updater feed to S3 (tag pushes only)
@@ -122,7 +146,7 @@ jobs:
           AWS_DEFAULT_REGION: eu-central-1
           AWS_ENDPOINT_URL: https://fsn1.your-objectstorage.com
         run: |
-          for sig in nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig; do
+          for sig in desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig; do
             [ -f "$sig" ] || continue
             aws s3 cp "$sig" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
             aws s3 cp "${sig%.sig}" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
@@ -138,6 +162,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      # pnpm-workspace.yaml globs '../packages/@nself/*', i.e. the nself-org/packages
+      # repo as a SIBLING directory. desktop/package.json depends on five of them
+      # (auth-core, graphql-client, i18n, observability, ui) as workspace:*, and
+      # desktop/src/main.tsx imports @nself/observability directly. Checking out only
+      # nchat leaves those unresolvable, and the Vite build dies with
+      # 'Rollup failed to resolve import "@nself/observability"'.
+      #
+      # Check out into a subdirectory and MOVE it to the sibling path rather than
+      # symlinking: pnpm writes relative node_modules links that resolve against the
+      # physical path, so they dangle through a symlink (see nsentry ci.yml).
+      - name: Checkout @nself packages (sibling workspace dir)
+        uses: actions/checkout@v7
+        with:
+          repository: nself-org/packages
+          path: _nself_packages
+          persist-credentials: false
+
+      - name: Move @nself packages to the sibling path pnpm expects
+        shell: bash
+        run: |
+          PARENT_DIR="$(dirname "$GITHUB_WORKSPACE")"
+          rm -rf "$PARENT_DIR/packages"
+          mv "$GITHUB_WORKSPACE/_nself_packages" "$PARENT_DIR/packages"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
