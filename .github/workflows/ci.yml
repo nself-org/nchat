@@ -63,7 +63,8 @@ jobs:
               - 'frontend/src/**'
               - 'frontend/package.json'
               - 'pnpm-lock.yaml'
-              - 'frontend/pnpm-workspace.yaml'
+              - 'packages/**'
+              - 'pnpm-workspace.yaml'
             config:
               - 'frontend/tsconfig.json'
               - 'frontend/jest.config.js'
