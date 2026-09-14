@@ -23,21 +23,44 @@ registries:
 updates:
   # npm/pnpm dependencies.
   #
-  # directory MUST be the pnpm workspace root, not a member package.
-  # pnpm keeps one lockfile at the root for every workspace member. Pointed at
-  # '/frontend', Dependabot edited frontend/package.json and then looked for a
-  # lockfile beside it, found none, and left the root pnpm-lock.yaml untouched.
-  # CI installs with --frozen-lockfile, so every resulting PR died at the
-  # install step with ERR_PNPM_OUTDATED_LOCKFILE before a single gate ran:
+  # Use `directories` (plural), listing the workspace root AND every member.
+  # Both of the obvious single-directory settings are wrong here:
   #
-  #   Cannot install with "frozen-lockfile" because pnpm-lock.yaml
-  #   is not up to date with <ROOT>/frontend/package.json
+  #   directory: '/frontend'  — Dependabot edited frontend/package.json, then
+  #     looked for a lockfile beside it, found none, and left the root
+  #     pnpm-lock.yaml untouched. CI installs with --frozen-lockfile, so every
+  #     resulting PR died at install with ERR_PNPM_OUTDATED_LOCKFILE before a
+  #     single gate ran. Six unmergeable PRs accumulated.
   #
-  # That made the PRs unmergeable by construction, not by regression. Six of
-  # them accumulated. From the root, Dependabot updates member manifests and
-  # regenerates the shared lockfile in the same commit.
+  #   directory: '/'  — the fix for the above, and wrong in the other
+  #     direction. The root package.json declares ZERO dependencies; this repo
+  #     keeps all of them in workspace members. Dependabot read the shared
+  #     lockfile, found the transitive set, and then could not act on any of
+  #     it, failing the whole run with one row per dependency:
+  #
+  #       <name> | dependency_file_not_resolvable |
+  #         "No package named \"<name>\" present in workspace."
+  #
+  #     Observed 2026-09-14 (job 1575233434): ~60 rows, zero PRs, and the
+  #     errored ecosystem failed the github-actions and docker ecosystems in
+  #     the same run with it.
+  #
+  # `directories` gives Dependabot the member manifests to edit while it still
+  # resolves the single root lockfile, which is what pnpm workspaces need.
+  # Members are listed explicitly to match pnpm-workspace.yaml. Two other
+  # package.json files exist (frontend/platforms/desktop, frontend/src/cli) and
+  # are deliberately absent: they are not workspace members, so they have no
+  # entry in the root lockfile and Dependabot cannot resolve them either.
+  # '../packages/@nself/*' is a workspace member outside this repository (the
+  # nself-org/packages repo) and is updated there, not here.
   - package-ecosystem: 'npm'
-    directory: '/'
+    directories:
+      - '/'
+      - '/frontend'
+      - '/frontend-vite'
+      - '/frontend/platforms/mobile'
+      - '/desktop'
+      - '/packages/*'
     schedule:
       interval: 'weekly'
       day: 'monday'
@@ -160,3 +183,29 @@ updates:
       - 'docker'
     commit-message:
       prefix: 'chore(docker)'
+    ignore:
+      # Node MAJOR bumps are a repo-wide decision, not a Dockerfile edit.
+      # Every workflow in .github/workflows pins NODE_VERSION: '22', and the
+      # three stages of deploy/docker/Dockerfile plus Dockerfile.dev pin
+      # node:22-alpine to match. Moving the image alone would put the published
+      # container on a different major than everything CI tests against.
+      #
+      # This also unblocks the weekly run. On 2026-09-14 (job 1575256237)
+      # Dependabot resolved node 22-alpine -> 26-alpine and GitHub refused the
+      # pull request outright:
+      #
+      #   POST /update_jobs/.../create_pull_request -> 400
+      #   {"detail":"The request contains invalid or unauthorized changes"}
+      #   Handled error whilst updating node: dependency_file_not_supported
+      #
+      # It is refused server-side at PR creation, after a clean resolution, so
+      # there is nothing in this repo to correct; the change GitHub rejects is
+      # a write under .github/, which is where these Dockerfiles live per the
+      # clean-root rule. That refusal failed the entire Dependabot Updates run,
+      # taking npm and github-actions down with it. Suppressing the update that
+      # cannot be delivered keeps the other ecosystems running.
+      #
+      # Minor and patch image updates are NOT ignored and still open PRs.
+      # The Node 22 -> current-LTS upgrade is tracked as its own repo-wide task.
+      - dependency-name: 'node'
+        update-types: ['version-update:semver-major']
