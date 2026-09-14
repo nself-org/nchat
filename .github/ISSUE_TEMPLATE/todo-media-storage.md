@@ -40,7 +40,7 @@ Integrate MinIO (or Nhost Storage) for handling file uploads including avatars, 
    ```yaml
    # docker-compose.yml
    minio:
-     image: minio/minio:latest
+     image: quay.io/minio/minio:latest
      ports:
        - '9000:9000'
        - '9001:9001'

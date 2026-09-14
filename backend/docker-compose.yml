@@ -264,7 +264,7 @@ services:
   # MinIO Object Storage
   # SECURITY: Bound to localhost only - access via nginx reverse proxy
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: ${PROJECT_NAME}_minio
     restart: unless-stopped
     user: "1000:1000"
