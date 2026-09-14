@@ -36,7 +36,8 @@ overrides:
   nodemailer@<9.1.1: '>=9.1.1 <10.0.0'
   postcss@<8.5.10: '>=8.5.10'
   uuid@<11.1.1: '>=11.1.1'
-  '@xmldom/xmldom@<0.8.13': '>=0.8.13'
+  '@xmldom/xmldom@<0.8.15': '>=0.8.15 <0.9.0'
+  '@xmldom/xmldom@>=0.9.0 <0.9.12': '>=0.9.12'
   react: ^19.2.0
   react-dom: ^19.2.0
   '@types/react': 19.2.17
@@ -66,6 +67,7 @@ overrides:
   deepmerge-ts@<8.0.0: '>=8.0.0'
   browserslist@<4.28.7: ^4.28.7
   joi@<17.13.6: '>=17.13.6 <18.0.0'
+  js-cookie@<3.0.7: '>=3.0.7'
 
 patchedDependencies:
   '@capacitor/cli@6.2.1':
@@ -6561,12 +6563,12 @@ packages:
     resolution: {integrity: sha512-CJDxIgE5I0FH+ttq/Fxy6nRpxP70+e2O048EPe85J2use3XKdatVM7dDVvFNjQudd9B49NPoZ+8PG49zj4Er8Q==}
     engines: {node: '>= 16'}
 
-  '@xmldom/xmldom@0.8.13':
-    resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==}
+  '@xmldom/xmldom@0.8.15':
+    resolution: {integrity: sha512-/5NV/vDALVFDXgLmfsy9TRCBlKwO2LNBFzpzvb9iIj+jR+eSc6DLYYvVOdivT/jm7MtU6TebYuRmzEOI7w40UA==}
     engines: {node: '>=10.0.0'}
 
-  '@xmldom/xmldom@0.9.10':
-    resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==}
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
     engines: {node: '>=14.6'}
 
   '@xstate/react@3.2.2':
@@ -7805,6 +7807,7 @@ packages:
   cron-parser@4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
     engines: {node: '>=12.0.0'}
+    deprecated: v4 is no longer maintained, upgrade to v5
 
   cross-argv@2.0.0:
     resolution: {integrity: sha512-YIaY9TR5Nxeb8SMdtrU8asWVM4jqJDNDYlKV21LxtYcfNJhp1kEsgSa6qXwXgzN0WQWGODps0+TlGp2xQSHwOg==}
@@ -10218,10 +10221,8 @@ packages:
   jpeg-js@0.4.4:
     resolution: {integrity: sha512-WZzeDOEtTOBK4Mdsar0IqEU5sMr3vSV2RqkAIzUEV2BHnUfKGyswWFPFwK5EeDo93K3FohSHbLAjj0s1Wzd+dg==}
 
-  js-cookie@3.0.6:
-    resolution: {integrity: sha512-mYhz0Og/Wv8bZJcBC6rRzYG+rYf8DyQSK3rcUbuGHQIgSsX6uynAIVoaPgqf0udH2AGS953hGFy3w6on1rJzMw==}
-    engines: {node: '>=20'}
-    deprecated: Missing corresponding tag/release on GitHub
+  js-cookie@3.0.8:
+    resolution: {integrity: sha512-yeJd4aNAdYZQjaon2bpD/Gb0B/omw7HQOsynXXcOiWVCacbBcPlgn8S/d1X6blFSaHao7ozqtW7NZW19xpCtIw==}
 
   js-file-download@0.4.12:
     resolution: {integrity: sha512-rML+NkoD08p5Dllpjo0ffy4jRHeY6Zsapvr/W86N7E0yuzAO6qa5X9+xog6zQNlH102J7IXljNY2FtS6Lj3ucg==}
@@ -11988,6 +11989,7 @@ packages:
   prom-client@14.2.0:
     resolution: {integrity: sha512-sF308EhTenb/pDRPakm+WgiN+VdM/T1RaHj1x+MvAuT8UiQP8JmOEbxVqtkbfR4LrvOg5n7ic01kRBDGXjYikA==}
     engines: {node: '>=10'}
+    deprecated: prom-client has been replaced by @prometheus-io/client
 
   promisify-child-process@4.1.2:
     resolution: {integrity: sha512-APnkIgmaHNJpkAn7k+CrJSi9WMuff5ctYFbD0CO2XIPkM8yO7d/ShouU2clywbpHV/DUsyc4bpJCsNgddNtx4g==}
@@ -14876,7 +14878,7 @@ snapshots:
 
   '@authenio/xml-encryption@2.0.2':
     dependencies:
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.8.15
       escape-html: 1.0.3
       xpath: 0.0.32
 
@@ -17503,7 +17505,7 @@ snapshots:
     dependencies:
       '@simplewebauthn/browser': 9.0.1
       fetch-ponyfill: 7.1.0(encoding@0.1.13)
-      js-cookie: 3.0.6
+      js-cookie: 3.0.8
       jwt-decode: 4.0.0
       xstate: 4.38.3
     transitivePeerDependencies:
@@ -17519,7 +17521,7 @@ snapshots:
       '@nhost/react': 3.11.2(@types/react@19.2.17)(encoding@0.1.13)(graphql@16.8.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       graphql: 16.8.1
       isomorphic-unfetch: 3.1.0(encoding@0.1.13)
-      js-cookie: 3.0.6
+      js-cookie: 3.0.8
       next: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
@@ -21421,7 +21423,7 @@ snapshots:
       '@wdio/reporter': 9.27.1
       '@wdio/types': 9.27.1
       '@wdio/utils': 9.27.1
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.9.12
       change-case: 5.4.4
       get-port: 7.2.0
       import-meta-resolve: 4.2.0
@@ -21730,9 +21732,9 @@ snapshots:
 
   '@xmldom/is-dom-node@1.0.1': {}
 
-  '@xmldom/xmldom@0.8.13': {}
+  '@xmldom/xmldom@0.8.15': {}
 
-  '@xmldom/xmldom@0.9.10': {}
+  '@xmldom/xmldom@0.9.12': {}
 
   '@xstate/react@3.2.2(@types/react@19.2.17)(react@19.2.6)(xstate@4.38.3)':
     dependencies:
@@ -21930,7 +21932,7 @@ snapshots:
     dependencies:
       '@appium/base-driver': 10.5.2(@types/node@25.9.3)
       '@appium/support': 7.2.2(@types/node@25.9.3)
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.8.15
       appium-adb: 14.5.0(@types/node@25.9.3)
       asyncbox: 6.3.0
       axios: 1.19.0
@@ -21982,7 +21984,7 @@ snapshots:
       '@appium/strongbox': 1.1.1
       '@appium/support': 7.2.2(@types/node@25.9.3)
       '@types/node': 25.9.3
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.9.12
       appium-ios-tuntap: 0.2.5(@types/node@25.9.3)
       axios: 1.19.0
       commander: 14.0.3
@@ -22003,7 +22005,7 @@ snapshots:
     dependencies:
       '@appium/strongbox': 1.1.1
       '@appium/support': 7.2.2(@types/node@25.9.3)
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.8.15
       appium-ios-tuntap: 0.2.5(@types/node@25.9.3)
       axios: 1.19.0
       commander: 14.0.3
@@ -22024,7 +22026,7 @@ snapshots:
   appium-ios-simulator@8.1.3(@types/node@25.9.3):
     dependencies:
       '@appium/support': 7.2.2(@types/node@25.9.3)
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.8.15
       appium-xcode: 6.2.2(@types/node@25.9.3)
       async-lock: 1.4.1
       asyncbox: 6.3.0
@@ -26629,7 +26631,7 @@ snapshots:
 
   jpeg-js@0.4.4: {}
 
-  js-cookie@3.0.6: {}
+  js-cookie@3.0.8: {}
 
   js-file-download@0.4.12: {}
 
@@ -28322,13 +28324,13 @@ snapshots:
 
   plist@3.1.1:
     dependencies:
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.9.12
       base64-js: 1.5.1
       xmlbuilder: 15.1.1
 
   plist@4.0.0:
     dependencies:
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.9.12
       xmlbuilder: 15.1.1
 
   pluralize@8.0.0: {}
@@ -29340,7 +29342,7 @@ snapshots:
   samlify@2.13.0:
     dependencies:
       '@authenio/xml-encryption': 2.0.2
-      '@xmldom/xmldom': 0.8.13
+      '@xmldom/xmldom': 0.8.15
       node-rsa: 1.1.1
       xml: 1.0.1
       xml-crypto: 6.1.2
@@ -31374,7 +31376,7 @@ snapshots:
   xml-crypto@6.1.2:
     dependencies:
       '@xmldom/is-dom-node': 1.0.1
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.8.15
       xpath: 0.0.33
 
   xml-escape@1.1.0: {}
