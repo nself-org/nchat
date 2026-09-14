@@ -138,7 +138,7 @@ services:
   # MinIO Storage (S3-compatible)
   # --------------------------------------------------------------------------
   storage:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: nchat-storage
     restart: unless-stopped
     ports:
