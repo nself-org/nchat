@@ -6,6 +6,11 @@ on:
   pull_request:
     paths:
       - 'desktop/**'
+      # desktop/ bundles the workspace packages it depends on (@nself-chat/ui,
+      # @nself-chat/state, ...), so a change there can break this build.
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '.github/workflows/desktop-linux.yml'
   workflow_dispatch:
 
@@ -30,6 +35,36 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      # pnpm-workspace.yaml globs '../packages/@nself/*', i.e. the nself-org/packages
+      # repo as a SIBLING directory. desktop/package.json depends on five of them
+      # (auth-core, graphql-client, i18n, observability, ui) as workspace:*, and
+      # desktop/src/main.tsx imports @nself/observability directly. Checking out only
+      # nchat leaves those unresolvable, and the Vite build dies with
+      # 'Rollup failed to resolve import "@nself/observability"'.
+      #
+      # Check out into a subdirectory and MOVE it to the sibling path rather than
+      # symlinking: pnpm writes relative node_modules links that resolve against the
+      # physical path, so they dangle through a symlink (see nsentry ci.yml).
+      - name: Checkout @nself packages (sibling workspace dir)
+        uses: actions/checkout@v7
+        with:
+          repository: nself-org/packages
+          # Pinned, not floating: pnpm-lock.yaml below now contains importers for
+          # these 16 packages, so a frozen install only agrees with the sibling at
+          # this exact commit. Tracking main would red the desktop builds on the
+          # next push to nself-org/packages. Bump this sha and regenerate the
+          # lockfile together.
+          ref: 8a5cc53106fae71474f822003645d1f51dcfcd95
+          path: _nself_packages
+          persist-credentials: false
+
+      - name: Move @nself packages to the sibling path pnpm expects
+        shell: bash
+        run: |
+          PARENT_DIR="$(dirname "$GITHUB_WORKSPACE")"
+          rm -rf "$PARENT_DIR/packages"
+          mv "$GITHUB_WORKSPACE/_nself_packages" "$PARENT_DIR/packages"
 
       - name: Install system dependencies
         run: |
@@ -74,9 +109,36 @@ jobs:
         working-directory: .
         run: pnpm --filter "@nself-chat/ui" --filter "@nself-chat/core" --filter "@nself-chat/state" --filter "@nself-chat/config" build
 
+      # Updater artifacts are only signable on a release. This repo has no
+      # TAURI_SIGNING_PRIVATE_KEY at repo or org level, and tauri.conf.json sets
+      # createUpdaterArtifacts: true, so every build ran all the way to the very
+      # last step and died there:
+      #   failed to decode secret key: incorrect updater private key password:
+      #   Missing comment in secret key
+      # The deb/rpm/AppImage bundles were already built and written by then.
+      #
+      # Turn updater artifacts off for anything that is not a tag build. A PR has
+      # no business signing a release artifact. Tag builds are untouched and still
+      # sign, so the release path is unchanged.
+      #
+      # The override goes in a FILE, not inline after --config: the shell strips
+      # the double quotes out of an unquoted {"bundle":{...}} argument and Tauri
+      # then gets invalid JSON.
+      - name: Updater artifacts only on a tag build
+        id: updater
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "args=" >> "$GITHUB_OUTPUT"
+          else
+            CFG="${RUNNER_TEMP}/no-updater.json"
+            printf '%s' '{"bundle":{"createUpdaterArtifacts":false}}' > "$CFG"
+            echo "args=--config $CFG" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build Tauri (Linux x64)
         working-directory: desktop
-        run: pnpm tauri build
+        run: pnpm tauri build ${{ steps.updater.outputs.args }}
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -86,11 +148,11 @@ jobs:
         with:
           name: desktop-linux-x64
           path: |
-            nchat/desktop/src-tauri/target/release/bundle/deb/*.deb
-            nchat/desktop/src-tauri/target/release/bundle/rpm/*.rpm
-            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage
-            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz
-            nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig
+            desktop/src-tauri/target/release/bundle/deb/*.deb
+            desktop/src-tauri/target/release/bundle/rpm/*.rpm
+            desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+            desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz
+            desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig
           retention-days: 14
 
       # T18 — publish updater feed to S3 (tag pushes only)
@@ -102,7 +164,7 @@ jobs:
           AWS_DEFAULT_REGION: eu-central-1
           AWS_ENDPOINT_URL: https://fsn1.your-objectstorage.com
         run: |
-          for sig in nchat/desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig; do
+          for sig in desktop/src-tauri/target/release/bundle/appimage/*.AppImage.tar.gz.sig; do
             [ -f "$sig" ] || continue
             aws s3 cp "$sig" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
             aws s3 cp "${sig%.sig}" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"

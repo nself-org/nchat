@@ -6,6 +6,11 @@ on:
   pull_request:
     paths:
       - 'desktop/**'
+      # desktop/ bundles the workspace packages it depends on (@nself-chat/ui,
+      # @nself-chat/state, ...), so a change there can break this build.
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '.github/workflows/desktop-macos.yml'
   workflow_dispatch:
 
@@ -27,7 +32,7 @@ jobs:
             runner: macos-14
             rust_target: aarch64-apple-darwin
           - arch: x64
-            runner: macos-13
+            runner: macos-15-intel
             rust_target: x86_64-apple-darwin
 
     name: Build (${{ matrix.arch }})
@@ -39,6 +44,36 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      # pnpm-workspace.yaml globs '../packages/@nself/*', i.e. the nself-org/packages
+      # repo as a SIBLING directory. desktop/package.json depends on five of them
+      # (auth-core, graphql-client, i18n, observability, ui) as workspace:*, and
+      # desktop/src/main.tsx imports @nself/observability directly. Checking out only
+      # nchat leaves those unresolvable, and the Vite build dies with
+      # 'Rollup failed to resolve import "@nself/observability"'.
+      #
+      # Check out into a subdirectory and MOVE it to the sibling path rather than
+      # symlinking: pnpm writes relative node_modules links that resolve against the
+      # physical path, so they dangle through a symlink (see nsentry ci.yml).
+      - name: Checkout @nself packages (sibling workspace dir)
+        uses: actions/checkout@v7
+        with:
+          repository: nself-org/packages
+          # Pinned, not floating: pnpm-lock.yaml below now contains importers for
+          # these 16 packages, so a frozen install only agrees with the sibling at
+          # this exact commit. Tracking main would red the desktop builds on the
+          # next push to nself-org/packages. Bump this sha and regenerate the
+          # lockfile together.
+          ref: 8a5cc53106fae71474f822003645d1f51dcfcd95
+          path: _nself_packages
+          persist-credentials: false
+
+      - name: Move @nself packages to the sibling path pnpm expects
+        shell: bash
+        run: |
+          PARENT_DIR="$(dirname "$GITHUB_WORKSPACE")"
+          rm -rf "$PARENT_DIR/packages"
+          mv "$GITHUB_WORKSPACE/_nself_packages" "$PARENT_DIR/packages"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -69,16 +104,65 @@ jobs:
         working-directory: .
         run: pnpm --filter "@nself-chat/ui" --filter "@nself-chat/core" --filter "@nself-chat/state" --filter "@nself-chat/config" build
 
+      # Updater artifacts are only signable on a release. This repo has no
+      # TAURI_SIGNING_PRIVATE_KEY at repo or org level, and tauri.conf.json sets
+      # createUpdaterArtifacts: true, so every build ran all the way to the very
+      # last step and died there:
+      #   failed to decode secret key: incorrect updater private key password:
+      #   Missing comment in secret key
+      # The deb/rpm/AppImage bundles were already built and written by then.
+      #
+      # Turn updater artifacts off for anything that is not a tag build. A PR has
+      # no business signing a release artifact. Tag builds are untouched and still
+      # sign, so the release path is unchanged.
+      #
+      # The override goes in a FILE, not inline after --config: the shell strips
+      # the double quotes out of an unquoted {"bundle":{...}} argument and Tauri
+      # then gets invalid JSON.
+      - name: Updater artifacts only on a tag build
+        id: updater
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "args=" >> "$GITHUB_OUTPUT"
+          else
+            CFG="${RUNNER_TEMP}/no-updater.json"
+            printf '%s' '{"bundle":{"createUpdaterArtifacts":false}}' > "$CFG"
+            echo "args=--config $CFG" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build Tauri (macOS ${{ matrix.arch }})
         working-directory: desktop
-        run: pnpm tauri build --target ${{ matrix.rust_target }}
+        shell: bash
+        # This repo has ZERO APPLE_* secrets (checked by name, 2026-09-14), and
+        # `${{ secrets.X }}` for an unset secret yields an env var that is DEFINED
+        # AND EMPTY. tauri-bundler does not treat that as "no identity": it runs
+        # `security import` on an empty certificate and the build dies with
+        #   failed to bundle project failed codesign application:
+        #   failed to run command security import: failed to import keychain certificate
+        # The variable has to be genuinely ABSENT for signing to be skipped, so
+        # export each one only when its secret actually has a value. nclaw hit the
+        # identical trap and documents it in its own desktop-macos.yml.
+        # An unsigned .app/.dmg on a PR is the correct outcome; a tag build with
+        # the secrets present signs exactly as before.
+        # if/fi rather than `[ -n X ] && export`: both survive set -e (bash
+        # ignores a failing non-final command in an && list, verified locally),
+        # but the explicit form says what it means and matches nclaw.
+        run: |
+          if [ -n "$APPLE_CERTIFICATE_SECRET" ]; then export APPLE_CERTIFICATE="$APPLE_CERTIFICATE_SECRET"; fi
+          if [ -n "$APPLE_CERTIFICATE_PASSWORD_SECRET" ]; then export APPLE_CERTIFICATE_PASSWORD="$APPLE_CERTIFICATE_PASSWORD_SECRET"; fi
+          if [ -n "$APPLE_SIGNING_IDENTITY_SECRET" ]; then export APPLE_SIGNING_IDENTITY="$APPLE_SIGNING_IDENTITY_SECRET"; fi
+          if [ -n "$APPLE_ID_SECRET" ]; then export APPLE_ID="$APPLE_ID_SECRET"; fi
+          if [ -n "$APPLE_PASSWORD_SECRET" ]; then export APPLE_PASSWORD="$APPLE_PASSWORD_SECRET"; fi
+          if [ -n "$APPLE_TEAM_ID_SECRET" ]; then export APPLE_TEAM_ID="$APPLE_TEAM_ID_SECRET"; fi
+          pnpm tauri build --target ${{ matrix.rust_target }} ${{ steps.updater.outputs.args }}
         env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_CERTIFICATE_SECRET: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD_SECRET: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY_SECRET: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID_SECRET: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD_SECRET: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID_SECRET: ${{ secrets.APPLE_TEAM_ID }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
@@ -86,7 +170,7 @@ jobs:
       - name: Bundle size gate
         if: matrix.arch == 'aarch64'
         run: |
-          DMG=$(ls nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg 2>/dev/null | head -1)
+          DMG=$(ls desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg 2>/dev/null | head -1)
           if [ -z "$DMG" ]; then
             echo "ERROR: no DMG found"
             exit 1
@@ -103,9 +187,9 @@ jobs:
         with:
           name: desktop-macos-${{ matrix.arch }}
           path: |
-            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg
-            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz
-            nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig
+            desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/dmg/*.dmg
+            desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz
+            desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig
           retention-days: 14
 
       # T18 — publish updater feed to S3 (tag pushes only)
@@ -117,7 +201,7 @@ jobs:
           AWS_DEFAULT_REGION: eu-central-1
           AWS_ENDPOINT_URL: https://fsn1.your-objectstorage.com
         run: |
-          for sig in nchat/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig; do
+          for sig in desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/*.app.tar.gz.sig; do
             [ -f "$sig" ] || continue
             aws s3 cp "$sig" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
             aws s3 cp "${sig%.sig}" s3://packages.nself.org/chat-desktop/ --endpoint-url "$AWS_ENDPOINT_URL"
@@ -133,6 +217,36 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      # pnpm-workspace.yaml globs '../packages/@nself/*', i.e. the nself-org/packages
+      # repo as a SIBLING directory. desktop/package.json depends on five of them
+      # (auth-core, graphql-client, i18n, observability, ui) as workspace:*, and
+      # desktop/src/main.tsx imports @nself/observability directly. Checking out only
+      # nchat leaves those unresolvable, and the Vite build dies with
+      # 'Rollup failed to resolve import "@nself/observability"'.
+      #
+      # Check out into a subdirectory and MOVE it to the sibling path rather than
+      # symlinking: pnpm writes relative node_modules links that resolve against the
+      # physical path, so they dangle through a symlink (see nsentry ci.yml).
+      - name: Checkout @nself packages (sibling workspace dir)
+        uses: actions/checkout@v7
+        with:
+          repository: nself-org/packages
+          # Pinned, not floating: pnpm-lock.yaml below now contains importers for
+          # these 16 packages, so a frozen install only agrees with the sibling at
+          # this exact commit. Tracking main would red the desktop builds on the
+          # next push to nself-org/packages. Bump this sha and regenerate the
+          # lockfile together.
+          ref: 8a5cc53106fae71474f822003645d1f51dcfcd95
+          path: _nself_packages
+          persist-credentials: false
+
+      - name: Move @nself packages to the sibling path pnpm expects
+        shell: bash
+        run: |
+          PARENT_DIR="$(dirname "$GITHUB_WORKSPACE")"
+          rm -rf "$PARENT_DIR/packages"
+          mv "$GITHUB_WORKSPACE/_nself_packages" "$PARENT_DIR/packages"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
