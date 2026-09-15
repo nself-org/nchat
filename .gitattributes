@@ -15,3 +15,13 @@
 *.dmg filter=lfs diff=lfs merge=lfs -text
 *.apk filter=lfs diff=lfs merge=lfs -text
 *.ipa filter=lfs diff=lfs merge=lfs -text
+
+# Exemption: the Tauri desktop icons MUST be tracked in git — the build reads them
+# from the working tree (tauri.conf.json bundle.icon), so they cannot live only in
+# a Release. The rules above declare filter=lfs, but this repo does NOT use LFS:
+# there is no .lfsconfig and all 32 tracked PNGs are real blobs, not pointers.
+# On a runner that HAS git-lfs (every GitHub-hosted runner does) the clean filter
+# then reports these files as locally modified, and any job that switches refs
+# fails with "Your local changes to the following files would be overwritten by
+# checkout" — which is exactly how Coverage Diff broke on this PR.
+desktop/src-tauri/icons/** -filter -diff -merge -text
