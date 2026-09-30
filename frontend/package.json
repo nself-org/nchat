@@ -163,7 +163,7 @@
     "rxjs": "^7.8.1",
     "samlify": "^2.11.0",
     "server-only": "^0.0.1",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.4",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.8.1",
     "sonner": "^1.7.2",
