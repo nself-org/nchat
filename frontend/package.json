@@ -228,7 +228,7 @@
     "appium": "^3.2.2",
     "appium-uiautomator2-driver": "^6.7.15",
     "appium-xcuitest-driver": "^10.31.0",
-    "artillery": "^2.0.29",
+    "artillery": "^2.0.34",
     "autocannon": "^8.0.0",
     "autoprefixer": "^10.4.27",
     "bullmq": "^5.71.0",
