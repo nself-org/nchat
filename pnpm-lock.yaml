@@ -39,7 +39,7 @@ overrides:
   markdown-it@<14.2.0: '>=14.2.0'
   '@opentelemetry/core@<2.8.0': '>=2.8.0'
   '@sentry/browser@<7.119.1': '>=7.119.1'
-  nodemailer@<10.0.6: '>=10.0.6 <11.0.0'
+  nodemailer@<10.0.9: '>=10.0.9 <11.0.0'
   postcss@<8.5.10: '>=8.5.10'
   uuid@<11.1.1: '>=11.1.1'
   '@xmldom/xmldom@<0.8.15': '>=0.8.15 <0.9.0'
@@ -885,7 +885,7 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       nodemailer:
-        specifier: ^10.0.6
+        specifier: ^10.0.9
         version: 10.0.14
       nuqs:
         specifier: ^2.8.9
@@ -1089,6 +1089,9 @@ importers:
       '@types/simple-peer':
         specifier: ^9.11.8
         version: 9.11.9
+      '@types/smtp-server':
+        specifier: ^3.5.13
+        version: 3.5.13
       '@types/speakeasy':
         specifier: ^2.0.10
         version: 2.0.10
@@ -1224,6 +1227,9 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: ^0.8.1
         version: 0.8.1(prettier@3.9.6)
+      smtp-server:
+        specifier: ^3.19.17
+        version: 3.19.17
       swagger-ui-react:
         specifier: ^5.32.13
         version: 5.32.13(@types/react@19.2.17)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -7481,6 +7487,9 @@ packages:
   '@types/slice-ansi@4.0.0':
     resolution: {integrity: sha512-+OpjSaq85gvlZAYINyzKpLeiFkSC4EsC6IIiT6v6TLSU5k5U83fHGj9Lel8oKEXM0HqgrMVCjXPDPVICtxF7EQ==}
 
+  '@types/smtp-server@3.5.13':
+    resolution: {integrity: sha512-S3rGl2KbViH+98/CgHipPIWgtAFnjxLsppxIRbgJHNuZL7Y+py+7kZjT7xS+wOmCxYTn4O7IqLqkvekg99MDVQ==}
+
   '@types/speakeasy@2.0.10':
     resolution: {integrity: sha512-QVRlDW5r4yl7p7xkNIbAIC/JtyOcClDIIdKfuG7PWdDT1MmyhtXSANsildohy0K+Lmvf/9RUtLbNLMacvrVwxA==}
 
@@ -11468,6 +11477,9 @@ packages:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
     engines: {node: '>= 0.10'}
 
+  ipv6-normalize@1.0.1:
+    resolution: {integrity: sha512-Bm6H79i01DjgGTCWjUuCjJ6QDo1HB96PT/xCYuyJUP9WFbVDrLSbG4EZCvOCun2rNswZb0c3e4Jt/ws795esHA==}
+
   is-absolute@1.0.0:
     resolution: {integrity: sha512-dOWoqflvcydARa360Gvv18DZ/gRuHKi2NU/wU5X1ZFzdYfH29nkiNZsF3mp4OJ3H4yo9Mx8A/uAGNzpzPN3yBA==}
     engines: {node: '>=0.10.0'}
@@ -13181,7 +13193,7 @@ packages:
     peerDependencies:
       '@auth/core': 0.34.3
       next: 15.5.24
-      nodemailer: '>=10.0.6 <11.0.0'
+      nodemailer: '>=10.0.9 <11.0.0'
       react: ^19.2.0
       react-dom: ^19.2.0
     peerDependenciesMeta:
@@ -15141,6 +15153,10 @@ packages:
   smart-buffer@4.2.0:
     resolution: {integrity: sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==}
     engines: {node: '>= 6.0.0', npm: '>= 3.0.0'}
+
+  smtp-server@3.19.17:
+    resolution: {integrity: sha512-/9RwyNTcR8osMQWOvC8NV8l57ddPyYXvuG+wa1Ua4cD/I41z7zCMsGtXLa9vxlrggjRrfejr50X0WS/9NuVWqQ==}
+    engines: {node: '>=20.0.0'}
 
   socket.io-client@4.8.3:
     resolution: {integrity: sha512-uP0bpjWrjQmUt5DTHq9RuoCBdFJF10cdX9X+a368j/Ft0wmaVgxlrjvK3kjvgCODOMMOz9lcaRzxmso0bTWZ/g==}
@@ -24877,6 +24893,11 @@ snapshots:
 
   '@types/slice-ansi@4.0.0': {}
 
+  '@types/smtp-server@3.5.13':
+    dependencies:
+      '@types/node': 22.19.21
+      '@types/nodemailer': 7.0.11
+
   '@types/speakeasy@2.0.10':
     dependencies:
       '@types/node': 22.19.21
@@ -30348,6 +30369,8 @@ snapshots:
 
   ipaddr.js@1.9.1: {}
 
+  ipv6-normalize@1.0.1: {}
+
   is-absolute@1.0.0:
     dependencies:
       is-relative: 1.0.0
@@ -35004,6 +35027,12 @@ snapshots:
   slugify@1.6.9: {}
 
   smart-buffer@4.2.0: {}
+
+  smtp-server@3.19.17:
+    dependencies:
+      ipv6-normalize: 1.0.1
+      nodemailer: 10.0.14
+      punycode.js: 2.3.1
 
   socket.io-client@4.8.3:
     dependencies:
