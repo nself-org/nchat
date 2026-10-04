@@ -5,7 +5,7 @@
  * with queue management, retry logic, and tracking.
  */
 
-import nodemailer from "nodemailer";
+import nodemailer, { type Transporter } from "nodemailer";
 import { render } from "@react-email/components";
 import type {
   Email,
@@ -25,7 +25,7 @@ import { logger } from "@/lib/logger";
 
 export class EmailSender {
   private config: EmailConfig;
-  private transporter: nodemailer.Transporter | null = null;
+  private transporter: Transporter | null = null;
   private emailQueue: QueuedEmail[] = [];
   private processingQueue = false;
   private retryIntervals = [1000, 5000, 15000, 60000, 300000]; // 1s, 5s, 15s, 1m, 5m
