@@ -39,7 +39,7 @@ overrides:
   markdown-it@<14.2.0: '>=14.2.0'
   '@opentelemetry/core@<2.8.0': '>=2.8.0'
   '@sentry/browser@<7.119.1': '>=7.119.1'
-  nodemailer@<9.1.1: '>=9.1.1 <10.0.0'
+  nodemailer@<10.0.6: '>=10.0.6 <11.0.0'
   postcss@<8.5.10: '>=8.5.10'
   uuid@<11.1.1: '>=11.1.1'
   '@xmldom/xmldom@<0.8.15': '>=0.8.15 <0.9.0'
@@ -880,13 +880,13 @@ importers:
         version: 15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       next-auth:
         specifier: '>=4.24.15'
-        version: 4.24.15(next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(nodemailer@9.1.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 4.24.15(next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(nodemailer@10.0.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       nodemailer:
-        specifier: '>=9.1.1 <10.0.0'
-        version: 9.1.1
+        specifier: ^10.0.6
+        version: 10.0.14
       nuqs:
         specifier: ^2.8.9
         version: 2.8.9(next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-router-dom@7.15.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-router@8.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)
@@ -13181,7 +13181,7 @@ packages:
     peerDependencies:
       '@auth/core': 0.34.3
       next: 15.5.24
-      nodemailer: '>=9.1.1 <10.0.0'
+      nodemailer: '>=10.0.6 <11.0.0'
       react: ^19.2.0
       react-dom: ^19.2.0
     peerDependenciesMeta:
@@ -13300,9 +13300,9 @@ packages:
     resolution: {integrity: sha512-71kFFjYaSshDTA8/a2HiTYPLdASWjLJxUyJxGE+ffxU+KhxSBtM9kiLUX+R2yooFdSFKMFpi4n3PFtDy6qXv8A==}
     engines: {node: '>=18'}
 
-  nodemailer@9.1.1:
-    resolution: {integrity: sha512-izw9mVKFix6YSnC9eLgV6g1opl9DUlRio9ZNcq+Wu9Ujn2UwF+8Nl0B8nz22kEC+CTZCvinkxwJ0DeFbb6NwcQ==}
-    engines: {node: '>=6.0.0'}
+  nodemailer@10.0.14:
+    resolution: {integrity: sha512-eJoLFKg55fesSlzUekmfOv/SBXh4KUYT8oiQc2RLP0tfG0rbNMJBK7wgHJwXTJwqyKlSJMz9UzDZ4v+aHEvo8g==}
+    engines: {node: '>=20.0.0'}
 
   normalize-package-data@6.0.2:
     resolution: {integrity: sha512-V6gygoYb/5EmNI+MEGrWkC+e6+Rr7mTmfHrxDbLzxQogBkgzo76rkok0Am6thgSF7Mv2nLOajAJj5vDJZEFn7g==}
@@ -32865,7 +32865,7 @@ snapshots:
 
   netmask@2.1.1: {}
 
-  next-auth@4.24.15(next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(nodemailer@9.1.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+  next-auth@4.24.15(next@15.5.24(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(nodemailer@10.0.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       '@babel/runtime': 7.29.7
       '@panva/hkdf': 1.2.1
@@ -32880,7 +32880,7 @@ snapshots:
       react-dom: 19.2.6(react@19.2.6)
       uuid: 11.1.1
     optionalDependencies:
-      nodemailer: 9.1.1
+      nodemailer: 10.0.14
 
   next-themes@0.4.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
@@ -32993,7 +32993,7 @@ snapshots:
     dependencies:
       '@babel/parser': 7.29.8
 
-  nodemailer@9.1.1: {}
+  nodemailer@10.0.14: {}
 
   normalize-package-data@6.0.2:
     dependencies:

@@ -229,6 +229,19 @@ jobs:
             #     the tree only through devDependencies (@lhci/cli and
             #     @wdio/appium-service, both via @puppeteer/browsers) unpacking
             #     archives this repo's CI fetches itself; never shipped to users.
+            #   CVE-2026-85393  node-forge  (GHSA-86w9-cpqp-85rv)  <= 1.4.0, which is
+            #     npm latest; first_patched_version NONE. Reached only via
+            #     @expo/cli > @expo/code-signing-certificates (expo build tooling,
+            #     devDependencies of @nself/native-bridge). Not in web/server runtime.
+            #   CVE-2026-93748  http-cache-semantics  (GHSA-ch52-4w7c-c8xp)  <= 4.2.0,
+            #     first_patched_version NONE. devDependency only, via artillery
+            #     (load-test tooling, got).
+            #   CVE-2026-93687  braces  (GHSA-vfj7-8cjw-p6xm)  <= 3.0.3,
+            #     first_patched_version NONE. Glob/brace-pattern ReDoS reached only
+            #     through build and test tooling: tailwindcss (CSS compile), metro
+            #     (react-native bundler), jest, detox, artillery. Never loaded by
+            #     shipped runtime code.
+            #   Review date for these three: 2026-11-01.
             # Re-check each on any dependency sweep: `gh api /advisories/<GHSA>`
             # reporting a first_patched_version means the entry must be removed.
             IGNORED=$(jq -r '(.pnpm.auditConfig.ignoreCves // [])[]' "${GITHUB_WORKSPACE}/package.json" 2>/dev/null | jq -R . | jq -s . )
