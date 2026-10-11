@@ -1,7 +1,7 @@
 /**
  * Purpose:    Vite SPA configuration for the ɳChat client (migrated from Next.js frontend/).
  *             Replaces next.config.js — Vite bundles, react-router-dom handles routing.
- * Inputs:     React TSX source under src/, Tailwind CSS, @nself/* workspace packages.
+ * Inputs:     React TSX source under src/, Tailwind CSS, @nself/* packages linked from the sibling repo.
  * Outputs:    dist/ static bundle with index.html as the single entry point.
  * Constraints:SPA mode — every route is served via index.html (vercel.json/nginx rewrite).
  *             /api dev-proxies to the legacy backend so cookie auth + GraphQL work in dev.
@@ -18,6 +18,10 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src'),
     },
+    // @nself/* are link: deps into the sibling packages repo, which has its own
+    // node_modules. Without dedupe their imports of react resolve to a second
+    // copy there and hooks throw "Invalid hook call".
+    dedupe: ['react', 'react-dom'],
   },
   server: {
     port: 3000,

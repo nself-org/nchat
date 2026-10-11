@@ -105,36 +105,58 @@ describe("DSARService", () => {
       expect(result.data!.externalRef).toMatch(/^DSAR-\d{4}-[A-Z0-9]+$/);
     });
 
-    it("should calculate deadline based on regulation", async () => {
-      const result = await service.createRequest(
-        "user-123",
-        "user@example.com",
-        { ...validInput, regulation: "gdpr" },
-      );
+    /**
+     * Whole calendar days between two instants, read on the local calendar.
+     * Elapsed milliseconds are not calendar days: a window that crosses a DST
+     * fall-back is one hour longer, so ceil(ms / day) reports 46 for 45.
+     */
+    const calendarDaysBetween = (from: Date, to: Date): number => {
+      const day = (d: Date) =>
+        Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+      return Math.round((day(to) - day(from)) / (1000 * 60 * 60 * 24));
+    };
 
-      const now = new Date();
-      const deadline = new Date(result.data!.deadlineAt);
-      const daysDiff = Math.ceil(
-        (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-      );
+    // Pinned local wall-clock times. Each crosses a DST change in at least
+    // one common zone (US Nov 1 / Mar 8, EU Oct 25 / Mar 29, AU Oct 4 / Apr 5),
+    // and 2026-09-18 00:30 lands the CCPA deadline on the 45/46-day boundary
+    // (Nov 2 00:30, one hour past 45 elapsed days in US zones).
+    const pinnedClocks: Array<[string, Date]> = [
+      ["autumn DST change", new Date(2026, 9, 1, 12, 0)],
+      ["spring DST change", new Date(2026, 1, 20, 12, 0)],
+      ["45/46-day boundary", new Date(2026, 8, 18, 0, 30)],
+      ["just before midnight", new Date(2026, 9, 11, 23, 30)],
+    ];
 
-      expect(daysDiff).toBe(30); // GDPR is 30 days
-    });
+    describe.each(pinnedClocks)("with the clock at %s", (_label, now) => {
+      beforeEach(() => {
+        jest.useFakeTimers({ now });
+      });
 
-    it("should use CCPA deadline for California requests", async () => {
-      const result = await service.createRequest(
-        "user-ca",
-        "user@example.com",
-        { ...validInput, regulation: "ccpa" },
-      );
+      afterEach(() => {
+        jest.useRealTimers();
+      });
 
-      const now = new Date();
-      const deadline = new Date(result.data!.deadlineAt);
-      const daysDiff = Math.ceil(
-        (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-      );
+      it("should calculate deadline based on regulation", async () => {
+        const result = await service.createRequest(
+          "user-123",
+          "user@example.com",
+          { ...validInput, regulation: "gdpr" },
+        );
 
-      expect(daysDiff).toBe(45); // CCPA is 45 days
+        const deadline = new Date(result.data!.deadlineAt);
+        expect(calendarDaysBetween(now, deadline)).toBe(30); // GDPR is 30 days
+      });
+
+      it("should use CCPA deadline for California requests", async () => {
+        const result = await service.createRequest(
+          "user-ca",
+          "user@example.com",
+          { ...validInput, regulation: "ccpa" },
+        );
+
+        const deadline = new Date(result.data!.deadlineAt);
+        expect(calendarDaysBetween(now, deadline)).toBe(45); // CCPA is 45 days
+      });
     });
 
     it("should require identity verification by default", async () => {
@@ -653,17 +675,25 @@ describe("DSARService", () => {
 
   describe("Deadline Management", () => {
     it("should calculate remaining days", async () => {
-      const result = await service.createRequest(
-        "user-deadline",
-        "deadline@example.com",
-        {
-          requestType: "access",
-          regulation: "gdpr",
-        },
-      );
+      // getRemainingDays rounds elapsed milliseconds up, so a 30-day window
+      // that crosses a DST fall-back reads 31. Pin the clock to June, where no
+      // common zone changes offset within 30 days.
+      jest.useFakeTimers({ now: new Date(2026, 5, 1, 12, 0) });
+      try {
+        const result = await service.createRequest(
+          "user-deadline",
+          "deadline@example.com",
+          {
+            requestType: "access",
+            regulation: "gdpr",
+          },
+        );
 
-      const remainingDays = service.getRemainingDays(result.data!.id);
-      expect(remainingDays).toBe(30);
+        const remainingDays = service.getRemainingDays(result.data!.id);
+        expect(remainingDays).toBe(30);
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it("should identify overdue requests", async () => {
