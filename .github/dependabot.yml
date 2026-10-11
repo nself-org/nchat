@@ -51,8 +51,9 @@ updates:
   # package.json files exist (frontend/platforms/desktop, frontend/src/cli) and
   # are deliberately absent: they are not workspace members, so they have no
   # entry in the root lockfile and Dependabot cannot resolve them either.
-  # '../packages/@nself/*' is a workspace member outside this repository (the
-  # nself-org/packages repo) and is updated there, not here.
+  # The @nself/* packages frontend-vite and desktop use are link: dependencies
+  # into the sibling nself-org/packages repo, not workspace members; they are
+  # updated there, not here.
   - package-ecosystem: 'npm'
     directories:
       - '/'
