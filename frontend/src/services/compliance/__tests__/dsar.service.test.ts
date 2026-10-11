@@ -675,17 +675,25 @@ describe("DSARService", () => {
 
   describe("Deadline Management", () => {
     it("should calculate remaining days", async () => {
-      const result = await service.createRequest(
-        "user-deadline",
-        "deadline@example.com",
-        {
-          requestType: "access",
-          regulation: "gdpr",
-        },
-      );
+      // getRemainingDays rounds elapsed milliseconds up, so a 30-day window
+      // that crosses a DST fall-back reads 31. Pin the clock to June, where no
+      // common zone changes offset within 30 days.
+      jest.useFakeTimers({ now: new Date(2026, 5, 1, 12, 0) });
+      try {
+        const result = await service.createRequest(
+          "user-deadline",
+          "deadline@example.com",
+          {
+            requestType: "access",
+            regulation: "gdpr",
+          },
+        );
 
-      const remainingDays = service.getRemainingDays(result.data!.id);
-      expect(remainingDays).toBe(30);
+        const remainingDays = service.getRemainingDays(result.data!.id);
+        expect(remainingDays).toBe(30);
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it("should identify overdue requests", async () => {
