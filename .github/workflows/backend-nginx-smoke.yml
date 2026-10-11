@@ -42,12 +42,16 @@ jobs:
         id: hosts
         run: |
           set -euo pipefail
-          services=$(docker compose -f docker-compose.yml config --services 2>/dev/null | sort -u)
+          if ! listed=$(docker compose -f docker-compose.yml config --services); then
+            echo "::error::docker compose config failed"
+            exit 1
+          fi
+          services=$(echo "$listed" | sort -u)
           if [ -z "$services" ]; then
             echo "::error::docker compose config listed no services"
             exit 1
           fi
-          hosts=$(grep -rhoE 'proxy_pass[[:space:]]+https?://[A-Za-z0-9_.-]+' nginx/sites nginx/conf.d \
+          hosts=$( (grep -rhoE 'proxy_pass[[:space:]]+https?://[A-Za-z0-9_.-]+' nginx/sites nginx/conf.d || true) \
             | sed -E 's#.*://##' | sort -u)
           echo "compose services: $(echo $services)"
           echo "nginx upstreams:  $(echo $hosts)"
