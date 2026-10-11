@@ -97,7 +97,15 @@
       "compression@<1.8.2": ">=1.8.2 <2.0.0",
       "source-map-js@<1.2.2": ">=1.2.2 <2.0.0",
       "@capacitor/android@<6.2.2": ">=6.2.2 <7.0.0",
-      "@capacitor/ios@<6.2.2": ">=6.2.2 <7.0.0"
+      "@capacitor/ios@<6.2.2": ">=6.2.2 <7.0.0",
+      "@graphql-codegen/cli@<7.4.6": ">=7.4.6 <8.0.0",
+      "@graphql-codegen/client-preset@<6.2.3": ">=6.2.3 <7.0.0",
+      "@graphql-codegen/core@<6.2.2": ">=6.2.2 <7.0.0",
+      "@graphql-codegen/gql-tag-operations@<6.1.1": ">=6.1.1 <7.0.0",
+      "@graphql-codegen/plugin-helpers@<7.4.2": ">=7.4.2 <8.0.0",
+      "@graphql-codegen/schema-ast@<6.1.1": ">=6.1.1 <7.0.0",
+      "@graphql-codegen/visitor-plugin-common@<7.2.10": ">=7.2.10 <8.0.0",
+      "graphql-config@<5.1.8": ">=5.1.8 <6.0.0"
     },
     "patchedDependencies": {
       "@capacitor/cli@6.2.1": "patches/@capacitor__cli@6.2.1.patch"
