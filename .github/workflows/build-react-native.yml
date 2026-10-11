@@ -101,7 +101,7 @@ jobs:
 
       - name: Install Provisioning Profile
         if: inputs.build_type == 'release'
-        uses: apple-actions/download-provisioning-profiles@v6
+        uses: apple-actions/download-provisioning-profiles@v7
         with:
           bundle-id: 'com.nself.chat'
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
