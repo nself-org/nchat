@@ -394,7 +394,7 @@ services:
                 condition: service_completed_successfully
         environment:
             MEILI_ENV: development
-            MEILI_MASTER_KEY: ""
+            MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-}
         volumes:
             - meilisearch_data:/meili_data
         ports:
