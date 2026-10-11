@@ -14,11 +14,11 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@nself/auth-core": "workspace:*",
-    "@nself/errors": "workspace:*",
-    "@nself/graphql-client": "workspace:*",
-    "@nself/i18n": "workspace:*",
-    "@nself/ui": "workspace:*",
+    "@nself/auth-core": "link:../../packages/@nself/auth-core",
+    "@nself/errors": "link:../../packages/@nself/errors",
+    "@nself/graphql-client": "link:../../packages/@nself/graphql-client",
+    "@nself/i18n": "link:../../packages/@nself/i18n",
+    "@nself/ui": "link:../../packages/@nself/ui",
     "@tanstack/react-query": "^5.51.1",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
