@@ -158,6 +158,12 @@ jobs:
       - name: Run TypeScript check
         run: pnpm type-check
 
+      # The Capacitor mobile shell is its own workspace package with its own
+      # tsconfig; the frontend check above does not cover it (D-0534).
+      - name: Type-check mobile app
+        working-directory: frontend/platforms/mobile
+        run: pnpm type-check
+
       - name: Comment on PR (Type Check Failed)
         if: failure()
         uses: actions/github-script@v9

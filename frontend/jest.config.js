@@ -7,6 +7,8 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
+  // Pins TZ to America/New_York for all workers (see the file for why).
+  globalSetup: '<rootDir>/jest.global-setup.js',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   // Custom JSDOM environment that patches canvas resolution before JSDOM loads.
   // See jest.jsdom-env.js for details on the Next.js 15 + canvas incompatibility.
