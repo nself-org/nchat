@@ -675,9 +675,6 @@ describe("DSARService", () => {
 
   describe("Deadline Management", () => {
     it("should calculate remaining days", async () => {
-      // getRemainingDays rounds elapsed milliseconds up, so a 30-day window
-      // that crosses a DST fall-back reads 31. Pin the clock to June, where no
-      // common zone changes offset within 30 days.
       jest.useFakeTimers({ now: new Date(2026, 5, 1, 12, 0) });
       try {
         const result = await service.createRequest(
@@ -694,6 +691,47 @@ describe("DSARService", () => {
       } finally {
         jest.useRealTimers();
       }
+    });
+
+    it("runs in America/New_York so deadline tests cross real DST changes", () => {
+      // jest.global-setup.js sets TZ. Under UTC both offsets would be 0 and
+      // the DST cases below would pass even with elapsed-ms day counting.
+      expect(new Date(2026, 6, 1).getTimezoneOffset()).toBe(240); // EDT
+      expect(new Date(2026, 0, 1).getTimezoneOffset()).toBe(300); // EST
+    });
+
+    describe("across the Nov 1 2026 fall-back", () => {
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it("counts calendar days, not elapsed 24-hour periods", async () => {
+        // Oct 15 12:00 EDT + 30 days = Nov 14 12:00 EST: 30 days and 1 hour.
+        jest.useFakeTimers({ now: new Date(2026, 9, 15, 12, 0) });
+        const result = await service.createRequest(
+          "user-dst",
+          "dst@example.com",
+          { requestType: "access", regulation: "gdpr" },
+        );
+        const id = result.data!.id;
+        expect(service.getRemainingDays(id)).toBe(30);
+
+        // Just after midnight on Nov 2: 12 calendar days to Nov 14.
+        jest.setSystemTime(new Date(2026, 10, 2, 0, 30));
+        expect(service.getRemainingDays(id)).toBe(12);
+
+        // Morning of the due date, before the deadline hour.
+        jest.setSystemTime(new Date(2026, 10, 14, 9, 0));
+        expect(service.getRemainingDays(id)).toBe(0);
+
+        // The day before the due date, late evening.
+        jest.setSystemTime(new Date(2026, 10, 13, 23, 30));
+        expect(service.getRemainingDays(id)).toBe(1);
+
+        // Past the deadline.
+        jest.setSystemTime(new Date(2026, 10, 16, 12, 0));
+        expect(service.getRemainingDays(id)).toBe(0);
+      });
     });
 
     it("should identify overdue requests", async () => {

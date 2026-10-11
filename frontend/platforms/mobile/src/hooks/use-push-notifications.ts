@@ -12,6 +12,19 @@ import {
 } from '../adapters/notifications'
 
 /**
+ * Message for a push registration failure. Capacitor reports `{ error: string }`;
+ * an Error or an object with `message` is accepted too.
+ */
+export function registrationErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null) {
+    const { message, error: detail } = error as { message?: unknown; error?: unknown }
+    if (typeof message === 'string' && message) return message
+    if (typeof detail === 'string' && detail) return detail
+  }
+  return 'Registration error'
+}
+
+/**
  * Push notifications state
  */
 export interface PushNotificationsState {
@@ -151,7 +164,7 @@ export function usePushNotifications() {
       (error) => {
         setState((prev) => ({
           ...prev,
-          error: error?.message || 'Registration error',
+          error: registrationErrorMessage(error),
         }))
       }
     )

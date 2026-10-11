@@ -1,0 +1,80 @@
+name: Backend nginx smoke
+
+# The dev reverse proxy must start against the checked-in compose. A site
+# that proxies to a service the compose no longer runs makes nginx die with
+# "host not found in upstream" and takes every routed service down with it
+# (D-0443: admin.conf kept pointing at nself-admin after it left the compose).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/docker-compose.yml'
+      - 'backend/nginx/**'
+      - '.github/workflows/backend-nginx-smoke.yml'
+  pull_request:
+    paths:
+      - 'backend/docker-compose.yml'
+      - 'backend/nginx/**'
+      - '.github/workflows/backend-nginx-smoke.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  nginx-smoke:
+    name: compose config + nginx -t
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+
+      # Every proxy_pass host must be a compose service. Unset ${VARS} only
+      # warn here; nothing is started.
+      - name: Upstreams match compose services
+        id: hosts
+        run: |
+          set -euo pipefail
+          services=$(docker compose -f docker-compose.yml config --services 2>/dev/null | sort -u)
+          if [ -z "$services" ]; then
+            echo "::error::docker compose config listed no services"
+            exit 1
+          fi
+          hosts=$(grep -rhoE 'proxy_pass[[:space:]]+https?://[A-Za-z0-9_.-]+' nginx/sites nginx/conf.d \
+            | sed -E 's#.*://##' | sort -u)
+          echo "compose services: $(echo $services)"
+          echo "nginx upstreams:  $(echo $hosts)"
+          missing=$(comm -13 <(echo "$services") <(echo "$hosts"))
+          if [ -n "$missing" ]; then
+            echo "::error::nginx proxies to hosts the compose does not run: $missing"
+            exit 1
+          fi
+          echo "services=$(echo $services)" >> "$GITHUB_OUTPUT"
+
+      # nginx -t with the compose's mounts, a throwaway self-signed cert and
+      # only the compose service names resolvable, as on the real network.
+      - name: nginx -t
+        env:
+          SERVICES: ${{ steps.hosts.outputs.services }}
+        run: |
+          set -euo pipefail
+          ssl="$RUNNER_TEMP/nginx-ssl"
+          mkdir -p "$ssl/localhost"
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 -subj /CN=localhost \
+            -keyout "$ssl/localhost/privkey.pem" -out "$ssl/localhost/fullchain.pem" 2>/dev/null
+          add_hosts=()
+          for h in $SERVICES; do add_hosts+=(--add-host "$h:127.0.0.1"); done
+          docker run --rm "${add_hosts[@]}" \
+            -v "$PWD/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+            -v "$PWD/nginx/conf.d:/etc/nginx/conf.d:ro" \
+            -v "$PWD/nginx/sites:/etc/nginx/sites:ro" \
+            -v "$PWD/nginx/includes:/etc/nginx/includes:ro" \
+            -v "$ssl:/etc/nginx/ssl:ro" \
+            nginx:alpine nginx -t

@@ -926,15 +926,21 @@ export class DSARService {
   }
 
   /**
-   * Calculate remaining days for a request
+   * Calculate remaining days for a request: calendar days from today's local
+   * date to the deadline's local date (0 on the due date or after it).
+   * Counting calendar days, not elapsed milliseconds, keeps a DST change
+   * (23- or 25-hour day) from adding or dropping a day.
    */
   getRemainingDays(requestId: string): number | null {
     const request = this.requests.get(requestId);
     if (!request) return null;
 
     const effectiveDeadline = request.extensionDeadline || request.deadlineAt;
-    const remaining = Math.ceil(
-      (effectiveDeadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+    const localMidnight = (d: Date) =>
+      new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const remaining = Math.round(
+      (localMidnight(effectiveDeadline) - localMidnight(new Date())) /
+        (1000 * 60 * 60 * 24),
     );
     return Math.max(0, remaining);
   }
