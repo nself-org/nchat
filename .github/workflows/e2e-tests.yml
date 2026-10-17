@@ -297,7 +297,7 @@ jobs:
   # iOS E2E Tests (Simulator — no real device required)
   e2e-ios:
     name: E2E iOS Tests (Simulator)
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 60
     if: github.event_name == 'workflow_dispatch' && (github.event.inputs.device == 'ios' || github.event.inputs.device == 'all')
 
