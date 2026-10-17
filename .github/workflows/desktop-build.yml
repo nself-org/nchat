@@ -37,7 +37,7 @@ concurrency:
 jobs:
   build-electron-macos:
     name: Build Electron (macOS)
-    runs-on: macos-14
+    runs-on: macos-15
     if: |
       (github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos') &&
       (github.event.inputs.framework == 'electron' || github.event.inputs.framework == 'both' || github.event.inputs.framework == '')
@@ -278,7 +278,7 @@ jobs:
 
   build-tauri-macos:
     name: Build Tauri (macOS)
-    runs-on: macos-14
+    runs-on: macos-15
     if: |
       (github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos') &&
       (github.event.inputs.framework == 'tauri' || github.event.inputs.framework == 'both')

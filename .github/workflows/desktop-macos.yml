@@ -29,7 +29,7 @@ jobs:
       matrix:
         include:
           - arch: aarch64
-            runner: macos-14
+            runner: macos-15
             rust_target: aarch64-apple-darwin
           - arch: x64
             runner: macos-15-intel
@@ -216,7 +216,7 @@ jobs:
   # T30 e2e via tauri-driver — only on tag push or workflow_dispatch
   e2e:
     name: E2E (Playwright + tauri-driver)
-    runs-on: macos-14
+    runs-on: macos-15
     needs: build
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     timeout-minutes: 30
