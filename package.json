@@ -45,7 +45,6 @@
     "@opentelemetry/instrumentation-mongoose": ">=0.67.0 <1",
     "@opentelemetry/instrumentation-tedious": ">=0.40.0 <1",
     "@appium/support": ">=7.2.6 <8.0.0",
-    "stream-json": ">=3.6.0 <4.0.0",
       "@appium/base-driver@<10.7.0": ">=10.7.0 <11.0.0",
       "tmp": ">=0.2.6",
       "@grpc/grpc-js": ">=1.14.5",
