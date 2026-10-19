@@ -22,7 +22,15 @@ overrides:
   '@vitest/mocker': '>=4.1.11 <5.0.0'
   qs@<6.16.0: '>=6.16.0'
   morgan@<1.12.0: '>=1.12.0 <2.0.0'
-  postcss-selector-parser@<6.1.3: '>=6.1.3 <7.0.0'
+  postcss-selector-parser: '>=7.1.6 <8.0.0'
+  '@opentelemetry/instrumentation-pg': '>=0.73.0 <1'
+  '@opentelemetry/instrumentation-mysql2': '>=0.67.0 <1'
+  '@opentelemetry/instrumentation-mysql': '>=0.67.0 <1'
+  '@opentelemetry/instrumentation-knex': '>=0.65.0 <1'
+  '@opentelemetry/instrumentation-mongoose': '>=0.67.0 <1'
+  '@opentelemetry/instrumentation-tedious': '>=0.40.0 <1'
+  '@appium/support': '>=7.2.6 <8.0.0'
+  stream-json: '>=3.6.0 <4.0.0'
   '@appium/base-driver@<10.7.0': '>=10.7.0 <11.0.0'
   tmp: '>=0.2.6'
   '@grpc/grpc-js': '>=1.14.5'
@@ -474,8 +482,8 @@ importers:
         specifier: ^8.2.1
         version: 8.2.1
       i18next-http-backend:
-        specifier: ^3.0.2
-        version: 3.0.6(encoding@0.1.13)
+        specifier: ^4.0.2
+        version: 4.0.4
       immer:
         specifier: ^11.1.4
         version: 11.1.8
@@ -1330,10 +1338,6 @@ packages:
 
   '@appium/strongbox@1.1.1':
     resolution: {integrity: sha512-cBpvgD3r8OyLUoZXamY3mVTe3V+Fy6bFQulpyRCLi7DTtt4rwkIHzvn3h+81t0XMVFLxlOiJNXN2SkOFpRQ3eg==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0, npm: '>=10'}
-
-  '@appium/support@7.2.2':
-    resolution: {integrity: sha512-SfaFg0tAy0cqHQixtyB3BdZSyv287381McIq4/Zd6J070KFGNjXhF2wDGO3f2uN5VaYugwBYz/ZQEgozh6tK8g==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0, npm: '>=10'}
 
   '@appium/support@7.2.7':
@@ -3499,6 +3503,10 @@ packages:
     resolution: {integrity: sha512-OlanaW1vv7ufTqQ3/fPLI4arGt5ZoM+P8abOMki6uEYnpRazepSWDwDnnw+la7kE26SHVC18//SMccrDvLKOXQ==}
     engines: {node: '>=8.0.0'}
 
+  '@opentelemetry/api-logs@0.223.0':
+    resolution: {integrity: sha512-Oepm6etVPFCn0VWB1t833iOTgz1eYBDUPxcrOR/XvwzD1+Ag9VzSPSrrKAFNJ/haatj+8CXbG47pZXvdNQKDJw==}
+    engines: {node: '>=8.0.0'}
+
   '@opentelemetry/api@1.9.1':
     resolution: {integrity: sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q==}
     engines: {node: '>=8.0.0'}
@@ -3629,8 +3637,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-knex@0.58.0':
-    resolution: {integrity: sha512-Hc/o8fSsaWxZ8r1Yw4rNDLwTpUopTf4X32y4W6UhlHmW8Wizz8wfhgOKIelSeqFVTKBBPIDUOsQWuIMxBmu8Bw==}
+  '@opentelemetry/instrumentation-knex@0.67.0':
+    resolution: {integrity: sha512-ckiOk14LnJavioCHETZT/eeX3rmweHtPLqMXLimy7PA2VZ6x9m00pN6yU+wdaGV2AhDj9lP7vaxbR30l3LjEeQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -3653,26 +3661,26 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-mongoose@0.60.0':
-    resolution: {integrity: sha512-8BahAZpKsOoc+lrZGb7Ofn4g3z8qtp5IxDfvAVpKXsEheQN7ONMH5djT5ihy6yf8yyeQJGS0gXFfpEAEeEHqQg==}
+  '@opentelemetry/instrumentation-mongoose@0.69.0':
+    resolution: {integrity: sha512-BUcTULiFZmv6h8XN4uW2GYJ35gDeQaTg0VkZNLOKiWWQDMK/cJTw/BYkwctoMbx6mrB1VCzmzTDw0h3BD9Ymqg==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-mysql2@0.60.0':
-    resolution: {integrity: sha512-m/5d3bxQALllCzezYDk/6vajh0tj5OijMMvOZGr+qN1NMXm1dzMNwyJ0gNZW7Fo3YFRyj/jJMxIw+W7d525dlw==}
+  '@opentelemetry/instrumentation-mysql2@0.69.0':
+    resolution: {integrity: sha512-k4Qm4OCzYcYUsIujsMV/PqssrYlCiWwNsCRR1WQOcsXQJEGRJXzDCvDDc/2fmXuSnwY2NuLkHEHaZB1sQSH2vw==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-mysql@0.60.0':
-    resolution: {integrity: sha512-08pO8GFPEIz2zquKDGteBZDNmwketdgH8hTe9rVYgW9kCJXq1Psj3wPQGx+VaX4ZJKCfPeoLMYup9+cxHvZyVQ==}
+  '@opentelemetry/instrumentation-mysql@0.69.1':
+    resolution: {integrity: sha512-BumnUvBKWaCeRQHNLedS3tyJDjliLltFGN6AAK2mDrV7pI905kOnb+YWtryNh5/L5UlbESGdVB58Gb6caTxydQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-pg@0.66.0':
-    resolution: {integrity: sha512-KxfLGXBb7k2ueaPJfq2GXBDXBly8P+SpR/4Mj410hhNgmQF3sCqwXvUBQxZQkDAmsdBAoenM+yV1LhtsMRamcA==}
+  '@opentelemetry/instrumentation-pg@0.76.0':
+    resolution: {integrity: sha512-kcZqfqEMIDTW3SOgtwgR2uiefTalUaTDaLjFscuNuGU12zs5b70n3E09UuRUq2RFA+/yFKWkLkPRUYt2ytPE/Q==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -3683,8 +3691,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-tedious@0.33.0':
-    resolution: {integrity: sha512-Q6WQwAD01MMTub31GlejoiFACYNw26J426wyjvU7by7fDIr2nZXNW4vhTGs7i7F0TnXBO3xN688g1tdUgYwJ5w==}
+  '@opentelemetry/instrumentation-tedious@0.42.0':
+    resolution: {integrity: sha512-qATqe/ZNH/qNEFKDyJhR0kw1hcBt5ftTlkPgdjOcUVkQKAe79LO6lhJrSziTwNSxjXUNp0PjF5AIGAlafN/G+A==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -3709,6 +3717,12 @@ packages:
 
   '@opentelemetry/instrumentation@0.214.0':
     resolution: {integrity: sha512-MHqEX5Dk59cqVah5LiARMACku7jXSVk9iVDWOea4x3cr7VfdByeDCURK6o1lntT1JS/Tsovw01UJrBhN3/uC5w==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation@0.223.0':
+    resolution: {integrity: sha512-tttBo88TbwK1zpsH6VeJoxLQopxOjW3cnrP50fsQJRZftkSKDDwjolXXBvow2jy0LKXlNRkDQh0NT6yI/q+BEQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -3791,8 +3805,8 @@ packages:
     resolution: {integrity: sha512-eSYWTm620tTk45EKSedaUL8MFYI8hW164hIXsgIHyxu3VobUB3fFCu5t0hQby6OoWRPsG1KkKUG2M5UadiLiVg==}
     engines: {node: '>=14'}
 
-  '@opentelemetry/sql-common@0.41.2':
-    resolution: {integrity: sha512-4mhWm3Z8z+i508zQJ7r6Xi7y4mmoJpdvH0fZPFRkWrdp5fq7hhZ2HhYokEOLkfqSMgPR4Z9EyB3DBkbKGOqZiQ==}
+  '@opentelemetry/sql-common@0.42.0':
+    resolution: {integrity: sha512-nwUwUU+8O8a4bnLqk6CodWeegGMEANgC94KTAhXcpGWLrW/2/hek/0ajNbjXnSOoNuCX+nteUPs46HFHhou9Xw==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -6139,9 +6153,6 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/mysql@2.15.27':
-    resolution: {integrity: sha512-YfWiV16IY0OeBfBCk8+hXKmdTKrKlwKN1MNKAPBu5JYxLwBEZl7QzeEpGnlZb3VMGJrrGmB84gXiH+ofs/TezA==}
-
   '@types/node-fetch@2.6.13':
     resolution: {integrity: sha512-QGpRVpzSaUs30JBSGPjOg4Uveu384erbHBoT1zeONvyCfwQxIkUshLAOqN/k9EjGviPRmWTTe6aH2qySWKTVSw==}
 
@@ -6249,9 +6260,6 @@ packages:
 
   '@types/swagger-ui-react@5.18.0':
     resolution: {integrity: sha512-c2M9adVG7t28t1pq19K9Jt20VLQf0P/fwJwnfcmsVVsdkwCWhRmbKDu+tIs0/NGwJ/7GY8lBx+iKZxuDI5gDbw==}
-
-  '@types/tedious@4.0.14':
-    resolution: {integrity: sha512-KHPsfX/FoVbUGbyYvk1q9MMQHLPeRZhRJZdO45Q4YjvFkv4hMNghCWTvy7rdKessBsmtz4euWCWAB6/tVpI1Iw==}
 
   '@types/through@0.0.33':
     resolution: {integrity: sha512-HsJ+z3QuETzP3cswwtzt2vEIiHBk/dCcHGhbmG5X3ecnwFD/lPrMpliGXxSCg03L9AhrdwA4Oz/qfspkDW+xGQ==}
@@ -7071,10 +7079,6 @@ packages:
   async@3.2.6:
     resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
 
-  asyncbox@6.2.0:
-    resolution: {integrity: sha512-z1XpHkoT3y+1aXfazEY5d7HN2eOi50fLq7ZTxG0H4WegLxrtEAI5Vsc6OR9dOwoC3SJQLXyV0ZVnPEh6GIgMKQ==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0, npm: '>=10'}
-
   asyncbox@6.3.0:
     resolution: {integrity: sha512-7IFpnQDltd5rYQjhIJIpyismJtdWmw/pOABZKJfv2WVo0a6iYh2ZzUuCJJclae5mBtK0H/EychxXg91GB7rGdQ==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0, npm: '>=10'}
@@ -7231,9 +7235,6 @@ packages:
 
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
-
-  base64-stream@1.0.0:
-    resolution: {integrity: sha512-BQQZftaO48FcE1Kof9CmXMFaAdqkcNorgc8CxesZv9nMbbTF1EFyQe89UOuh//QMmdtfUDXyO8rgUalemL5ODA==}
 
   baseline-browser-mapping@2.11.14:
     resolution: {integrity: sha512-JyJ954WzuIR8/FFzX0o5krdSTrBAkcCSRfWSleRsIHSWV+cZe2FI1PKggVkFke1hBldRs+LRxUczzE9iPmgZww==}
@@ -7914,9 +7915,6 @@ packages:
 
   cross-fetch@3.2.0:
     resolution: {integrity: sha512-Q+xVJLoGOeIMXZmbUK4HYk+69cQH6LudR0Vu/pRm2YlU/hDV9CiS0gKUMaWY5f2NeUH9C1nV3bsTlCo0FsTV1Q==}
-
-  cross-fetch@4.1.0:
-    resolution: {integrity: sha512-uKm5PU+MHTootlWEY+mZ4vvXoCn4fLQxT9dSc1sXVMSFkINTJVN8cAQROpwcKm8bJ/c7rgZVIBWzH5T78sNZZw==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -9222,10 +9220,6 @@ packages:
     deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
-  glob@13.0.5:
-    resolution: {integrity: sha512-BzXxZg24Ibra1pbQ/zE7Kys4Ua1ks7Bn6pKLkVPZ9FZe4JQS6/Q7ef3LG1H+k7lUf5l4T3PLSyYyYJVYUvfgTw==}
-    engines: {node: 20 || >=22}
-
   glob@13.0.6:
     resolution: {integrity: sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==}
     engines: {node: 18 || 20 || >=22}
@@ -9536,8 +9530,9 @@ packages:
   i18next-browser-languagedetector@8.2.1:
     resolution: {integrity: sha512-bZg8+4bdmaOiApD7N7BPT9W8MLZG+nPTOFlLiJiT8uzKXFjhxw4v2ierCXOwB5sFDMtuA5G4kgYZ0AznZxQ/cw==}
 
-  i18next-http-backend@3.0.6:
-    resolution: {integrity: sha512-mBOqy8993jtqAoj6XaI1XeC/8/9v6EPS+681ziegrPvTB0DoaCY7PpTS0SpY56qLMoS4OI1TZEM2Zf59zNh05w==}
+  i18next-http-backend@4.0.4:
+    resolution: {integrity: sha512-nG9OQKvUsPiTVUBg1rCGmvmWhzxC9GOxVbGdTYyejHVMSUjutt1hiBNVSzhB/ZE7keL9Xkb880kUfhDovV5T5g==}
+    engines: {node: '>=18'}
 
   i18next@25.10.10:
     resolution: {integrity: sha512-cqUW2Z3EkRx7NqSyywjkgCLK7KLCL6IFVFcONG7nVYIJ3ekZ1/N5jUsihHV6Bq37NfhgtczxJcxduELtjTwkuQ==}
@@ -10697,10 +10692,6 @@ packages:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
     engines: {node: '>=10'}
 
-  log-symbols@7.0.1:
-    resolution: {integrity: sha512-ja1E3yCr9i/0hmBVaM0bfwDjnGy8I/s6PP4DFp+yP+a+mrHO4Rm7DtmnqROTUkHIkqffC84YY7AeqX6oFk0WFg==}
-    engines: {node: '>=18'}
-
   logform@2.7.0:
     resolution: {integrity: sha512-TFYA4jnP7PVbmlBIfhlSe+WKxs9dklXMTEGcBCIvLhE/Tn3H6Gk1norupVW7m5Cnd4bLcr08AytbyV/xj7f/kQ==}
     engines: {node: '>= 12.0.0'}
@@ -11826,8 +11817,8 @@ packages:
     peerDependencies:
       postcss: '>=8.5.18'
 
-  postcss-selector-parser@6.1.4:
-    resolution: {integrity: sha512-bIoJLOmjCO1S9XdY/DcnR5hJxvrDir1PbGChrzXG3vw0/FOliy/fA3dmdhQ441kah4gKv+TwckGzex6wNS5cnQ==}
+  postcss-selector-parser@7.1.6:
+    resolution: {integrity: sha512-7qASPzhKF2l2KLboRZux8CCTRMdGiV08vWmyKzPz22qZ7ZjQBOeY7rNzNoCLSUiftJ7HUq0GERHmxw/t0dCdMw==}
     engines: {node: '>=4'}
 
   postcss-value-parser@4.2.0:
@@ -13086,14 +13077,14 @@ packages:
     resolution: {integrity: sha512-pqMqwQCso0PBJt2PQmDO0cFj0lyqmiwOMiMSkVtRokl7e+ZTRYgDHKnuZNbqjiJXgsg4nuqtD/zxuo9KqTp0Yw==}
     engines: {node: '>= 0.10.0'}
 
-  stream-chain@2.2.5:
-    resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
+  stream-chain@4.2.6:
+    resolution: {integrity: sha512-1zeJ8CrtJfmiba26ui8jXkq/xLRFvhzkdH02D5QLO9Cnovgeb28IJxg88DdraWnjnkbOol/++uIAybJbJhk7ig==}
 
   stream-combiner@0.2.2:
     resolution: {integrity: sha512-6yHMqgLYDzQDcAkL+tjJDC5nSNuNIx0vZtRZeiPh7Saef7VHX9H5Ijn9l2VIol2zaNYlYEX6KyuT/237A58qEQ==}
 
-  stream-json@1.9.1:
-    resolution: {integrity: sha512-uWkjJ+2Nt/LO9Z/JyKZbMusL8Dkh97uUBTv3AJQ74y07lVahLY4eEFsPsE97pxYBwr8nnjMAIch5eqI0gPShyw==}
+  stream-json@3.7.0:
+    resolution: {integrity: sha512-rCSBdcBP/bPk6T8QFcxAj1MSzAuc5i49cYW6IE7sYObNEPccBJIUiL6fU9c9BWt40aJK0siVynLX7lWaW8alXw==}
 
   streamx@2.25.0:
     resolution: {integrity: sha512-0nQuG6jf1w+wddNEEXCF4nTg3LtufWINB5eFEN+5TNZW7KWJp6x87+JFL43vaAUPyCfH1wID+mNVyW6OHtFamg==}
@@ -13969,10 +13960,6 @@ packages:
     resolution: {integrity: sha512-vzi9uRZ926x4XV73S/4qQaTwPXM2JBj6/6lI/byHH1jOpCzb0zDbfytgA9LcN/hzb2l7WQSQnxITOVx5un/wGw==}
     hasBin: true
 
-  uuid@14.0.0:
-    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
-    hasBin: true
-
   uuid@14.0.2:
     resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
     hasBin: true
@@ -14516,10 +14503,6 @@ packages:
   yauzl@2.10.0:
     resolution: {integrity: sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==}
 
-  yauzl@3.3.0:
-    resolution: {integrity: sha512-PtGEvEP30p7sbIBJKUBjUnqgTVOyMURc4dLo9iNyAJnNIEz9pm88cCXF21w94Kg3k6RXkeZh5DHOGS0qEONvNQ==}
-    engines: {node: '>=12'}
-
   yauzl@3.4.0:
     resolution: {integrity: sha512-jIH9yLR9wqr0wOS0TpBvo/g/2UgZH5qePVbjgRliiF0BYvOZyaBknKsF+x9Iht0O6sqgnB93rCICdOZFecJuDw==}
     engines: {node: '>=12'}
@@ -14665,7 +14648,7 @@ snapshots:
   '@appium/base-plugin@3.2.4(@appium/logger@2.0.7)(@types/node@25.9.3)':
     dependencies:
       '@appium/base-driver': 10.8.0(@appium/logger@2.0.7)(@types/node@25.9.3)
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       '@appium/types': 1.4.0
     transitivePeerDependencies:
       - '@appium/logger'
@@ -14678,7 +14661,7 @@ snapshots:
 
   '@appium/docutils@2.4.2(@types/node@25.9.3)':
     dependencies:
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       consola: 3.4.2
       diff: 9.0.0
       lilconfig: 3.1.3
@@ -14696,6 +14679,7 @@ snapshots:
       - bare-buffer
       - debug
       - react-native-b4a
+      - supports-color
 
   '@appium/logger@2.0.11':
     dependencies:
@@ -14721,50 +14705,6 @@ snapshots:
       env-paths: 4.0.0
       slugify: 1.6.9
 
-  '@appium/support@7.2.2(@types/node@25.9.3)':
-    dependencies:
-      '@appium/logger': 2.0.7
-      '@appium/tsconfig': 1.1.2
-      '@appium/types': 1.4.0
-      '@colors/colors': 1.6.0
-      archiver: 7.0.1
-      asyncbox: 6.2.0
-      axios: 1.20.0(supports-color@10.2.2)
-      base64-stream: 1.0.0
-      bluebird: 3.7.2
-      bplist-creator: 0.1.1
-      bplist-parser: 0.3.2
-      form-data: 4.0.6
-      get-stream: 9.0.1
-      glob: 13.0.5
-      jsftp: 2.1.3(supports-color@10.2.2)
-      klaw: 4.1.0
-      lockfile: 1.0.4
-      log-symbols: 7.0.1
-      ncp: 2.0.0
-      package-directory: 8.2.0
-      plist: 4.0.0
-      pluralize: 8.0.0
-      read-pkg: 10.1.0
-      resolve-from: 5.0.0
-      sanitize-filename: 1.6.4
-      semver: 7.7.4
-      shell-quote: 1.12.0
-      supports-color: 10.2.2
-      teen_process: 4.1.3
-      type-fest: 5.6.0
-      uuid: 14.0.0
-      which: 6.0.1
-      yauzl: 3.3.0
-    optionalDependencies:
-      sharp: 0.35.5(@types/node@25.9.3)
-    transitivePeerDependencies:
-      - '@types/node'
-      - bare-abort-controller
-      - bare-buffer
-      - debug
-      - react-native-b4a
-
   '@appium/support@7.2.7(@types/node@25.9.3)':
     dependencies:
       '@appium/logger': 2.0.11
@@ -14777,7 +14717,7 @@ snapshots:
       bplist-parser: 0.3.2
       form-data: 4.0.6
       glob: 13.0.6
-      jsftp: 2.1.3(supports-color@10.2.2)
+      jsftp: 2.1.3
       klaw: 4.1.0
       lockfile: 1.0.4
       normalize-package-data: 8.0.0
@@ -15655,7 +15595,7 @@ snapshots:
       '@babel/types': 7.29.7
       '@jridgewell/remapping': 2.3.5
       convert-source-map: 2.0.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -15844,7 +15784,7 @@ snapshots:
       '@babel/parser': 7.29.8
       '@babel/template': 7.29.7
       '@babel/types': 7.29.8
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -15856,7 +15796,7 @@ snapshots:
       '@babel/parser': 7.29.8
       '@babel/template': 7.29.7
       '@babel/types': 7.29.8
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -15923,7 +15863,7 @@ snapshots:
       '@ionic/utils-subprocess': 2.1.11
       '@ionic/utils-terminal': 2.3.5
       commander: 9.5.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       env-paths: 2.2.1
       kleur: 4.1.5
       native-run: 2.0.3
@@ -16168,7 +16108,7 @@ snapshots:
   '@eslint/config-array@0.23.5':
     dependencies:
       '@eslint/object-schema': 3.0.5
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       minimatch: 10.2.6
     transitivePeerDependencies:
       - supports-color
@@ -16184,7 +16124,7 @@ snapshots:
   '@eslint/eslintrc@3.3.6':
     dependencies:
       ajv: 6.15.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       espree: 10.4.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -16980,14 +16920,14 @@ snapshots:
   '@ionic/cli-framework-output@2.2.8':
     dependencies:
       '@ionic/utils-terminal': 2.3.5
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
   '@ionic/utils-array@2.1.5':
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -16995,7 +16935,7 @@ snapshots:
   '@ionic/utils-fs@3.1.6':
     dependencies:
       '@types/fs-extra': 8.1.5
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       fs-extra: 9.0.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -17004,7 +16944,7 @@ snapshots:
   '@ionic/utils-fs@3.1.7':
     dependencies:
       '@types/fs-extra': 8.1.5
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       fs-extra: 9.0.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -17012,7 +16952,7 @@ snapshots:
 
   '@ionic/utils-object@2.1.5':
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -17021,7 +16961,7 @@ snapshots:
     dependencies:
       '@ionic/utils-object': 2.1.5
       '@ionic/utils-terminal': 2.3.3
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       signal-exit: 3.0.7
       tree-kill: 1.2.2
       tslib: 2.8.1
@@ -17030,7 +16970,7 @@ snapshots:
 
   '@ionic/utils-stream@3.1.5':
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -17043,7 +16983,7 @@ snapshots:
       '@ionic/utils-stream': 3.1.5
       '@ionic/utils-terminal': 2.3.3
       cross-spawn: 7.0.6
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -17051,7 +16991,7 @@ snapshots:
   '@ionic/utils-terminal@2.3.3':
     dependencies:
       '@types/slice-ansi': 4.0.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       signal-exit: 3.0.7
       slice-ansi: 4.0.0
       string-width: 4.2.3
@@ -17065,7 +17005,7 @@ snapshots:
   '@ionic/utils-terminal@2.3.5':
     dependencies:
       '@types/slice-ansi': 4.0.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       signal-exit: 3.0.7
       slice-ansi: 4.0.0
       string-width: 4.2.3
@@ -17382,7 +17322,7 @@ snapshots:
       '@lhci/utils': 0.15.1(encoding@0.1.13)(proxy-agent@6.5.0)(yauzl@3.4.0)
       chrome-launcher: 0.13.4
       compression: 1.8.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       express: 4.22.2
       inquirer: 6.5.2
       isomorphic-fetch: 3.0.0(encoding@0.1.13)
@@ -17403,7 +17343,7 @@ snapshots:
 
   '@lhci/utils@0.15.1(encoding@0.1.13)(proxy-agent@6.5.0)(yauzl@3.4.0)':
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       isomorphic-fetch: 3.0.0(encoding@0.1.13)
       js-yaml: 5.4.1
       lighthouse: 12.6.1(proxy-agent@6.5.0)(yauzl@3.4.0)
@@ -17778,6 +17718,10 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.1
 
+  '@opentelemetry/api-logs@0.223.0':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+
   '@opentelemetry/api@1.9.1': {}
 
   '@opentelemetry/context-async-hooks@2.11.0(@opentelemetry/api@1.9.1)':
@@ -17936,11 +17880,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-knex@0.58.0(@opentelemetry/api@1.9.1)':
+  '@opentelemetry/instrumentation-knex@0.67.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@opentelemetry/instrumentation': 0.214.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.41.1
+      '@opentelemetry/instrumentation': 0.223.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.43.0
     transitivePeerDependencies:
       - supports-color
 
@@ -17968,40 +17912,39 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mongoose@0.60.0(@opentelemetry/api@1.9.1)':
+  '@opentelemetry/instrumentation-mongoose@0.69.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.11.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation': 0.214.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.41.1
+      '@opentelemetry/instrumentation': 0.223.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.43.0
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mysql2@0.60.0(@opentelemetry/api@1.9.1)':
+  '@opentelemetry/instrumentation-mysql2@0.69.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@opentelemetry/instrumentation': 0.214.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.41.1
-      '@opentelemetry/sql-common': 0.41.2(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation': 0.223.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.43.0
+      '@opentelemetry/sql-common': 0.42.0(@opentelemetry/api@1.9.1)
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mysql@0.60.0(@opentelemetry/api@1.9.1)':
+  '@opentelemetry/instrumentation-mysql@0.69.1(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@opentelemetry/instrumentation': 0.214.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.41.1
-      '@types/mysql': 2.15.27
+      '@opentelemetry/instrumentation': 0.223.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.43.0
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-pg@0.66.0(@opentelemetry/api@1.9.1)':
+  '@opentelemetry/instrumentation-pg@0.76.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.11.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation': 0.214.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.41.1
-      '@opentelemetry/sql-common': 0.41.2(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation': 0.223.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.43.0
+      '@opentelemetry/sql-common': 0.42.0(@opentelemetry/api@1.9.1)
       '@types/pg': 8.15.6
       '@types/pg-pool': 2.0.7
     transitivePeerDependencies:
@@ -18016,12 +17959,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-tedious@0.33.0(@opentelemetry/api@1.9.1)':
+  '@opentelemetry/instrumentation-tedious@0.42.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
-      '@opentelemetry/instrumentation': 0.214.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.41.1
-      '@types/tedious': 4.0.14
+      '@opentelemetry/instrumentation': 0.223.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.43.0
     transitivePeerDependencies:
       - supports-color
 
@@ -18056,6 +17998,15 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/api-logs': 0.214.0
+      import-in-the-middle: 3.2.0
+      require-in-the-middle: 8.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation@0.223.0(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/api-logs': 0.223.0
       import-in-the-middle: 3.2.0
       require-in-the-middle: 8.0.1
     transitivePeerDependencies:
@@ -18145,7 +18096,7 @@ snapshots:
 
   '@opentelemetry/semantic-conventions@1.43.0': {}
 
-  '@opentelemetry/sql-common@0.41.2(@opentelemetry/api@1.9.1)':
+  '@opentelemetry/sql-common@0.42.0(@opentelemetry/api@1.9.1)':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.11.0(@opentelemetry/api@1.9.1)
@@ -19407,16 +19358,16 @@ snapshots:
       '@opentelemetry/instrumentation-http': 0.214.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-ioredis': 0.62.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-kafkajs': 0.23.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation-knex': 0.58.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-knex': 0.67.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-koa': 0.62.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-lru-memoizer': 0.58.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-mongodb': 0.67.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation-mongoose': 0.60.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation-mysql': 0.60.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation-mysql2': 0.60.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation-pg': 0.66.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-mongoose': 0.69.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-mysql': 0.69.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-mysql2': 0.69.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-pg': 0.76.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-redis': 0.62.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation-tedious': 0.33.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-tedious': 0.42.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/instrumentation-undici': 0.24.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace-base': 2.11.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.41.1
@@ -20971,10 +20922,6 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/mysql@2.15.27':
-    dependencies:
-      '@types/node': 22.19.21
-
   '@types/node-fetch@2.6.13':
     dependencies:
       '@types/node': 22.19.21
@@ -21094,10 +21041,6 @@ snapshots:
     dependencies:
       '@types/react': 19.2.17
 
-  '@types/tedious@4.0.14':
-    dependencies:
-      '@types/node': 22.19.21
-
   '@types/through@0.0.33':
     dependencies:
       '@types/node': 22.19.21
@@ -21155,7 +21098,7 @@ snapshots:
       '@typescript-eslint/types': 8.62.1
       '@typescript-eslint/typescript-estree': 8.62.1(typescript@6.0.3)
       '@typescript-eslint/visitor-keys': 8.62.1
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       eslint: 10.9.1(jiti@2.7.0)
       typescript: 6.0.3
     transitivePeerDependencies:
@@ -21165,7 +21108,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.62.1(typescript@6.0.3)
       '@typescript-eslint/types': 8.62.1
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -21184,7 +21127,7 @@ snapshots:
       '@typescript-eslint/types': 8.62.1
       '@typescript-eslint/typescript-estree': 8.62.1(typescript@6.0.3)
       '@typescript-eslint/utils': 8.62.1(eslint@10.9.1(jiti@2.7.0))(typescript@6.0.3)
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       eslint: 10.9.1(jiti@2.7.0)
       ts-api-utils: 2.5.0(typescript@6.0.3)
       typescript: 6.0.3
@@ -21199,7 +21142,7 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.62.1(typescript@6.0.3)
       '@typescript-eslint/types': 8.62.1
       '@typescript-eslint/visitor-keys': 8.62.1
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       minimatch: 10.2.6
       semver: 7.8.5
       tinyglobby: 0.2.17
@@ -21825,12 +21768,6 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
-    transitivePeerDependencies:
-      - supports-color
-
-  agent-base@6.0.2(supports-color@10.2.2):
-    dependencies:
       debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
@@ -21913,7 +21850,7 @@ snapshots:
 
   appium-adb@14.5.0(@types/node@25.9.3):
     dependencies:
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       async-lock: 1.4.1
       asyncbox: 6.3.0
       ini: 6.0.0
@@ -21926,10 +21863,11 @@ snapshots:
       - bare-buffer
       - debug
       - react-native-b4a
+      - supports-color
 
   appium-android-driver@12.7.0(@appium/logger@2.0.7)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3)):
     dependencies:
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       '@colors/colors': 1.6.0
       appium: 3.4.2(@types/node@25.9.3)
       appium-adb: 14.5.0(@types/node@25.9.3)
@@ -21960,14 +21898,14 @@ snapshots:
   appium-chromedriver@8.4.1(@appium/logger@2.0.7)(@types/node@25.9.3):
     dependencies:
       '@appium/base-driver': 10.8.0(@appium/logger@2.0.7)(@types/node@25.9.3)
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       '@xmldom/xmldom': 0.8.15
       appium-adb: 14.5.0(@types/node@25.9.3)
-      asyncbox: 6.3.0
+      asyncbox: 6.4.2
       axios: 1.20.0
       compare-versions: 6.1.1
       semver: 7.8.5
-      teen_process: 4.1.3
+      teen_process: 4.2.1
       xpath: 0.0.34
     transitivePeerDependencies:
       - '@appium/logger'
@@ -21980,7 +21918,7 @@ snapshots:
 
   appium-idb@2.0.10(@types/node@25.9.3):
     dependencies:
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       asyncbox: 6.3.0
       bluebird: 3.7.2
       lodash: 4.18.1
@@ -21991,10 +21929,11 @@ snapshots:
       - bare-buffer
       - debug
       - react-native-b4a
+      - supports-color
 
   appium-ios-device@3.1.14(@types/node@25.9.3):
     dependencies:
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       asyncbox: 6.3.0
       axios: 1.20.0
       bplist-creator: 0.1.1
@@ -22012,7 +21951,7 @@ snapshots:
   appium-ios-remotexpc@0.45.2:
     dependencies:
       '@appium/strongbox': 1.1.1
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       '@types/node': 25.9.3
       '@xmldom/xmldom': 0.9.12
       appium-ios-tuntap: 0.2.5(@types/node@25.9.3)
@@ -22034,7 +21973,7 @@ snapshots:
   appium-ios-remotexpc@1.1.11(@types/node@25.9.3):
     dependencies:
       '@appium/strongbox': 1.1.1
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       '@xmldom/xmldom': 0.8.15
       appium-ios-tuntap: 0.2.5(@types/node@25.9.3)
       axios: 1.20.0
@@ -22055,7 +21994,7 @@ snapshots:
 
   appium-ios-simulator@8.1.3(@types/node@25.9.3):
     dependencies:
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       '@xmldom/xmldom': 0.8.15
       appium-xcode: 6.2.2(@types/node@25.9.3)
       async-lock: 1.4.1
@@ -22069,10 +22008,11 @@ snapshots:
       - bare-buffer
       - debug
       - react-native-b4a
+      - supports-color
 
   appium-ios-tuntap@0.2.5(@types/node@25.9.3):
     dependencies:
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       node-addon-api: 8.9.2
       node-gyp-build: 4.8.4
       typescript: 6.0.3
@@ -22082,12 +22022,13 @@ snapshots:
       - bare-buffer
       - debug
       - react-native-b4a
+      - supports-color
     optional: true
 
   appium-remote-debugger@15.10.1(@appium/logger@2.0.7)(@types/node@25.9.3):
     dependencies:
       '@appium/base-driver': 10.8.0(@appium/logger@2.0.7)(@types/node@25.9.3)
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       appium-ios-device: 3.1.14(@types/node@25.9.3)
       async-lock: 1.4.1
       asyncbox: 6.3.0
@@ -22135,7 +22076,7 @@ snapshots:
     dependencies:
       '@appium/base-driver': 10.8.0(@appium/logger@2.0.7)(@types/node@25.9.3)
       '@appium/strongbox': 1.1.1
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       appium-ios-device: 3.1.14(@types/node@25.9.3)
       appium-ios-simulator: 8.1.3(@types/node@25.9.3)
       async-lock: 1.4.1
@@ -22155,7 +22096,7 @@ snapshots:
 
   appium-xcode@6.2.2(@types/node@25.9.3):
     dependencies:
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       asyncbox: 6.3.0
       semver: 7.8.5
       teen_process: 4.1.3
@@ -22165,6 +22106,7 @@ snapshots:
       - bare-buffer
       - debug
       - react-native-b4a
+      - supports-color
 
   appium-xcuitest-driver@10.43.1(@appium/logger@2.0.7)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3)):
     dependencies:
@@ -22215,7 +22157,7 @@ snapshots:
       '@appium/docutils': 2.4.2(@types/node@25.9.3)
       '@appium/logger': 2.0.7
       '@appium/schema': 1.1.1
-      '@appium/support': 7.2.2(@types/node@25.9.3)
+      '@appium/support': 7.2.7(@types/node@25.9.3)
       '@appium/types': 1.4.0
       '@sidvind/better-ajv-errors': 5.0.0(ajv@8.20.0)
       ajv: 8.20.0
@@ -22412,7 +22354,7 @@ snapshots:
 
   arrivals@2.1.2:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       nanotimer: 0.3.14
     transitivePeerDependencies:
       - supports-color
@@ -22468,7 +22410,7 @@ snapshots:
       cross-spawn: 7.0.6
       csv-parse: 4.16.3
       datadog-metrics: 0.12.1(encoding@0.1.13)
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       decompress-response: 6.0.0
       deep-for-each: 3.0.0
       dogapi: 2.8.4
@@ -22557,10 +22499,6 @@ snapshots:
 
   async@3.2.6: {}
 
-  asyncbox@6.2.0:
-    dependencies:
-      p-limit: 7.3.0
-
   asyncbox@6.3.0:
     dependencies:
       p-limit: 7.3.0
@@ -22635,16 +22573,6 @@ snapshots:
       follow-redirects: 1.16.0
       form-data: 4.0.6
       https-proxy-agent: 5.0.1
-      proxy-from-env: 2.1.0
-    transitivePeerDependencies:
-      - debug
-      - supports-color
-
-  axios@1.20.0(supports-color@10.2.2):
-    dependencies:
-      follow-redirects: 1.16.0
-      form-data: 4.0.6
-      https-proxy-agent: 5.0.1(supports-color@10.2.2)
       proxy-from-env: 2.1.0
     transitivePeerDependencies:
       - debug
@@ -22759,8 +22687,6 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  base64-stream@1.0.0: {}
-
   baseline-browser-mapping@2.11.14: {}
 
   basic-auth@2.0.1:
@@ -22843,7 +22769,7 @@ snapshots:
     dependencies:
       bytes: 3.1.2
       content-type: 2.0.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       http-errors: 2.0.1
       iconv-lite: 0.7.2
       on-finished: 2.4.1
@@ -22950,7 +22876,7 @@ snapshots:
     dependencies:
       '@flatten-js/interval-tree': 1.1.4
       multi-sort-stream: 1.0.4
-      stream-json: 1.9.1
+      stream-json: 3.7.0
       trace-event-lib: 1.4.1
     optionalDependencies:
       bunyan: 2.0.5
@@ -23513,12 +23439,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  cross-fetch@4.1.0(encoding@0.1.13):
-    dependencies:
-      node-fetch: 2.7.0(encoding@0.1.13)
-    transitivePeerDependencies:
-      - encoding
-
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -23695,7 +23615,7 @@ snapshots:
   datadog-metrics@0.12.1(encoding@0.1.13):
     dependencies:
       '@datadog/datadog-api-client': 1.58.0(encoding@0.1.13)
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -23718,11 +23638,9 @@ snapshots:
     dependencies:
       ms: 2.0.0
 
-  debug@3.2.7(supports-color@10.2.2):
+  debug@3.2.7:
     dependencies:
       ms: 2.1.3
-    optionalDependencies:
-      supports-color: 10.2.2
 
   debug@4.4.3(supports-color@10.2.2):
     dependencies:
@@ -23857,7 +23775,7 @@ snapshots:
       serialize-error: 8.1.0
       shell-quote: 1.12.0
       signal-exit: 3.0.7
-      stream-json: 1.9.1
+      stream-json: 3.7.0
       strip-ansi: 6.0.1
       telnet-client: 1.2.8
       tmp: 0.2.7
@@ -24066,7 +23984,7 @@ snapshots:
   engine.io-client@6.6.4:
     dependencies:
       '@socket.io/component-emitter': 3.1.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       engine.io-parser: 5.2.3
       ws: 8.21.3
       xmlhttprequest-ssl: 2.1.2
@@ -24216,7 +24134,7 @@ snapshots:
 
   esbuild-register@3.6.0(esbuild@0.28.1):
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       esbuild: 0.28.1
     transitivePeerDependencies:
       - supports-color
@@ -24296,7 +24214,7 @@ snapshots:
 
   eslint-import-resolver-node@0.3.10:
     dependencies:
-      debug: 3.2.7(supports-color@10.2.2)
+      debug: 3.2.7
       is-core-module: 2.16.2
       resolve: 2.0.0-next.7
     transitivePeerDependencies:
@@ -24305,7 +24223,7 @@ snapshots:
   eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@10.9.1(jiti@2.7.0)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       eslint: 10.9.1(jiti@2.7.0)
       get-tsconfig: 4.14.0
       is-bun-module: 2.0.0
@@ -24319,7 +24237,7 @@ snapshots:
 
   eslint-module-utils@2.12.1(@typescript-eslint/parser@8.62.1(eslint@10.9.1(jiti@2.7.0))(typescript@6.0.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@10.9.1(jiti@2.7.0)):
     dependencies:
-      debug: 3.2.7(supports-color@10.2.2)
+      debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.62.1(eslint@10.9.1(jiti@2.7.0))(typescript@6.0.3)
       eslint: 10.9.1(jiti@2.7.0)
@@ -24335,7 +24253,7 @@ snapshots:
       array.prototype.findlastindex: 1.2.6
       array.prototype.flat: 1.3.3
       array.prototype.flatmap: 1.3.3
-      debug: 3.2.7(supports-color@10.2.2)
+      debug: 3.2.7
       doctrine: 2.1.0
       eslint: 10.9.1(jiti@2.7.0)
       eslint-import-resolver-node: 0.3.10
@@ -24441,7 +24359,7 @@ snapshots:
       '@types/estree': 1.0.9
       ajv: 6.15.0
       cross-spawn: 7.0.6
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       escape-string-regexp: 4.0.0
       eslint-scope: 9.1.2
       eslint-visitor-keys: 5.0.1
@@ -24636,7 +24554,7 @@ snapshots:
       content-type: 1.0.5
       cookie: 0.7.2
       cookie-signature: 1.2.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       depd: 2.0.0
       encodeurl: 2.0.0
       escape-html: 1.0.3
@@ -24859,7 +24777,7 @@ snapshots:
 
   finalhandler@2.1.1:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       encodeurl: 2.0.0
       escape-html: 1.0.3
       on-finished: 2.4.1
@@ -25105,7 +25023,7 @@ snapshots:
     dependencies:
       basic-ftp: 6.2.1
       data-uri-to-buffer: 6.0.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -25129,12 +25047,6 @@ snapshots:
       minipass: 7.1.3
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
-
-  glob@13.0.5:
-    dependencies:
-      minimatch: 10.2.6
-      minipass: 7.1.3
-      path-scurry: 2.0.2
 
   glob@13.0.6:
     dependencies:
@@ -25431,14 +25343,14 @@ snapshots:
     dependencies:
       '@tootallnate/once': 2.0.1
       agent-base: 6.0.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -25456,20 +25368,13 @@ snapshots:
   https-proxy-agent@5.0.0:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.4.3(supports-color@8.1.1)
-    transitivePeerDependencies:
-      - supports-color
-
-  https-proxy-agent@5.0.1(supports-color@10.2.2):
-    dependencies:
-      agent-base: 6.0.2(supports-color@10.2.2)
       debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
@@ -25477,7 +25382,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -25499,11 +25404,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.2
 
-  i18next-http-backend@3.0.6(encoding@0.1.13):
-    dependencies:
-      cross-fetch: 4.1.0(encoding@0.1.13)
-    transitivePeerDependencies:
-      - encoding
+  i18next-http-backend@4.0.4: {}
 
   i18next@25.10.10(typescript@5.6.3):
     dependencies:
@@ -25674,7 +25575,7 @@ snapshots:
     dependencies:
       '@ioredis/commands': 1.5.1
       cluster-key-slot: 1.1.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       denque: 2.1.0
       lodash.defaults: 4.2.0
       lodash.isarguments: 3.1.0
@@ -25961,7 +25862,7 @@ snapshots:
 
   istanbul-lib-source-maps@4.0.1:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       istanbul-lib-coverage: 3.2.2
       source-map: 0.6.1
     transitivePeerDependencies:
@@ -26688,9 +26589,9 @@ snapshots:
 
   jsesc@3.1.0: {}
 
-  jsftp@2.1.3(supports-color@10.2.2):
+  jsftp@2.1.3:
     dependencies:
-      debug: 3.2.7(supports-color@10.2.2)
+      debug: 3.2.7
       ftp-response-parser: 1.0.1
       once: 1.4.0
       parse-listing: 1.1.3
@@ -26859,7 +26760,7 @@ snapshots:
 
   lighthouse-logger@2.0.2:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       marky: 1.3.0
     transitivePeerDependencies:
       - supports-color
@@ -27087,11 +26988,6 @@ snapshots:
     dependencies:
       chalk: 4.1.2
       is-unicode-supported: 0.1.0
-
-  log-symbols@7.0.1:
-    dependencies:
-      is-unicode-supported: 2.1.0
-      yoctocolors: 2.1.2
 
   logform@2.7.0:
     dependencies:
@@ -27572,7 +27468,7 @@ snapshots:
       '@ionic/utils-fs': 3.1.7
       '@ionic/utils-terminal': 2.3.5
       bplist-parser: 0.3.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       elementtree: 0.1.7
       ini: 4.1.3
       plist: 3.1.1
@@ -27585,7 +27481,8 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  ncp@2.0.0: {}
+  ncp@2.0.0:
+    optional: true
 
   negotiator@0.6.3: {}
 
@@ -27994,7 +27891,7 @@ snapshots:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.4
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       get-uri: 6.0.5
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -28275,9 +28172,9 @@ snapshots:
   postcss-nested@6.2.0(postcss@8.5.26):
     dependencies:
       postcss: 8.5.26
-      postcss-selector-parser: 6.1.4
+      postcss-selector-parser: 7.1.6
 
-  postcss-selector-parser@6.1.4:
+  postcss-selector-parser@7.1.6:
     dependencies:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
@@ -28525,7 +28422,7 @@ snapshots:
   proxy-agent@6.5.0:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 7.18.3
@@ -29003,7 +28900,7 @@ snapshots:
 
   require-in-the-middle@8.0.1:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       module-details-from-path: 1.0.4
     transitivePeerDependencies:
       - supports-color
@@ -29145,7 +29042,7 @@ snapshots:
 
   router@2.2.0:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       depd: 2.0.0
       is-promise: 4.0.0
       parseurl: 1.3.3
@@ -29293,7 +29190,7 @@ snapshots:
 
   send@1.2.1:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
@@ -29477,7 +29374,7 @@ snapshots:
   simple-peer@9.11.1:
     dependencies:
       buffer: 6.0.3
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       err-code: 3.0.1
       get-browser-rtc: 1.1.0
       queue-microtask: 1.2.3
@@ -29515,7 +29412,7 @@ snapshots:
   socket.io-client@4.8.3:
     dependencies:
       '@socket.io/component-emitter': 3.1.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       engine.io-client: 6.6.4
       socket.io-parser: 4.2.7
     transitivePeerDependencies:
@@ -29526,7 +29423,7 @@ snapshots:
   socket.io-parser@4.2.7:
     dependencies:
       '@socket.io/component-emitter': 3.1.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -29535,7 +29432,7 @@ snapshots:
   socks-proxy-agent@8.0.5:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       socks: 2.8.9
     transitivePeerDependencies:
       - supports-color
@@ -29586,7 +29483,7 @@ snapshots:
 
   spdy-transport@3.0.0:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       detect-node: 2.1.0
       hpack.js: 2.1.6
       obuf: 1.1.2
@@ -29598,7 +29495,7 @@ snapshots:
 
   spdy@4.0.2:
     dependencies:
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       handle-thing: 2.0.1
       http-deceiver: 1.2.7
       select-hose: 2.0.0
@@ -29624,7 +29521,7 @@ snapshots:
   sqs-consumer@6.0.2(@aws-sdk/client-sqs@3.1146.0):
     dependencies:
       '@aws-sdk/client-sqs': 3.1146.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -29675,16 +29572,16 @@ snapshots:
 
   stream-buffers@3.0.3: {}
 
-  stream-chain@2.2.5: {}
+  stream-chain@4.2.6: {}
 
   stream-combiner@0.2.2:
     dependencies:
       duplexer: 0.1.2
       through: 2.3.8
 
-  stream-json@1.9.1:
+  stream-json@3.7.0:
     dependencies:
-      stream-chain: 2.2.5
+      stream-chain: 4.2.6
 
   streamx@2.25.0:
     dependencies:
@@ -29997,7 +29894,7 @@ snapshots:
       postcss-js: 4.1.0(postcss@8.5.26)
       postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.26)(tsx@4.22.0)(yaml@2.9.0)
       postcss-nested: 6.2.0(postcss@8.5.26)
-      postcss-selector-parser: 6.1.4
+      postcss-selector-parser: 7.1.6
       resolve: 1.22.12
       sucrase: 3.35.1
     transitivePeerDependencies:
@@ -30371,7 +30268,7 @@ snapshots:
       cac: 6.7.14
       chokidar: 4.0.3
       consola: 3.4.2
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
       esbuild: 0.28.1
       fix-dts-default-cjs-exports: 1.0.1
       joycon: 3.1.1
@@ -30694,8 +30591,6 @@ snapshots:
 
   uuid@13.0.2: {}
 
-  uuid@14.0.0: {}
-
   uuid@14.0.2: {}
 
   v8-compile-cache-lib@3.0.1: {}
@@ -30857,7 +30752,7 @@ snapshots:
     dependencies:
       chalk: 4.1.2
       commander: 9.5.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -31370,11 +31265,6 @@ snapshots:
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
-
-  yauzl@3.3.0:
-    dependencies:
-      buffer-crc32: 0.2.13
-      pend: 1.2.0
 
   yauzl@3.4.0:
     dependencies:
