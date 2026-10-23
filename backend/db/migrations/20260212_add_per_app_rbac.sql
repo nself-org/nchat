@@ -12,7 +12,7 @@
 CREATE TABLE IF NOT EXISTS public.apps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     app_id TEXT UNIQUE NOT NULL, -- e.g., "nchat", "ntv", "nfamily"
-    app_name TEXT NOT NULL, -- e.g., "ɳChat", "ɳTV", "ɳFamily"
+    app_name TEXT NOT NULL, -- e.g., "ɳChat", "Example App", "ɳFamily"
     app_url TEXT, -- e.g., "https://chat.nself.org"
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT NOW(),

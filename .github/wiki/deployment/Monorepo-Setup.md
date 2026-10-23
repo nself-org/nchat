@@ -8,12 +8,12 @@
 
 ## Overview
 
-This guide explains how to deploy **multiple nSelf applications** (e.g., ɳChat, ɳTV, ɳFamily) that share a single backend, single authentication system, and single user base—while maintaining **per-app role-based access control (RBAC)**.
+This guide explains how to deploy **multiple nSelf applications** (e.g., ɳChat, Example App, ɳFamily) that share a single backend, single authentication system, and single user base—while maintaining **per-app role-based access control (RBAC)**.
 
 **What You Get:**
 - 🔐 **One authentication system** - Users log in once across all apps (SSO)
 - 👥 **One user base** - Single `auth.users` table shared by all apps
-- 🎭 **Per-app roles** - User can be admin in ɳChat, regular user in ɳTV
+- 🎭 **Per-app roles** - User can be admin in ɳChat, regular user in Example App
 - 🔌 **Independent frontends** - Each app has its own UI and features
 - 🗄️ **Shared backend** - One nSelf CLI instance serves all apps
 
@@ -41,7 +41,7 @@ This guide explains how to deploy **multiple nSelf applications** (e.g., ɳChat,
 ┌─────────────────────────────────────────────────────┐
 │                   Users' Browsers                    │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐          │
-│  │  ɳChat   │  │   ɳTV    │  │ ɳFamily  │          │
+│  │  ɳChat   │  │Example App│  │ ɳFamily  │          │
 │  │ :3000    │  │  :3001   │  │  :3002   │          │
 │  └────┬─────┘  └────┬─────┘  └────┬─────┘          │
 └───────┼─────────────┼─────────────┼─────────────────┘
@@ -70,7 +70,7 @@ This guide explains how to deploy **multiple nSelf applications** (e.g., ɳChat,
              │                │
              │  App Tables:   │
              │  - nchat_*     │
-             │  - ntv_*       │
+             │  - example_*   │
              │  - nfamily_*   │
              └────────────────┘
 ```
@@ -86,7 +86,7 @@ This guide explains how to deploy **multiple nSelf applications** (e.g., ɳChat,
 
 **Per-App Components:**
 - Frontend application (Next.js, React, etc.)
-- App-specific tables (e.g., `nchat_channels`, `ntv_videos`)
+- App-specific tables (e.g., `nchat_channels`, `example_videos`)
 - App-specific roles (`app_user_roles` table)
 - App configuration (`NEXT_PUBLIC_APP_ID`)
 
@@ -142,7 +142,7 @@ nself-monorepo/
 │       ├── src/
 │       ├── package.json
 │       └── .env.local
-├── ntv/                  # ɳTV application
+├── example/              # Example application
 │   └── frontend/
 │       ├── src/
 │       ├── package.json
@@ -161,7 +161,7 @@ nself-monorepo/
 ### Step 1: Create Directory Structure
 
 ```bash
-mkdir -p nself-monorepo/{backend,nchat,ntv,nfamily}
+mkdir -p nself-monorepo/{backend,nchat,example,nfamily}
 cd nself-monorepo
 ```
 
@@ -192,7 +192,8 @@ cd ..
 
 # Clone apps into monorepo
 git clone https://github.com/nself/nself-chat.git nchat
-git clone https://github.com/nself/nself-tv.git ntv
+# Set EXAMPLE_APP_REPOSITORY to your own second app repository
+git clone "${EXAMPLE_APP_REPOSITORY:?Set your second app repository URL}" example
 git clone https://github.com/nself/nself-family.git nfamily
 ```
 
@@ -207,7 +208,7 @@ mkdir -p db/migrations
 # Copy migrations in order
 cp ../nchat/backend/db/migrations/20260212_add_per_app_rbac.sql db/migrations/001_per_app_rbac.sql
 cp ../nchat/backend/db/migrations/*.sql db/migrations/002_nchat_tables.sql
-cp ../ntv/backend/db/migrations/*.sql db/migrations/003_ntv_tables.sql
+cp ../example/backend/db/migrations/*.sql db/migrations/003_example_tables.sql
 cp ../nfamily/backend/db/migrations/*.sql db/migrations/004_nfamily_tables.sql
 ```
 
@@ -264,7 +265,7 @@ Then run:
 ```sql
 INSERT INTO public.apps (app_id, app_name, app_url, is_active) VALUES
   ('nchat', 'ɳChat', 'http://localhost:3000', true),
-  ('ntv', 'ɳTV', 'http://localhost:3001', true),
+  ('example', 'Example App', 'http://localhost:3001', true),
   ('nfamily', 'ɳFamily', 'http://localhost:3002', true);
 
 -- Verify
@@ -294,17 +295,17 @@ NEXT_PUBLIC_STORAGE_URL=http://storage.localhost/v1/storage
 NEXT_PUBLIC_ENV=development
 ```
 
-**ɳTV (.env.local):**
+**Example App (.env.local):**
 ```bash
-cd ../../ntv/frontend
+cd ../../example/frontend
 cp .env.example .env.local
 ```
 
 Edit `.env.local`:
 ```bash
 # App Identity
-NEXT_PUBLIC_APP_ID=ntv
-NEXT_PUBLIC_APP_NAME=ɳTV
+NEXT_PUBLIC_APP_ID=example
+NEXT_PUBLIC_APP_NAME="Example App"
 
 # Backend URLs (shared - SAME AS NCHAT)
 NEXT_PUBLIC_GRAPHQL_URL=http://api.localhost/v1/graphql
@@ -343,8 +344,8 @@ NEXT_PUBLIC_ENV=development
 cd ../../nchat/frontend
 pnpm install
 
-# ɳTV
-cd ../../ntv/frontend
+# Example App
+cd ../../example/frontend
 pnpm install
 
 # ɳFamily
@@ -363,9 +364,9 @@ pnpm dev
 # Runs on http://localhost:3000
 ```
 
-**Terminal 2 - ɳTV:**
+**Terminal 2 - Example App:**
 ```bash
-cd ntv/frontend
+cd example/frontend
 pnpm dev --port 3001
 # Runs on http://localhost:3001
 ```
@@ -399,7 +400,7 @@ SELECT id, email FROM auth.users WHERE email = 'admin@example.com';
 -- Assign roles (replace UUID with actual user ID)
 INSERT INTO public.app_user_roles (app_id, user_id, role) VALUES
   ('nchat', 'user-uuid-here', 'owner'),
-  ('ntv', 'user-uuid-here', 'admin'),
+  ('example', 'user-uuid-here', 'admin'),
   ('nfamily', 'user-uuid-here', 'member');
 
 -- Verify
@@ -420,8 +421,8 @@ The per-app RBAC system allows users to have **different roles in different appl
 ```sql
 CREATE TABLE public.apps (
     id UUID PRIMARY KEY,
-    app_id TEXT UNIQUE NOT NULL,  -- 'nchat', 'ntv', 'nfamily'
-    app_name TEXT NOT NULL,       -- 'ɳChat', 'ɳTV', 'ɳFamily'
+    app_id TEXT UNIQUE NOT NULL,  -- 'nchat', 'example', 'nfamily'
+    app_name TEXT NOT NULL,       -- 'ɳChat', 'Example App', 'ɳFamily'
     app_url TEXT,                 -- 'https://chat.example.com'
     is_active BOOLEAN DEFAULT true
 );
@@ -502,9 +503,9 @@ if (hasRole('owner')) {
 INSERT INTO public.app_user_roles (app_id, user_id, role)
 VALUES ('nchat', 'user-uuid', 'admin');
 
--- Grant member role in ɳTV
+-- Grant member role in Example App
 INSERT INTO public.app_user_roles (app_id, user_id, role)
-VALUES ('ntv', 'user-uuid', 'member');
+VALUES ('example', 'user-uuid', 'member');
 ```
 
 ### Assigning Roles via GraphQL
@@ -599,12 +600,12 @@ Grant permissions in Hasura console (http://localhost:8080):
 ```sql
 INSERT INTO public.app_user_roles (app_id, user_id, role) VALUES
   ('nchat', 'alice-uuid', 'admin'),
-  ('ntv', 'alice-uuid', 'member');
+  ('example', 'alice-uuid', 'member');
 ```
 
 **Result:**
 - Alice can create/delete channels in ɳChat
-- Alice can only view/post content in ɳTV
+- Alice can only view/post content in Example App
 - Alice logs in once, seamless switch between apps
 
 ### Scenario 2: Temporary Moderator Role
@@ -691,14 +692,14 @@ GRANT EXECUTE ON FUNCTION public.user_has_app_permission TO hasura;
 **Symptom:** Migrations fail due to table conflicts.
 
 **Solution:**
-- Prefix app-specific tables with app ID (e.g., `nchat_channels`, `ntv_videos`)
+- Prefix app-specific tables with app ID (e.g., `nchat_channels`, `example_videos`)
 - Use schema separation:
   ```sql
   CREATE SCHEMA nchat;
   CREATE TABLE nchat.channels (...);
 
-  CREATE SCHEMA ntv;
-  CREATE TABLE ntv.videos (...);
+  CREATE SCHEMA example;
+  CREATE TABLE example.videos (...);
   ```
 
 ---

@@ -128,7 +128,7 @@ monorepo/
 
 **User Experience:**
 1. User logs in to ɳChat → Admin role
-2. User visits ɳTV → Member role (different!)
+2. User visits Example App → Member role (different!)
 3. User visits ɳFamily → Owner role (different again!)
 4. **No separate logins** - SSO across all apps
 
