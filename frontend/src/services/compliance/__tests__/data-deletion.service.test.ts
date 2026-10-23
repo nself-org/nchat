@@ -124,13 +124,15 @@ describe("DataDeletionService", () => {
         "full_account",
       );
 
-      const now = new Date();
+      // 14 calendar days from now. The service steps in local calendar days (setDate), and jest pins
+      // TZ to America/New_York, so a plain 24 h * 14 comparison is off by an hour around a DST change.
+      const expected = new Date();
+      expected.setDate(expected.getDate() + 14);
       const endDate = new Date(result.data!.retentionPeriodEnds!);
-      const daysDiff = Math.ceil(
-        (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-      );
 
-      expect(daysDiff).toBe(14);
+      expect(Math.abs(endDate.getTime() - expected.getTime())).toBeLessThan(
+        60 * 1000,
+      );
     });
 
     it("should support partial deletion scope", async () => {
@@ -464,7 +466,9 @@ describe("DataDeletionService", () => {
         createResult.data!.id,
       );
 
-      expect(remainingDays).toBe(14);
+      // 14 calendar days is 14 days, or 15 once ceil() meets a 25 hour day (DST change inside the period).
+      expect(remainingDays).toBeGreaterThanOrEqual(14);
+      expect(remainingDays).toBeLessThanOrEqual(15);
     });
   });
 
