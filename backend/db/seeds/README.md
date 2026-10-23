@@ -174,7 +174,7 @@ These demo users demonstrate:
 When deployed in a monorepo with multiple apps:
 - Users log in once across all apps
 - Same account, different roles per app
-- Example: Owner in ɳChat, Member in ɳTV
+- Example: Owner in ɳChat, Member in Example App
 
 ### 5. **GraphQL Subscriptions**
 - Real-time message delivery
@@ -221,8 +221,8 @@ Note: Do NOT seed these users in production
 
 ### Scenario 3: SSO Across Apps (Monorepo Only)
 1. Login to ɳChat as `admin@nself.org`
-2. Visit ɳTV → Already logged in (SSO)
-3. Check role in ɳTV → Might be different (per-app RBAC)
+2. Visit Example App → Already logged in (SSO)
+3. Check role in Example App → Might be different (per-app RBAC)
 
 ## Resetting Seed Data
 

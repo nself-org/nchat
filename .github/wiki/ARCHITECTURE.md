@@ -54,16 +54,16 @@ One app, one backend, independent deployment.
 monorepo/
 ├── backend/          # Shared nSelf backend
 ├── nchat/            # This app
-├── ntv/              # Another app
+├── example/          # Another app
 └── nfamily/          # Another app
 ```
 Multiple apps, one backend, shared authentication, per-app roles.
 
 ### 3. Per-App RBAC/ACL
 In monorepo deployments, users authenticate once but can have **different roles in different apps**:
-- Admin in ɳChat, regular user in ɳTV
+- Admin in ɳChat, regular user in Example App
 - Owner in ɳFamily, guest in ɳChat
-- Moderator in ɳTV, member in ɳFamily
+- Moderator in Example App, member in ɳFamily
 
 This is implemented via three PostgreSQL tables:
 - `apps` - Registry of all applications
@@ -184,13 +184,13 @@ monorepo/
 │   ├── migrations/
 │   │   ├── 001_create_users.sql
 │   │   ├── 002_add_nchat_tables.sql
-│   │   ├── 003_add_ntv_tables.sql
+│   │   ├── 003_add_example_tables.sql
 │   │   └── 004_add_per_app_rbac.sql
 │   └── docker-compose.yml
 ├── nchat/                  # ɳChat app
 │   ├── frontend/
 │   └── package.json
-├── ntv/                    # ɳTV app (example)
+├── example/                # Example application
 │   ├── frontend/
 │   └── package.json
 └── nfamily/                # ɳFamily app (example)
@@ -208,12 +208,12 @@ nself start
 # 2. Run migrations for all apps
 nself exec postgres psql -U postgres -d nself < migrations/001_create_users.sql
 nself exec postgres psql -U postgres -d nself < migrations/002_add_nchat_tables.sql
-nself exec postgres psql -U postgres -d nself < migrations/003_add_ntv_tables.sql
+nself exec postgres psql -U postgres -d nself < migrations/003_add_example_tables.sql
 nself exec postgres psql -U postgres -d nself < migrations/004_add_per_app_rbac.sql
 
 # 3. Start each app
 cd ../nchat/frontend && pnpm dev
-cd ../ntv/frontend && pnpm dev --port 3001
+cd ../example/frontend && pnpm dev --port 3001
 cd ../nfamily/frontend && pnpm dev --port 3002
 ```
 
@@ -225,9 +225,9 @@ NEXT_PUBLIC_APP_NAME=ɳChat
 NEXT_PUBLIC_GRAPHQL_URL=http://api.localhost/v1/graphql
 NEXT_PUBLIC_AUTH_URL=http://auth.localhost/v1/auth
 
-# ntv/frontend/.env.local
-NEXT_PUBLIC_APP_ID=ntv
-NEXT_PUBLIC_APP_NAME=ɳTV
+# example/frontend/.env.local
+NEXT_PUBLIC_APP_ID=example
+NEXT_PUBLIC_APP_NAME="Example App"
 NEXT_PUBLIC_GRAPHQL_URL=http://api.localhost/v1/graphql
 NEXT_PUBLIC_AUTH_URL=http://auth.localhost/v1/auth
 
@@ -252,8 +252,8 @@ The per-app RBAC system allows users to have **different roles in different appl
 ```sql
 CREATE TABLE public.apps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    app_id TEXT UNIQUE NOT NULL,        -- 'nchat', 'ntv', 'nfamily'
-    app_name TEXT NOT NULL,             -- 'ɳChat', 'ɳTV', 'ɳFamily'
+    app_id TEXT UNIQUE NOT NULL,        -- 'nchat', 'example', 'nfamily'
+    app_name TEXT NOT NULL,             -- 'ɳChat', 'Example App', 'ɳFamily'
     app_url TEXT,                       -- 'https://chat.nself.org'
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -432,7 +432,7 @@ mutation GrantUserRole(
 When multiple apps share a backend:
 
 1. **User logs in to ɳChat** → Nhost creates session
-2. **User visits ɳTV** → Session is valid (same auth service)
+2. **User visits Example App** → Session is valid (same auth service)
 3. **User visits ɳFamily** → Session is valid (same auth service)
 
 All apps use the same:
@@ -454,7 +454,7 @@ user.email = "alice@example.com"
 user.appRoles = ["admin"]
 user.appContext.permissions = ["channels.delete", "users.ban"]
 
-// In ɳTV (same user):
+// In Example App (same user):
 user.appRoles = ["member"]
 user.appContext.permissions = ["videos.view", "videos.upload"]
 
@@ -515,7 +515,7 @@ cd backend
 nself exec postgres psql -U postgres -d nself < migrations/001_create_users.sql
 nself exec postgres psql -U postgres -d nself < migrations/002_add_per_app_rbac.sql
 nself exec postgres psql -U postgres -d nself < migrations/003_add_nchat_tables.sql
-nself exec postgres psql -U postgres -d nself < migrations/004_add_ntv_tables.sql
+nself exec postgres psql -U postgres -d nself < migrations/004_add_example_tables.sql
 ```
 
 ### Row-Level Security (RLS)
@@ -764,7 +764,7 @@ api_limits:
 ### Step 1: Create Directory Structure
 
 ```bash
-mkdir -p monorepo/{backend,nchat,ntv,nfamily}
+mkdir -p monorepo/{backend,nchat,example,nfamily}
 cd monorepo
 ```
 
@@ -785,7 +785,8 @@ nself init --demo
 ```bash
 cd ..
 git clone https://github.com/nself/nself-chat.git nchat
-git clone https://github.com/nself/nself-tv.git ntv
+# Set EXAMPLE_APP_REPOSITORY to your own second app repository
+git clone "${EXAMPLE_APP_REPOSITORY:?Set your second app repository URL}" example
 git clone https://github.com/nself/nself-family.git nfamily
 ```
 
@@ -799,7 +800,7 @@ nself exec postgres psql -U postgres -d nself < ../nchat/backend/db/migrations/2
 
 # App-specific tables
 nself exec postgres psql -U postgres -d nself < ../nchat/backend/db/migrations/init_nchat.sql
-nself exec postgres psql -U postgres -d nself < ../ntv/backend/db/migrations/init_ntv.sql
+nself exec postgres psql -U postgres -d nself < ../example/backend/db/migrations/init_example.sql
 nself exec postgres psql -U postgres -d nself < ../nfamily/backend/db/migrations/init_nfamily.sql
 ```
 
@@ -811,10 +812,10 @@ cd ../nchat/frontend
 cp .env.example .env.local
 # Edit NEXT_PUBLIC_APP_ID=nchat
 
-# ɳTV
-cd ../../ntv/frontend
+# Example App
+cd ../../example/frontend
 cp .env.example .env.local
-# Edit NEXT_PUBLIC_APP_ID=ntv
+# Edit NEXT_PUBLIC_APP_ID=example
 
 # ɳFamily
 cd ../../nfamily/frontend
@@ -833,8 +834,8 @@ nself start
 cd nchat/frontend
 pnpm dev
 
-# Terminal 3: ɳTV
-cd ntv/frontend
+# Terminal 3: Example App
+cd example/frontend
 pnpm dev --port 3001
 
 # Terminal 4: ɳFamily
@@ -849,7 +850,7 @@ Visit Hasura console (http://localhost:8080) and run:
 ```sql
 INSERT INTO public.apps (app_id, app_name, app_url, is_active) VALUES
   ('nchat', 'ɳChat', 'http://localhost:3000', true),
-  ('ntv', 'ɳTV', 'http://localhost:3001', true),
+  ('example', 'Example App', 'http://localhost:3001', true),
   ('nfamily', 'ɳFamily', 'http://localhost:3002', true);
 ```
 
@@ -859,7 +860,7 @@ INSERT INTO public.apps (app_id, app_name, app_url, is_active) VALUES
 -- Make first user an owner in all apps
 INSERT INTO public.app_user_roles (app_id, user_id, role) VALUES
   ('nchat', 'user-uuid-here', 'owner'),
-  ('ntv', 'user-uuid-here', 'owner'),
+  ('example', 'user-uuid-here', 'owner'),
   ('nfamily', 'user-uuid-here', 'owner');
 ```
 
