@@ -868,8 +868,8 @@ describe("BillingCycleCalculator", () => {
 
   describe("calculateDaysUntilRenewal", () => {
     it("should calculate positive days for future date", () => {
-      const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + 15);
+      // Milliseconds, not setDate: a local-time day step across a DST change is 23 or 25 hours, which ceil() turns into 16.
+      const futureDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
       const result =
         BillingCycleCalculator.calculateDaysUntilRenewal(futureDate);
@@ -903,8 +903,8 @@ describe("BillingCycleCalculator", () => {
 
   describe("calculateTrialDaysRemaining", () => {
     it("should calculate remaining days", () => {
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 7);
+      // Milliseconds, not setDate: a DST change inside the week makes a calendar step 6.96 or 7.04 days.
+      const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
       const result =
         BillingCycleCalculator.calculateTrialDaysRemaining(endDate);

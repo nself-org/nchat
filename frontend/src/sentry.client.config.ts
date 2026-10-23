@@ -174,7 +174,7 @@ if (SENTRY_DSN) {
 
       // Breadcrumbs - track user actions
       Sentry.breadcrumbsIntegration({
-        console: process.env.NODE_ENV === "development",
+        // `console` is no longer an option of breadcrumbsIntegration as of @sentry 10.75 (TS2353).
         dom: true,
         fetch: true,
         history: true,

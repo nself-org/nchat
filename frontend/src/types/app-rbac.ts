@@ -13,7 +13,7 @@
 export interface App {
   id: string;
   app_id: string; // e.g., "nchat", "ntv", "nfamily"
-  app_name: string; // e.g., "ɳChat", "ɳTV", "ɳFamily"
+  app_name: string; // e.g., "ɳChat", "Example App", "ɳFamily"
   app_url?: string; // e.g., "https://chat.nself.org"
   is_active: boolean;
   created_at: string;
