@@ -205,8 +205,8 @@ describe("Device Fingerprint Utility", () => {
 
   describe("getDaysUntilExpiry", () => {
     it("should return correct days for future date", () => {
-      const futureDate = new Date();
-      futureDate.setDate(futureDate.getDate() + 10);
+      // Milliseconds, not setDate: a DST change inside the period (TZ is pinned to America/New_York) skews a calendar step.
+      const futureDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
 
       const days = getDaysUntilExpiry(futureDate.toISOString());
       expect(days).toBe(10);
