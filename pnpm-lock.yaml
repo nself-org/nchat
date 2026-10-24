@@ -12,8 +12,8 @@ overrides:
   '@grpc/proto-loader>protobufjs': 8.6.6
   tar: '>=7.5.19'
   rollup: '>=3.30.0'
-  serialize-javascript: '>=7.0.5'
-  undici: '>=8.10.2'
+  serialize-javascript: '>=7.1.3'
+  undici: '>=8.12.2'
   '@nhost/nhost-js': ^3.3.1
   shell-quote: '>=1.11.0 <2.0.0'
   vitest: '>=4.1.11 <5.0.0'
@@ -40,6 +40,7 @@ overrides:
   form-data@4.0.5: '>=4.0.6 <4.1.0'
   vite@<6.4.4: '>=6.4.4 <6.5.0'
   '@sentry/nextjs@<10.75.2': '>=10.75.2'
+  '@azure/msal-node@<7.1.0': '>=7.1.0 <8.0.0'
   storybook@<8.6.19: ^8.6.19
   '@storybook/core@<8.6.19': ^8.6.19
   ws@7.5.10: '>=7.5.11 <7.6.0'
@@ -49,7 +50,7 @@ overrides:
   follow-redirects@<1.16.1: '>=1.16.1'
   '@opentelemetry/core@<2.8.0': '>=2.8.0'
   '@sentry/browser@<7.119.1': '>=7.119.1'
-  nodemailer@<10.0.9: '>=10.0.9 <11.0.0'
+  nodemailer@<10.1.4: '>=10.1.4 <11.0.0'
   postcss@<8.5.10: '>=8.5.10'
   uuid@<11.1.1: '>=11.1.1'
   '@xmldom/xmldom@<0.8.15': '>=0.8.15 <0.9.0'
@@ -62,7 +63,7 @@ overrides:
   websocket-driver: '>=0.7.5'
   axios: '>=1.20.0 <2'
   next-auth: '>=4.24.15'
-  fast-uri: '>=4.1.5 <5.0.0'
+  fast-uri: '>=4.2.3 <5.0.0'
   fflate: '>=0.8.3'
   ip-address: '>=10.7.4'
   js-yaml: '>=5.4.1'
@@ -354,7 +355,7 @@ importers:
         specifier: ^4.19.0
         version: 4.24.0
       '@sentry/nextjs':
-        specifier: '>=10.75.2'
+        specifier: ^11.9.0
         version: 11.9.0(next@15.5.28(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-router@8.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(vite@6.4.5(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.33.0)(terser@5.50.0)(tsx@4.22.0)(yaml@2.9.0))(webpack@5.106.2(lightningcss@1.33.0)(postcss@8.5.26))
       '@signalapp/libsignal-client':
         specifier: ^0.88.3
@@ -541,13 +542,13 @@ importers:
         version: 15.5.28(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       next-auth:
         specifier: '>=4.24.15'
-        version: 4.24.15(next@15.5.28(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(nodemailer@10.0.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 4.24.15(next@15.5.28(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(nodemailer@10.2.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       nodemailer:
-        specifier: ^10.0.9
-        version: 10.0.14
+        specifier: ^10.1.4
+        version: 10.2.1
       nuqs:
         specifier: ^2.8.9
         version: 2.8.9(next@15.5.28(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-router-dom@7.15.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-router@8.3.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)
@@ -794,10 +795,10 @@ importers:
         version: 3.4.2(@types/node@25.9.3)
       appium-uiautomator2-driver:
         specifier: ^6.7.15
-        version: 6.9.3(@appium/logger@2.0.7)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3))
+        version: 6.9.3(@appium/logger@2.0.11)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3))
       appium-xcuitest-driver:
         specifier: ^10.31.0
-        version: 10.43.1(@appium/logger@2.0.7)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3))
+        version: 10.43.1(@appium/logger@2.0.11)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3))
       artillery:
         specifier: ^2.0.34
         version: 2.0.34(@types/node@25.9.3)(encoding@0.1.13)
@@ -1709,12 +1710,16 @@ packages:
     resolution: {integrity: sha512-hTbvOi9Ko2Jvn+G/fSmjzHf9WbNcf/o3epMtbeGx/pMwMrVAbi6OgCJVeCfsAb8IybSRpaCSc4EDRlYAhgngUQ==}
     engines: {node: '>=0.8.0'}
 
+  '@azure/msal-common@16.14.3':
+    resolution: {integrity: sha512-tz3GvMrR9V/plb2lDdW8qaO8CPpfZevdExBKjltzzbAtyhK0eB2UIvji1aU+gkyHj3fxQ2ie+LNHyMXdmo8wOg==}
+    engines: {node: '>=0.8.0'}
+
   '@azure/msal-common@16.6.1':
     resolution: {integrity: sha512-VxKdEtUwDuLD0F1hOQP7kye0YadZxFJfv37Em440geEf/w9uggKnHpRrqwZJOdxmPUOdhZ9kyRtKuAJW8wUcRg==}
     engines: {node: '>=0.8.0'}
 
-  '@azure/msal-node@5.2.1':
-    resolution: {integrity: sha512-tmQiQ2HvtzaeLqYGy3BemiPOSGPY4wCy1IW5zDWITKSs/s35WEd7Zij/hCxvUdAOzj6U3qnyaGbYXY91ortFEQ==}
+  '@azure/msal-node@7.1.1':
+    resolution: {integrity: sha512-zHXTJB38XVrsNaXrPBCMqEUjeyQysFfgmKtUHRDsEKTRjNIPckJ/w6fE5wBXrmJXBim1D3C7O7LOag0msPTrgw==}
     engines: {node: '>=20'}
 
   '@azure/storage-blob@12.31.0':
@@ -8747,8 +8752,8 @@ packages:
   fast-string-width@3.0.2:
     resolution: {integrity: sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==}
 
-  fast-uri@4.2.1:
-    resolution: {integrity: sha512-TmHQgewjHtMq1E5QKA0tOE0yeYGQs25KZC/ziJpubRtWI15W92e6vPFydWOeZBVROSHBYw/QhD9d5OefdD6LDg==}
+  fast-uri@4.2.3:
+    resolution: {integrity: sha512-I1PXwP5eAhlNlcdpjt9CgB59op2ZvZfxw+BkqGFVIUOgNpCVTcTqp3HhTX7brxj5vsip+nSY4nTvff+eIA76hg==}
 
   fast-wrap-ansi@0.2.2:
     resolution: {integrity: sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q==}
@@ -11022,7 +11027,7 @@ packages:
     peerDependencies:
       '@auth/core': 0.34.3
       next: 15.5.28
-      nodemailer: '>=10.0.9 <11.0.0'
+      nodemailer: '>=10.1.4 <11.0.0'
       react: ^19.2.0
       react-dom: ^19.2.0
     peerDependenciesMeta:
@@ -11133,8 +11138,8 @@ packages:
     resolution: {integrity: sha512-udjYoXRsApFQP0fggKwGWFWUqinJKY11zIUmMxMv8Q4sfMLV0Uu9iavRUfiB3QOmJvL4WAXTaHv+tZvkiT+nyQ==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0, npm: '>=10'}
 
-  nodemailer@10.0.14:
-    resolution: {integrity: sha512-eJoLFKg55fesSlzUekmfOv/SBXh4KUYT8oiQc2RLP0tfG0rbNMJBK7wgHJwXTJwqyKlSJMz9UzDZ4v+aHEvo8g==}
+  nodemailer@10.2.1:
+    resolution: {integrity: sha512-ZrDNsPFoDMwefNs7sJwrYiEJ/CG4ClJWDZv05iNJsEBWa8GRDry1QJHTJxsuTAY9eDDKjX4k+q3SxslXJOao7w==}
     engines: {node: '>=20.0.0'}
 
   normalize-package-data@6.0.2:
@@ -12670,8 +12675,8 @@ packages:
     resolution: {integrity: sha512-3NnuWfM6vBYoy5gZFvHiYsVbafvI9vZv/+jlIigFn4oP4zjNPK3LhcY0xSCgeb1a5L8jO71Mit9LlNoi2UfDDQ==}
     engines: {node: '>=10'}
 
-  serialize-javascript@7.0.5:
-    resolution: {integrity: sha512-F4LcB0UqUl1zErq+1nYEEzSHJnIwb3AF2XWB94b+afhrekOUijwooAYqFyRbjYkm2PAKBabx6oYv/xDxNi8IBw==}
+  serialize-javascript@7.1.4:
+    resolution: {integrity: sha512-FqlEuoTq/zRmA4Lg6aOqyH3lCHbUtCB0bmHCeFniX2GBdDqMJM3FwdvEhlE5Pim1dlt2FfBdVPmUNNiGhhKqpw==}
     engines: {node: '>=20.0.0'}
 
   serve-favicon@2.5.1:
@@ -13676,8 +13681,8 @@ packages:
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
-  undici@8.10.2:
-    resolution: {integrity: sha512-/y4/bH9YNU5hi9NIrpOuvGXFcxrj3CMrV+/AYpowAYTpHn8gX/XPFjNy766FPoYY0miQhdW977JFWKGNhBdwyQ==}
+  undici@8.12.3:
+    resolution: {integrity: sha512-+fdndUTwBP86cVjihTp21hZHo7d6oj1c/47XPA3lL8mM0XHs+C4EkcjmgRsFnFk2f/UONGDy9ItBItmXsLOQHw==}
     engines: {node: '>=22.19.0'}
 
   unfetch@4.2.0:
@@ -14506,6 +14511,34 @@ snapshots:
       react-dom: 19.2.6(react@19.2.6)
     transitivePeerDependencies:
       - '@types/react'
+
+  '@appium/base-driver@10.8.0(@appium/logger@2.0.11)(@types/node@25.9.3)':
+    dependencies:
+      '@appium/support': 7.2.7(@types/node@25.9.3)
+      '@appium/types': 1.7.0(@appium/logger@2.0.11)
+      async-lock: 1.4.1
+      asyncbox: 6.4.2
+      axios: 1.20.0
+      body-parser: 2.4.0
+      express: 5.2.1
+      fastest-levenshtein: 1.0.16
+      http-status-codes: 2.3.0
+      lru-cache: 11.5.2
+      method-override: 3.0.0
+      morgan: 1.12.1
+      path-to-regexp: 8.4.2
+      serve-favicon: 2.5.1
+      type-fest: 5.8.0
+    optionalDependencies:
+      spdy: 4.0.2
+    transitivePeerDependencies:
+      - '@appium/logger'
+      - '@types/node'
+      - bare-abort-controller
+      - bare-buffer
+      - debug
+      - react-native-b4a
+      - supports-color
 
   '@appium/base-driver@10.8.0(@appium/logger@2.0.7)(@types/node@25.9.3)':
     dependencies:
@@ -15389,7 +15422,7 @@ snapshots:
       '@azure/core-util': 1.13.1
       '@azure/logger': 1.3.0
       '@azure/msal-browser': 5.10.1
-      '@azure/msal-node': 5.2.1
+      '@azure/msal-node': 7.1.1
       open: 10.2.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -15406,11 +15439,13 @@ snapshots:
     dependencies:
       '@azure/msal-common': 16.6.1
 
+  '@azure/msal-common@16.14.3': {}
+
   '@azure/msal-common@16.6.1': {}
 
-  '@azure/msal-node@5.2.1':
+  '@azure/msal-node@7.1.1':
     dependencies:
-      '@azure/msal-common': 16.6.1
+      '@azure/msal-common': 16.14.3
       jsonwebtoken: 9.0.3
 
   '@azure/storage-blob@12.31.0':
@@ -16134,7 +16169,7 @@ snapshots:
       '@firebase/component': 0.6.9
       '@firebase/util': 1.10.0
       tslib: 2.8.1
-      undici: 8.10.2
+      undici: 8.12.3
     transitivePeerDependencies:
       - '@firebase/app'
       - '@firebase/app-types'
@@ -16154,7 +16189,7 @@ snapshots:
       '@firebase/logger': 0.4.2
       '@firebase/util': 1.10.0
       tslib: 2.8.1
-      undici: 8.10.2
+      undici: 8.12.3
 
   '@firebase/component@0.6.9':
     dependencies:
@@ -16221,7 +16256,7 @@ snapshots:
       '@grpc/grpc-js': 1.14.5
       '@grpc/proto-loader': 0.7.15
       tslib: 2.8.1
-      undici: 8.10.2
+      undici: 8.12.3
 
   '@firebase/functions-compat@0.3.14(@firebase/app-compat@0.2.43)(@firebase/app@0.10.13)':
     dependencies:
@@ -16245,7 +16280,7 @@ snapshots:
       '@firebase/messaging-interop-types': 0.2.2
       '@firebase/util': 1.10.0
       tslib: 2.8.1
-      undici: 8.10.2
+      undici: 8.12.3
 
   '@firebase/installations-compat@0.2.9(@firebase/app-compat@0.2.43)(@firebase/app-types@0.9.2)(@firebase/app@0.10.13)':
     dependencies:
@@ -16366,7 +16401,7 @@ snapshots:
       '@firebase/component': 0.6.9
       '@firebase/util': 1.10.0
       tslib: 2.8.1
-      undici: 8.10.2
+      undici: 8.12.3
 
   '@firebase/util@1.10.0':
     dependencies:
@@ -21439,7 +21474,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 4.2.1
+      fast-uri: 4.2.3
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -21503,13 +21538,13 @@ snapshots:
       - react-native-b4a
       - supports-color
 
-  appium-android-driver@12.7.0(@appium/logger@2.0.7)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3)):
+  appium-android-driver@12.7.0(@appium/logger@2.0.11)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3)):
     dependencies:
       '@appium/support': 7.2.7(@types/node@25.9.3)
       '@colors/colors': 1.6.0
       appium: 3.4.2(@types/node@25.9.3)
       appium-adb: 14.5.0(@types/node@25.9.3)
-      appium-chromedriver: 8.4.1(@appium/logger@2.0.7)(@types/node@25.9.3)
+      appium-chromedriver: 8.4.1(@appium/logger@2.0.11)(@types/node@25.9.3)
       asyncbox: 6.3.0
       axios: 1.20.0
       bluebird: 3.7.2
@@ -21533,9 +21568,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  appium-chromedriver@8.4.1(@appium/logger@2.0.7)(@types/node@25.9.3):
+  appium-chromedriver@8.4.1(@appium/logger@2.0.11)(@types/node@25.9.3):
     dependencies:
-      '@appium/base-driver': 10.8.0(@appium/logger@2.0.7)(@types/node@25.9.3)
+      '@appium/base-driver': 10.8.0(@appium/logger@2.0.11)(@types/node@25.9.3)
       '@appium/support': 7.2.7(@types/node@25.9.3)
       '@xmldom/xmldom': 0.8.15
       appium-adb: 14.5.0(@types/node@25.9.3)
@@ -21663,9 +21698,9 @@ snapshots:
       - supports-color
     optional: true
 
-  appium-remote-debugger@15.10.1(@appium/logger@2.0.7)(@types/node@25.9.3):
+  appium-remote-debugger@15.10.1(@appium/logger@2.0.11)(@types/node@25.9.3):
     dependencies:
-      '@appium/base-driver': 10.8.0(@appium/logger@2.0.7)(@types/node@25.9.3)
+      '@appium/base-driver': 10.8.0(@appium/logger@2.0.11)(@types/node@25.9.3)
       '@appium/support': 7.2.7(@types/node@25.9.3)
       appium-ios-device: 3.1.14(@types/node@25.9.3)
       async-lock: 1.4.1
@@ -21683,11 +21718,11 @@ snapshots:
       - react-native-b4a
       - supports-color
 
-  appium-uiautomator2-driver@6.9.3(@appium/logger@2.0.7)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3)):
+  appium-uiautomator2-driver@6.9.3(@appium/logger@2.0.11)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3)):
     dependencies:
       appium: 3.4.2(@types/node@25.9.3)
       appium-adb: 14.5.0(@types/node@25.9.3)
-      appium-android-driver: 12.7.0(@appium/logger@2.0.7)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3))
+      appium-android-driver: 12.7.0(@appium/logger@2.0.11)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3))
       appium-uiautomator2-server: 9.11.2
       asyncbox: 6.3.0
       axios: 1.20.0
@@ -21710,9 +21745,9 @@ snapshots:
 
   appium-uiautomator2-server@9.11.2: {}
 
-  appium-webdriveragent@11.4.3(@appium/logger@2.0.7)(@types/node@25.9.3):
+  appium-webdriveragent@11.4.3(@appium/logger@2.0.11)(@types/node@25.9.3):
     dependencies:
-      '@appium/base-driver': 10.8.0(@appium/logger@2.0.7)(@types/node@25.9.3)
+      '@appium/base-driver': 10.8.0(@appium/logger@2.0.11)(@types/node@25.9.3)
       '@appium/strongbox': 1.1.1
       '@appium/support': 7.2.7(@types/node@25.9.3)
       appium-ios-device: 3.1.14(@types/node@25.9.3)
@@ -21746,7 +21781,7 @@ snapshots:
       - react-native-b4a
       - supports-color
 
-  appium-xcuitest-driver@10.43.1(@appium/logger@2.0.7)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3)):
+  appium-xcuitest-driver@10.43.1(@appium/logger@2.0.11)(@types/node@25.9.3)(appium@3.4.2(@types/node@25.9.3)):
     dependencies:
       '@appium/strongbox': 1.1.1
       '@colors/colors': 1.6.0
@@ -21754,8 +21789,8 @@ snapshots:
       appium-idb: 2.0.10(@types/node@25.9.3)
       appium-ios-device: 3.1.14(@types/node@25.9.3)
       appium-ios-simulator: 8.1.3(@types/node@25.9.3)
-      appium-remote-debugger: 15.10.1(@appium/logger@2.0.7)(@types/node@25.9.3)
-      appium-webdriveragent: 11.4.3(@appium/logger@2.0.7)(@types/node@25.9.3)
+      appium-remote-debugger: 15.10.1(@appium/logger@2.0.11)(@types/node@25.9.3)
+      appium-webdriveragent: 11.4.3(@appium/logger@2.0.11)(@types/node@25.9.3)
       appium-xcode: 6.2.2(@types/node@25.9.3)
       async-lock: 1.4.1
       asyncbox: 6.3.0
@@ -22698,7 +22733,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 8.10.2
+      undici: 8.12.3
       whatwg-mimetype: 4.0.0
 
   chokidar@3.6.0:
@@ -24291,7 +24326,7 @@ snapshots:
     dependencies:
       fast-string-truncated-width: 3.0.3
 
-  fast-uri@4.2.1: {}
+  fast-uri@4.2.3: {}
 
   fast-wrap-ansi@0.2.2:
     dependencies:
@@ -26177,7 +26212,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.1
-      undici: 8.10.2
+      undici: 8.12.3
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -26206,7 +26241,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.1
-      undici: 8.10.2
+      undici: 8.12.3
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -26923,7 +26958,7 @@ snapshots:
       log-symbols: 4.1.0
       minimatch: 5.1.9
       ms: 2.1.3
-      serialize-javascript: 7.0.5
+      serialize-javascript: 7.1.4
       strip-json-comments: 3.1.1
       supports-color: 8.1.1
       workerpool: 6.5.1
@@ -27128,7 +27163,7 @@ snapshots:
 
   netmask@2.1.1: {}
 
-  next-auth@4.24.15(next@15.5.28(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(nodemailer@10.0.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+  next-auth@4.24.15(next@15.5.28(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(nodemailer@10.2.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       '@babel/runtime': 7.29.7
       '@panva/hkdf': 1.2.1
@@ -27143,7 +27178,7 @@ snapshots:
       react-dom: 19.2.6(react@19.2.6)
       uuid: 11.1.1
     optionalDependencies:
-      nodemailer: 10.0.14
+      nodemailer: 10.2.1
 
   next-themes@0.4.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
@@ -27250,7 +27285,7 @@ snapshots:
       teen_process: 4.1.3
       which: 6.0.1
 
-  nodemailer@10.0.14: {}
+  nodemailer@10.2.1: {}
 
   normalize-package-data@6.0.2:
     dependencies:
@@ -28869,7 +28904,7 @@ snapshots:
     dependencies:
       type-fest: 0.20.2
 
-  serialize-javascript@7.0.5: {}
+  serialize-javascript@7.1.4: {}
 
   serve-favicon@2.5.1:
     dependencies:
@@ -29063,7 +29098,7 @@ snapshots:
   smtp-server@3.19.17:
     dependencies:
       ipv6-normalize: 1.0.1
-      nodemailer: 10.0.14
+      nodemailer: 10.2.1
       punycode.js: 2.3.1
 
   socket.io-client@4.8.3:
@@ -30093,7 +30128,7 @@ snapshots:
 
   undici-types@8.3.0: {}
 
-  undici@8.10.2: {}
+  undici@8.12.3: {}
 
   unfetch@4.2.0: {}
 
@@ -30481,7 +30516,7 @@ snapshots:
       '@wdio/utils': 9.27.1(proxy-agent@6.5.0)(yauzl@3.4.0)
       deepmerge-ts: 8.0.2
       https-proxy-agent: 7.0.6
-      undici: 8.10.2
+      undici: 8.12.3
       ws: 8.21.3
     transitivePeerDependencies:
       - bufferutil
