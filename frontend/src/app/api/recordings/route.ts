@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     const validation = listRecordingsSchema.safeParse(searchParams);
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid parameters", details: validation.error.errors },
+        { error: "Invalid parameters", details: validation.error.issues },
         { status: 400 },
       );
     }
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
     const validation = startRecordingSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request body", details: validation.error.errors },
+        { error: "Invalid request body", details: validation.error.issues },
         { status: 400 },
       );
     }

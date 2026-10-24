@@ -233,7 +233,7 @@ export async function POST(request: NextRequest) {
         {
           error: "Validation error",
           code: "VALIDATION_ERROR",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 },
       );
@@ -300,7 +300,7 @@ export async function PUT(request: NextRequest) {
         {
           error: "Validation error",
           code: "VALIDATION_ERROR",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 },
       );

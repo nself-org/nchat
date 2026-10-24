@@ -51,7 +51,7 @@ const CreateNotificationSchema = z.object({
   messageId: z.string().uuid().optional(),
   threadId: z.string().uuid().optional(),
   actionUrl: z.string().url().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const UpdateNotificationSchema = z.object({
@@ -349,7 +349,7 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           error: "Invalid query parameters",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );
@@ -480,7 +480,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid notification data",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );
@@ -563,7 +563,7 @@ export async function PUT(request: NextRequest) {
         {
           success: false,
           error: "Invalid update data",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );

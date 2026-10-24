@@ -72,7 +72,7 @@ const createEntitySchema = z.discriminatedUnion("type", [
     description: z.string().max(2000).optional(),
     avatarUrl: z.string().url().optional(),
     participantIds: z.array(z.string().uuid()).min(1).max(255),
-    settings: z.record(z.unknown()).optional(),
+    settings: z.record(z.string(), z.unknown()).optional(),
   }),
   // Supergroup creation
   z.object({
@@ -85,7 +85,7 @@ const createEntitySchema = z.discriminatedUnion("type", [
     visibility: z
       .enum(["private", "public", "discoverable"])
       .default("private"),
-    settings: z.record(z.unknown()).optional(),
+    settings: z.record(z.string(), z.unknown()).optional(),
   }),
   // Community creation
   z.object({
@@ -101,7 +101,7 @@ const createEntitySchema = z.discriminatedUnion("type", [
     visibility: z
       .enum(["private", "public", "discoverable"])
       .default("private"),
-    settings: z.record(z.unknown()).optional(),
+    settings: z.record(z.string(), z.unknown()).optional(),
   }),
   // Channel creation
   z.object({
@@ -111,7 +111,7 @@ const createEntitySchema = z.discriminatedUnion("type", [
     avatarUrl: z.string().url().optional(),
     username: z.string().min(5).max(32).optional(),
     visibility: z.enum(["private", "public", "discoverable"]).default("public"),
-    settings: z.record(z.unknown()).optional(),
+    settings: z.record(z.string(), z.unknown()).optional(),
   }),
 ]);
 
@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           error: "Invalid query parameters",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 },
       );
@@ -217,7 +217,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid request body",
-          details: parseResult.error.errors,
+          details: parseResult.error.issues,
         },
         { status: 400 },
       );
@@ -541,7 +541,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid request body",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 },
       );

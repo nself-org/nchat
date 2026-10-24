@@ -100,7 +100,7 @@ const localeSettingsSchema = z.object({
 
 const keyboardShortcutSettingsSchema = z.object({
   enabled: z.boolean(),
-  customShortcuts: z.record(z.string()),
+  customShortcuts: z.record(z.string(), z.string()),
   sendMessage: z.string(),
   newLine: z.string(),
   search: z.string(),
@@ -242,7 +242,7 @@ async function postSettingsHandler(request: AuthenticatedRequest) {
   const validationResult = userSettingsSchema.safeParse(body);
   if (!validationResult.success) {
     const errors: Record<string, string[]> = {};
-    for (const error of validationResult.error.errors) {
+    for (const error of validationResult.error.issues) {
       const path = error.path.join(".");
       if (!errors[path]) {
         errors[path] = [];
@@ -329,7 +329,7 @@ async function patchSettingsHandler(request: AuthenticatedRequest) {
   const validationResult = partialUserSettingsSchema.safeParse(body);
   if (!validationResult.success) {
     const errors: Record<string, string[]> = {};
-    for (const error of validationResult.error.errors) {
+    for (const error of validationResult.error.issues) {
       const path = error.path.join(".");
       if (!errors[path]) {
         errors[path] = [];

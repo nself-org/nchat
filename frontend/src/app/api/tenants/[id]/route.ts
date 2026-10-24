@@ -26,9 +26,9 @@ const updateTenantSchema = z.object({
       customCSS: z.string().optional(),
     })
     .optional(),
-  limits: z.record(z.any()).optional(),
-  features: z.record(z.any()).optional(),
-  metadata: z.record(z.any()).optional(),
+  limits: z.record(z.string(), z.any()).optional(),
+  features: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export async function GET(
@@ -90,7 +90,7 @@ export async function PUT(
       return NextResponse.json(
         {
           error: "Validation failed",
-          details: validationResult.error.errors,
+          details: validationResult.error.issues,
         },
         { status: 400 },
       );

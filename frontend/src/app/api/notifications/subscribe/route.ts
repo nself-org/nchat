@@ -202,7 +202,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         {
           success: false,
           error: "Invalid subscription data",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );
@@ -341,7 +341,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
         {
           success: false,
           error: "Invalid unsubscribe data",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );

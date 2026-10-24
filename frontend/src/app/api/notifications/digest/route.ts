@@ -357,7 +357,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         {
           success: false,
           error: "Invalid request data",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );
@@ -542,7 +542,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         {
           success: false,
           error: "Invalid settings data",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );

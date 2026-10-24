@@ -418,7 +418,7 @@ export class SecretValidator {
     if (schema) {
       const parseResult = schema.safeParse(value);
       if (!parseResult.success) {
-        parseResult.error.errors.forEach((err) => {
+        parseResult.error.issues.forEach((err) => {
           errors.push(`${key}: ${err.message}`);
         });
         result.valid = false;

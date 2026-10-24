@@ -166,7 +166,7 @@ export async function POST(
         {
           success: false,
           error: "Invalid request body",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );

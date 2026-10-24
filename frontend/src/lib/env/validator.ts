@@ -232,7 +232,9 @@ export function getEnvStatus(): EnvStatus {
     for (const issue of result.errors.issues) {
       const path = issue.path.join(".");
 
-      if (issue.code === "invalid_type" && issue.received === "undefined") {
+      // zod 4 dropped `issue.received`; env is parsed straight from process.env, so
+      // a variable that is absent there is the "missing" case.
+      if (issue.code === "invalid_type" && process.env[path] === undefined) {
         missing.push(path);
       } else {
         invalid.push(`${path}: ${issue.message}`);

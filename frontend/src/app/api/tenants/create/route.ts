@@ -27,7 +27,7 @@ const createTenantSchema = z.object({
   ownerPassword: z.string().min(8),
   plan: z.enum(["free", "pro", "enterprise", "custom"]).optional(),
   trial: z.boolean().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Validation failed",
-          details: validationResult.error.errors,
+          details: validationResult.error.issues,
         },
         { status: 400 },
       );

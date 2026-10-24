@@ -17,7 +17,7 @@ const initiateCallSchema = z.object({
   targetUserIds: z.array(z.string().uuid()).optional(),
   channelId: z.string().uuid().optional(),
   type: z.enum(["audio", "video", "screen_share"]).default("audio"),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request", details: validation.error.errors },
+        { error: "Invalid request", details: validation.error.issues },
         { status: 400 },
       );
     }

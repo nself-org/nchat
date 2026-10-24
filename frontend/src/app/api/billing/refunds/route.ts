@@ -19,7 +19,7 @@ const createRefundSchema = z
     reason: z
       .enum(["duplicate", "fraudulent", "requested_by_customer"])
       .optional(),
-    metadata: z.record(z.string()).optional(),
+    metadata: z.record(z.string(), z.string()).optional(),
     reverseTransfer: z.boolean().optional(),
     refundApplicationFee: z.boolean().optional(),
     instructionsEmail: z.string().email().optional(),
@@ -30,7 +30,7 @@ const createRefundSchema = z
   });
 
 const bulkRefundSchema = z.object({
-  refunds: z.array(createRefundSchema.innerType()),
+  refunds: z.array(createRefundSchema),
   stopOnError: z.boolean().optional(),
 });
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       const validation = bulkRefundSchema.safeParse(body);
       if (!validation.success) {
         return NextResponse.json(
-          { error: "Invalid request", details: validation.error.errors },
+          { error: "Invalid request", details: validation.error.issues },
           { status: 400 },
         );
       }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     const validation = createRefundSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request", details: validation.error.errors },
+        { error: "Invalid request", details: validation.error.issues },
         { status: 400 },
       );
     }

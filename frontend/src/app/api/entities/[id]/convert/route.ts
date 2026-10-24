@@ -141,7 +141,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         {
           success: false,
           error: "Invalid request body",
-          details: parseResult.error.errors,
+          details: parseResult.error.issues,
         },
         { status: 400 },
       );
@@ -277,7 +277,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         {
           success: false,
           error: "Invalid request body",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 },
       );

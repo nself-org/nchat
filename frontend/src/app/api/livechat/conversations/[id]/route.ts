@@ -40,7 +40,7 @@ const UpdateConversationSchema = z.object({
   priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
   department: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  customFields: z.record(z.unknown()).optional(),
+  customFields: z.record(z.string(), z.unknown()).optional(),
 });
 
 // ============================================================================

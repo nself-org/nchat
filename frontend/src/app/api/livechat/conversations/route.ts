@@ -50,7 +50,7 @@ const CreateConversationSchema = z.object({
     "api",
   ]),
   priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
-  customFields: z.record(z.unknown()).optional(),
+  customFields: z.record(z.string(), z.unknown()).optional(),
   source: z
     .object({
       type: z.enum(["widget", "email", "api", "social"]),

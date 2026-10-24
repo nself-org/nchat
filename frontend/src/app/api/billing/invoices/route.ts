@@ -17,7 +17,7 @@ const createInvoiceSchema = z.object({
   collectionMethod: z.enum(["charge_automatically", "send_invoice"]).optional(),
   daysUntilDue: z.number().int().min(1).max(365).optional(),
   description: z.string().optional(),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
   statementDescriptor: z.string().max(22).optional(),
   footer: z.string().optional(),
   idempotencyKey: z.string().optional(),
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request", details: validation.error.errors },
+        { error: "Invalid request", details: validation.error.issues },
         { status: 400 },
       );
     }
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
     const validation = listInvoicesSchema.safeParse(params);
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request", details: validation.error.errors },
+        { error: "Invalid request", details: validation.error.issues },
         { status: 400 },
       );
     }

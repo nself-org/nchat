@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const validation = createShareLinkSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request body", details: validation.error.errors },
+        { error: "Invalid request body", details: validation.error.issues },
         { status: 400 },
       );
     }
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
     const validation = validateShareLinkSchema.safeParse({ token, password });
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid parameters", details: validation.error.errors },
+        { error: "Invalid parameters", details: validation.error.issues },
         { status: 400 },
       );
     }

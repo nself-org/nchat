@@ -283,7 +283,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         {
           success: false,
           error: "Invalid preferences data",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );

@@ -144,7 +144,7 @@ export async function GET(
         {
           success: false,
           error: "Invalid query parameters",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );
@@ -331,7 +331,7 @@ export async function POST(
         {
           success: false,
           error: "Invalid request body",
-          details: singleValidation.error.errors,
+          details: singleValidation.error.issues,
         },
         { status: 400 },
       );
@@ -451,7 +451,7 @@ export async function PATCH(
         {
           success: false,
           error: "Invalid request body",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );
@@ -585,7 +585,7 @@ export async function DELETE(
         {
           success: false,
           error: "Invalid request body",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );
