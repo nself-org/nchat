@@ -303,7 +303,7 @@ export async function POST(
     const validation = addParticipantsSchema.safeParse(body);
     if (!validation.success) {
       return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
-        errors: validation.error.errors,
+        errors: validation.error.issues,
       });
     }
 
@@ -507,7 +507,7 @@ export async function DELETE(
     const validation = removeParticipantSchema.safeParse(body);
     if (!validation.success) {
       return badRequestResponse("Invalid request body", "VALIDATION_ERROR", {
-        errors: validation.error.errors,
+        errors: validation.error.issues,
       });
     }
 

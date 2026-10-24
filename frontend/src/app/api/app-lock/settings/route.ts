@@ -304,7 +304,7 @@ async function handlePut(request: AuthenticatedRequest): Promise<NextResponse> {
   const validation = updateSettingsSchema.safeParse(body);
   if (!validation.success) {
     const errors: Record<string, string[]> = {};
-    for (const error of validation.error.errors) {
+    for (const error of validation.error.issues) {
       const path = error.path.join(".");
       if (!errors[path]) {
         errors[path] = [];

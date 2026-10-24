@@ -165,7 +165,7 @@ async function handlePost(
     const validation = lockEventSchema.safeParse(body);
     if (!validation.success) {
       const errors: Record<string, string[]> = {};
-      for (const error of validation.error.errors) {
+      for (const error of validation.error.issues) {
         const path = error.path.join(".");
         if (!errors[path]) {
           errors[path] = [];
@@ -222,7 +222,7 @@ async function handlePost(
     const validation = unlockEventSchema.safeParse(body);
     if (!validation.success) {
       const errors: Record<string, string[]> = {};
-      for (const error of validation.error.errors) {
+      for (const error of validation.error.issues) {
         const path = error.path.join(".");
         if (!errors[path]) {
           errors[path] = [];

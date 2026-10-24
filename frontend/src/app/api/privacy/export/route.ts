@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
         {
           error: "Validation Error",
           message: "Invalid export request",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );

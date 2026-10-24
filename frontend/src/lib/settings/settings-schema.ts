@@ -220,7 +220,7 @@ export const settingsExportSchema = z.object({
   version: z.string(),
   exportedAt: z.string().datetime(),
   settings: partialUserSettingsSchema,
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 // ============================================================================

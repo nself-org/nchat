@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           error: "Invalid query parameters",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 },
       );
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid request body",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );
@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid request body",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 },
       );

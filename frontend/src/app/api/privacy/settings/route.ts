@@ -217,7 +217,7 @@ export async function PUT(request: NextRequest) {
         {
           error: "Validation Error",
           message: "Invalid settings data",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );

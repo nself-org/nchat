@@ -64,7 +64,7 @@ const SendMessageSchema = z.object({
     )
     .optional(),
   isInternal: z.boolean().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const ListMessagesSchema = z.object({

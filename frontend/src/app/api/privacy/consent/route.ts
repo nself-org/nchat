@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         {
           error: "Validation Error",
           message: "Invalid consent data",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );

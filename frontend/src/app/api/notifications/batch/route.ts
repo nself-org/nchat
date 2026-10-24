@@ -38,7 +38,7 @@ const NotificationSchema = z.object({
   messageId: z.string().uuid().optional(),
   threadId: z.string().uuid().optional(),
   actionUrl: z.string().url().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const BatchCreateSchema = z.object({
@@ -366,7 +366,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         {
           success: false,
           error: "Invalid request data",
-          details: parsed.error.errors,
+          details: parsed.error.issues,
         },
         { status: 400 },
       );

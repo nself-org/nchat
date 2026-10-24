@@ -66,7 +66,7 @@ const CreateMessageSchema = z.object({
       }),
     )
     .optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const UpdateMessageSchema = z.object({
@@ -76,7 +76,7 @@ const UpdateMessageSchema = z.object({
     .min(1, "Message content is required")
     .max(4000, "Message content too long"),
   mentions: z.array(z.string().uuid()).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const SearchQuerySchema = z.object({

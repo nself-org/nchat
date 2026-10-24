@@ -48,8 +48,8 @@ const CreateVisitorSchema = z.object({
     "sms",
     "api",
   ]),
-  customFields: z.record(z.unknown()).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  customFields: z.record(z.string(), z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const ListVisitorsSchema = z.object({

@@ -26,7 +26,7 @@ const createPayoutSchema = z.object({
     "internal_transfer",
   ]),
   recipientName: z.string().min(1),
-  recipientDetails: z.record(z.unknown()),
+  recipientDetails: z.record(z.string(), z.unknown()),
   description: z.string().min(1),
   category: z.enum([
     "vendor_payment",
@@ -40,7 +40,7 @@ const createPayoutSchema = z.object({
   ]),
   reference: z.string().optional(),
   recipientId: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   submitForApproval: z.boolean().optional(),
 });
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request", details: validation.error.errors },
+        { error: "Invalid request", details: validation.error.issues },
         { status: 400 },
       );
     }

@@ -23,7 +23,7 @@ const createCheckoutSchema = z.object({
   clientReferenceId: z.string().optional(),
   allowPromotionCodes: z.boolean().optional(),
   idempotencyKey: z.string().optional(),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request", details: validation.error.errors },
+        { error: "Invalid request", details: validation.error.issues },
         { status: 400 },
       );
     }

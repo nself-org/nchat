@@ -20,7 +20,7 @@ const paymentIntentSchema = z.object({
   description: z.string().optional(),
   receiptEmail: z.string().email().optional(),
   paymentMethodTypes: z.array(z.string()).optional(),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 });
 
 function getStripe(): Stripe {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: result.error.errors },
+        { error: "Validation failed", details: result.error.issues },
         { status: 400 },
       );
     }

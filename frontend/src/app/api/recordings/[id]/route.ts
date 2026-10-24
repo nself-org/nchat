@@ -130,7 +130,7 @@ export async function PATCH(
     const validation = updateRecordingSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Invalid request body", details: validation.error.errors },
+        { error: "Invalid request body", details: validation.error.issues },
         { status: 400 },
       );
     }

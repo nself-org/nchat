@@ -254,7 +254,7 @@ const QualityMetricsSchema = z.object({
     .optional(),
 
   // Raw WebRTC stats
-  rtcStats: z.record(z.unknown()).optional(),
+  rtcStats: z.record(z.string(), z.unknown()).optional(),
 });
 
 const QualityQuerySchema = z.object({

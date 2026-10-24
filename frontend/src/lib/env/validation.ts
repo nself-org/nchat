@@ -135,7 +135,7 @@ export function validatePublicEnv() {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors
+      const errors = error.issues
         .map((e) => `  - ${e.path.join(".")}: ${e.message}`)
         .join("\n");
       throw new Error(
@@ -187,7 +187,7 @@ export function validateServerEnv() {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors
+      const errors = error.issues
         .map((e) => `  - ${e.path.join(".")}: ${e.message}`)
         .join("\n");
       throw new Error(

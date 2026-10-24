@@ -35,8 +35,8 @@ const updateGuildSchema = z.object({
   maxFileSizeMb: z.number().int().min(8).max(1024).optional(),
   systemChannelId: z.string().uuid().optional().nullable(),
   rulesChannelId: z.string().uuid().optional().nullable(),
-  settings: z.record(z.any()).optional(),
-  features: z.record(z.any()).optional(),
+  settings: z.record(z.string(), z.any()).optional(),
+  features: z.record(z.string(), z.any()).optional(),
 });
 
 // Helper functions
@@ -235,7 +235,7 @@ export async function PATCH(
         {
           success: false,
           error: "Invalid request body",
-          details: validation.error.errors,
+          details: validation.error.issues,
         },
         { status: 400 },
       );
