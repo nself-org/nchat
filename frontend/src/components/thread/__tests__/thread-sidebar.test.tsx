@@ -185,8 +185,7 @@ const renderThreadSidebar = (props = {}) => {
 // Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ThreadSidebar Component", () => {
+describe("ThreadSidebar Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -537,8 +536,7 @@ describe.skip("ThreadSidebar Component", () => {
 // ThreadSidebarTrigger Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ThreadSidebarTrigger Component", () => {
+describe("ThreadSidebarTrigger Component", () => {
   it("should render the trigger button", () => {
     render(<ThreadSidebarTrigger />);
 

@@ -32,8 +32,7 @@ jest.mock("@/lib/logger", () => ({
   },
 }));
 
-// Skipped: Implementation mismatch - hooks have different API than tests expect
-describe.skip("useMessageActions", () => {
+describe("useMessageActions", () => {
   const channelId = "channel-1";
 
   const mockMessage: Message = {
