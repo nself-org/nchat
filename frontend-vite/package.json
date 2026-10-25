@@ -6,11 +6,16 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "generate:routes": "node scripts/generate-routes.mjs",
+    "predev": "pnpm generate:routes",
     "dev": "vite --port 3000",
+    "prebuild": "pnpm generate:routes",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --port 3000",
     "start": "vite preview --port 3000",
+    "pretype-check": "pnpm generate:routes",
     "type-check": "tsc --noEmit",
+    "pretest": "pnpm generate:routes",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {

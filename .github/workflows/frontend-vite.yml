@@ -1,0 +1,94 @@
+name: Frontend (Vite)
+
+# Builds frontend-vite from a clean clone: generates the route table, type-checks and
+# runs `vite build`. frontend-vite links five @nself/* packages from the nself-org/packages
+# repo as a SIBLING directory (link:../../packages/@nself/<name>), so this job checks that
+# repo out next to the workspace exactly as the desktop-* workflows do.
+
+on:
+  pull_request:
+    paths:
+      - 'frontend-vite/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/frontend-vite.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'frontend-vite/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/frontend-vite.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-vite-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build + test frontend-vite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # Pinned, not floating, so the build is reproducible (same sha as the desktop
+      # workflows). Bump all of them together when frontend-vite needs newer @nself/* code.
+      # Checked out into a subdirectory and MOVED to the sibling path: pnpm writes relative
+      # node_modules links that resolve against the physical path, so they dangle through
+      # a symlink (see the desktop-* workflows).
+      - name: Checkout @nself packages (sibling workspace dir)
+        uses: actions/checkout@v7
+        with:
+          repository: nself-org/packages
+          ref: 8a5cc53106fae71474f822003645d1f51dcfcd95
+          path: _nself_packages
+          persist-credentials: false
+
+      - name: Move @nself packages to the sibling path pnpm expects
+        shell: bash
+        run: |
+          PARENT_DIR="$(dirname "$GITHUB_WORKSPACE")"
+          rm -rf "$PARENT_DIR/packages"
+          mv "$GITHUB_WORKSPACE/_nself_packages" "$PARENT_DIR/packages"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install pnpm deps
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # The linked packages export TypeScript source and import i18next, @urql/core, ...
+      # from the sibling's own node_modules, so install them from the sibling's lockfile.
+      - name: Install @nself packages deps (sibling's own lockfile)
+        shell: bash
+        run: pnpm --dir "$(dirname "$GITHUB_WORKSPACE")/packages" install --frozen-lockfile --ignore-scripts
+
+      # frontend-vite/tsconfig.json maps @nself/* to ../../packages/@nself/<name>/dist/index.d.ts.
+      # Without a dist, tsc falls through to the sibling's raw src and applies THIS app's
+      # noUnusedLocals to it, failing on code that is not ours.
+      - name: Build the linked @nself packages (dist + d.ts)
+        shell: bash
+        run: |
+          pnpm --dir "$(dirname "$GITHUB_WORKSPACE")/packages" \
+            --filter @nself/errors --filter @nself/auth-core --filter @nself/graphql-client \
+            --filter @nself/i18n --filter @nself/ui build
+
+      # `pnpm build` regenerates src/routes.generated.tsx (prebuild), type-checks, then vite builds.
+      - name: Build frontend-vite
+        run: pnpm --filter @nchat/frontend-vite build
+
+      - name: Test frontend-vite
+        run: pnpm --filter @nchat/frontend-vite test
