@@ -1029,19 +1029,33 @@ describe("getSubscriptionSummary", () => {
     expect(summary.canPause).toBe(true);
   });
 
-  it("should create summary for trial subscription", () => {
-    const trialEndsAt = new Date();
-    trialEndsAt.setDate(trialEndsAt.getDate() + 7);
+  describe("trial subscription", () => {
+    const DAY_MS = 24 * 60 * 60 * 1000;
 
-    const subscription = createTestSubscription({
-      state: "trial",
-      trialEndsAt,
+    afterEach(() => {
+      jest.useRealTimers();
     });
 
-    const summary = getSubscriptionSummary(subscription);
+    // Fixed clocks, including one a week before the US DST fall-back
+    // (2026-11-01), where "now + 7 calendar days" is 7 days + 1 hour apart.
+    it.each([
+      "2026-06-15T12:00:00.000Z",
+      "2026-10-25T01:28:00.000Z",
+      "2027-01-31T23:59:59.000Z",
+    ])("should create summary for trial subscription (now=%s)", (nowIso) => {
+      jest.useFakeTimers().setSystemTime(new Date(nowIso));
+      const trialEndsAt = new Date(Date.now() + 7 * DAY_MS);
 
-    expect(summary.isInTrial).toBe(true);
-    expect(summary.trialDaysRemaining).toBe(7);
+      const subscription = createTestSubscription({
+        state: "trial",
+        trialEndsAt,
+      });
+
+      const summary = getSubscriptionSummary(subscription);
+
+      expect(summary.isInTrial).toBe(true);
+      expect(summary.trialDaysRemaining).toBe(7);
+    });
   });
 
   it("should indicate canceling state", () => {
