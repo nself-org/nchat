@@ -134,8 +134,8 @@ describe("Reduced Motion", () => {
 
     it("should return default when no system support", () => {
       const originalMatchMedia = window.matchMedia;
-      // @ts-expect-error - intentionally removing matchMedia
-      delete window.matchMedia;
+      // matchMedia is non-configurable in jest.setup, so delete throws: assign undefined to model "no support"
+      window.matchMedia = undefined as unknown as typeof window.matchMedia;
 
       const result = getMotionPreference();
 
@@ -196,8 +196,8 @@ describe("Reduced Motion", () => {
 
     it("should return no-op when no matchMedia support", () => {
       const originalMatchMedia = window.matchMedia;
-      // @ts-expect-error - intentionally removing matchMedia
-      delete window.matchMedia;
+      // matchMedia is non-configurable in jest.setup, so delete throws: assign undefined to model "no support"
+      window.matchMedia = undefined as unknown as typeof window.matchMedia;
 
       const cleanup = onMotionPreferenceChange(jest.fn());
       expect(typeof cleanup).toBe("function");
