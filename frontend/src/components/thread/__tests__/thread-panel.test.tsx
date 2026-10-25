@@ -259,8 +259,7 @@ const defaultUseThreadMock = {
   unreadCount: 0,
 };
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ThreadPanel Component", () => {
+describe("ThreadPanel Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset the mock to default implementation before each test
@@ -440,8 +439,7 @@ describe.skip("ThreadPanel Component", () => {
 // ThreadPanelLayout Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ThreadPanelLayout Component", () => {
+describe("ThreadPanelLayout Component", () => {
   const defaultLayoutProps = {
     children: <div>Main content</div>,
     threadId: null as string | null,
@@ -479,8 +477,7 @@ describe.skip("ThreadPanelLayout Component", () => {
 // ThreadSlideInPanel Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ThreadSlideInPanel Component", () => {
+describe("ThreadSlideInPanel Component", () => {
   const defaultSlideInProps = {
     open: false,
     threadId: null as string | null,

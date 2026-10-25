@@ -37,8 +37,7 @@ jest.mock("../queue.service", () => ({
   QUEUE_NAMES: ["default", "high-priority", "low-priority", "scheduled"],
 }));
 
-// Note: Skipped - BullMQ is ESM and jest.requireActual triggers import error
-describe.skip("SchedulerService", () => {
+describe("SchedulerService", () => {
   let service: SchedulerService;
 
   beforeEach(() => {

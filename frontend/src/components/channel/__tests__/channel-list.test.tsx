@@ -222,8 +222,7 @@ const setupStore = (config: {
 // Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ChannelList Component", () => {
+describe("ChannelList Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockChannels = [];

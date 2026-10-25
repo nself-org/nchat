@@ -167,8 +167,7 @@ const createMockReaction = (overrides?: Partial<Reaction>): Reaction => ({
 // Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("MessageItem Component", () => {
+describe("MessageItem Component", () => {
   // ==========================================================================
   // Rendering Tests
   // ==========================================================================

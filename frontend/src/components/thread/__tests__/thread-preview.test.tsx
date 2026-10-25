@@ -48,8 +48,7 @@ const createMockThread = (
 // Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ThreadPreview Component", () => {
+describe("ThreadPreview Component", () => {
   // ==========================================================================
   // Rendering Tests
   // ==========================================================================
@@ -191,8 +190,7 @@ describe.skip("ThreadPreview Component", () => {
 // ThreadPreviewCompact Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ThreadPreviewCompact Component", () => {
+describe("ThreadPreviewCompact Component", () => {
   it("should render reply count", () => {
     render(<ThreadPreviewCompact replyCount={5} />);
 
@@ -251,8 +249,7 @@ describe.skip("ThreadPreviewCompact Component", () => {
 // ThreadPreviewExpanded Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("ThreadPreviewExpanded Component", () => {
+describe("ThreadPreviewExpanded Component", () => {
   it("should render reply count", () => {
     const thread = createMockThread({ replyCount: 7 });
 
@@ -343,8 +340,7 @@ describe.skip("ThreadPreviewExpanded Component", () => {
 // StartThreadButton Tests
 // ============================================================================
 
-// Skipped: Complex component test requires mock updates
-describe.skip("StartThreadButton Component", () => {
+describe("StartThreadButton Component", () => {
   it("should render the button", () => {
     render(<StartThreadButton />);
 
