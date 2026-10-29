@@ -1,13 +1,16 @@
-project: nchat
-title: "ɳChat"
-description: "Self-hosted team communication platform built on nSelf"
-version: "1.1.0"
+cli_min_version: 1.4.15
+
+# Keys the nself CLI does not read are x- extension keys (contract:config.nself-yaml).
+x-project: nchat
+x-title: "ɳChat"
+x-description: "Self-hosted team communication platform built on nSelf"
+x-version: "1.1.0"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Optional Services
 # Required services (PostgreSQL, Hasura, Auth, Nginx) are always on.
 # ─────────────────────────────────────────────────────────────────────────────
-services:
+x-services:
   redis:
     enabled: true
     # Redis stores presence data, typing indicators, and rate-limit counters.
@@ -34,40 +37,41 @@ services:
 # Without a license key only the free core messaging surface is active.
 # All pro features degrade gracefully — buttons hide, the app never crashes.
 # ─────────────────────────────────────────────────────────────────────────────
-plugins:
-  required:
-    - name: chat
-      bundle: nchat
-      tier: basic
-      description: "Core message store hooks, channel management, and delivery status"
+# Not read by the CLI today. Kept as x-plugins-required so the effective reading
+# stays "no plugins declared".
+x-plugins-required:
+  - name: chat
+    bundle: nchat
+    tier: basic
+    description: "Core message store hooks, channel management, and delivery status"
 
-    - name: livekit
-      bundle: nchat
-      tier: basic
-      description: "WebRTC voice and video calls via LiveKit"
+  - name: livekit
+    bundle: nchat
+    tier: basic
+    description: "WebRTC voice and video calls via LiveKit"
 
-    # recording delivered by livekit egress (D-IV-4)
-    - name: moderation
-      bundle: nchat
-      tier: basic
-      description: "AI-assisted and rule-based message filtering with auto-ban thresholds"
+  # recording delivered by livekit egress (D-IV-4)
+  - name: moderation
+    bundle: nchat
+    tier: basic
+    description: "AI-assisted and rule-based message filtering with auto-ban thresholds"
 
-    - name: bots
-      bundle: nchat
-      tier: basic
-      description: "Programmable bot accounts and slash-command runtime"
+  - name: bots
+    bundle: nchat
+    tier: basic
+    description: "Programmable bot accounts and slash-command runtime"
 
-    - name: realtime
-      bundle: nchat
-      tier: basic
-      description: "Presence, typing indicators, and live cursor sync over WebSocket"
+  - name: realtime
+    bundle: nchat
+    tier: basic
+    description: "Presence, typing indicators, and live cursor sync over WebSocket"
 
-    - name: auth
-      bundle: nchat
-      tier: basic
-      description: "SSO, LDAP, and SAML extensions on top of the base Nhost Auth service"
+  - name: auth
+    bundle: nchat
+    tier: basic
+    description: "SSO, LDAP, and SAML extensions on top of the base Nhost Auth service"
 
-custom_services: []
+x-custom_services: []
 
 # ─────────────────────────────────────────────────────────────────────────────
 # env_example — Plugin env vars required for full nChat feature surface
@@ -76,7 +80,7 @@ custom_services: []
 # Vars marked GENERATED are written automatically by `nself plugin install`.
 # Vars marked REQUIRED must be provided by the operator.
 # ─────────────────────────────────────────────────────────────────────────────
-env_example:
+x-env_example:
 
   # License key — required to install all nChat bundle plugins
   NSELF_PLUGIN_LICENSE_KEY: "nself_pro_xxxxxxxxxxxxxxxxxxxxxxxx"   # REQUIRED — Basic tier ($9.99/yr)
