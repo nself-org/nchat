@@ -1,5 +1,19 @@
 # Security Policy
 
+## SBOM verification
+
+The `SBOM Verify (P101-S1.T07)` workflow inventories the whole repository,
+including `desktop/src-tauri/Cargo.lock`, and rejects critical Grype findings.
+It also validates CycloneDX and SPDX output and checks signing and tamper detection.
+
+The desktop updater requires `tauri-plugin-updater` 2.14.1 or later so its
+archive extraction dependency uses the patched `zip` 9 series. Earlier updater
+versions require `zip` 4, affected by
+[GHSA-m665-v7pm-7grj](https://github.com/advisories/GHSA-m665-v7pm-7grj).
+Commit the Cargo-generated lockfile when updating this dependency. Verify with
+`cargo build --locked` and `cargo test --locked` from `desktop/src-tauri`, then
+run the SBOM workflow to check the full inventory against current advisories.
+
 ## Supported Versions
 
 We actively support the following versions of nself-chat with security updates:
