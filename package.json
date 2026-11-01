@@ -35,7 +35,7 @@
       "@vitest/utils": ">=4.1.11 <5.0.0",
       "@vitest/coverage-v8": ">=4.1.11 <5.0.0",
       "@vitest/mocker": ">=4.1.12 <5.0.0",
-      "qs@<6.16.0": ">=6.16.0",
+      "qs@<6.16.1": ">=6.16.1",
       "morgan@<1.12.0": ">=1.12.0 <2.0.0",
       "postcss-selector-parser": ">=7.1.6 <8.0.0",
     "@opentelemetry/instrumentation-pg": ">=0.73.0 <1",
