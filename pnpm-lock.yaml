@@ -47,7 +47,7 @@ overrides:
   ws@>=8.0.0 <8.21.0: '>=8.21.0'
   js-yaml@<4.2.0: '>=4.2.0'
   markdown-it@<14.3.3: '>=14.3.3 <15.0.0'
-  follow-redirects@<1.16.1: '>=1.16.1'
+  follow-redirects@<1.16.2: '>=1.16.2'
   '@opentelemetry/core@<2.8.0': '>=2.8.0'
   '@sentry/browser@<7.119.1': '>=7.119.1'
   nodemailer@<10.1.4: '>=10.1.4 <11.0.0'
@@ -83,7 +83,7 @@ overrides:
   immutable@5: 5.1.8
   deepmerge-ts@<8.0.0: '>=8.0.0'
   browserslist@<4.28.7: ^4.28.7
-  joi@<17.13.8: '>=17.13.8 <18.0.0'
+  joi@<17.13.9: '>=17.13.9 <18.0.0'
   js-cookie@<3.0.7: '>=3.0.7'
   moment@<2.31.0: '>=2.31.0 <3.0.0'
   body-parser@<1.20.9: '>=1.20.9 <2.0.0'
@@ -8908,8 +8908,8 @@ packages:
   fn.name@1.1.0:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
 
-  follow-redirects@1.16.1:
-    resolution: {integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==}
+  follow-redirects@1.16.2:
+    resolution: {integrity: sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -10080,8 +10080,8 @@ packages:
     resolution: {integrity: sha512-9FzQjJ7MATs1tSpnco1K6ayiYE3figslrXA72G2HQ/n76RzvYlofyi5QM+iX4YRs/pu3yzxlVQSST23+dMDknw==}
     engines: {node: '>= 0.6.0'}
 
-  joi@17.13.8:
-    resolution: {integrity: sha512-iPKOGmiRw1jxf/JOPwxmCcUQAOdF359mdzYiP2DJ+TMX0YK2zjK3D+zYOaGjpumWxOFF/l2xVWjRVK5bGSLdEw==}
+  joi@17.13.9:
+    resolution: {integrity: sha512-llFCT2rVtfwgBCaIqxtjim+iHqrgss4ONiGSYiiGH9jnjWq90ppSRffqmqKvwpa8W+YfILyQV6XyGcegXX2T4g==}
 
   jose@4.15.9:
     resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
@@ -22072,7 +22072,7 @@ snapshots:
       hpagent: 0.1.2
       https-proxy-agent: 5.0.1
       jmespath: 0.16.0
-      joi: 17.13.8
+      joi: 17.13.9
       js-yaml: 5.4.1
       jsonpath-plus: 10.4.0
       jsonwebtoken: 9.0.3
@@ -22213,7 +22213,7 @@ snapshots:
 
   axios@1.20.0:
     dependencies:
-      follow-redirects: 1.16.1
+      follow-redirects: 1.16.2
       form-data: 4.0.6
       https-proxy-agent: 5.0.1
       proxy-from-env: 2.1.0
@@ -24510,7 +24510,7 @@ snapshots:
 
   fn.name@1.1.0: {}
 
-  follow-redirects@1.16.1: {}
+  follow-redirects@1.16.2: {}
 
   for-each@0.3.5:
     dependencies:
@@ -26058,7 +26058,7 @@ snapshots:
 
   jmespath@0.16.0: {}
 
-  joi@17.13.8:
+  joi@17.13.9:
     dependencies:
       '@hapi/hoek': 9.3.0
       '@hapi/topo': 5.1.0
