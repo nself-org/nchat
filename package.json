@@ -20,6 +20,8 @@
       "@signalapp/libsignal-client"
     ],
     "overrides": {
+      "minimatch@>=9.0.0 <11.0.1": "^11.0.1",
+      "glob@>=9.0.0 <14.0.2": "^14.0.2",
       "protobufjs@<7.6.3": ">=7.6.3",
       "protobufjs@8.3.0": "8.6.6",
       "protobufjs@>=8.0.0 <8.6.6": "8.6.6",
