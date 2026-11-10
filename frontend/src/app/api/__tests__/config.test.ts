@@ -11,16 +11,7 @@
 import { NextRequest } from "next/server";
 import { GET, POST } from "../config/route";
 
-// Mock Nhost
-jest.mock("@/lib/nhost.server", () => ({
-  nhostServer: {
-    graphql: {
-      request: jest.fn(),
-    },
-  },
-}));
-
-// The route reads configuration through the server Apollo client, not Nhost.
+// The route reads configuration through the server Apollo client.
 // Mock it so the tests never open a real connection to the GraphQL endpoint
 // (a real call to localhost:8080 hangs or refuses depending on the host, which
 // made the database-error test time out on macOS build hosts).
@@ -54,9 +45,12 @@ describe("/api/config", () => {
 
       const request = new NextRequest("http://localhost:3000/api/config");
       const response = await GET(request);
+      const data = await response.json();
 
+      // A failed read falls back to the default config (graceful degradation).
       expect(mockQuery).toHaveBeenCalled();
-      expect(response.status).toBeGreaterThanOrEqual(200);
+      expect(response.status).toBe(200);
+      expect(data.data.config).toHaveProperty("setup");
     });
   });
 
