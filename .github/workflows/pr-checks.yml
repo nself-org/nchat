@@ -344,7 +344,8 @@ jobs:
 
   accessibility:
     name: Accessibility Check
-    runs-on: ubuntu-latest
+    # Playwright cannot install chromium on ubuntu-26.04 (ubuntu-latest since 2026-11); unpin when it can.
+    runs-on: ubuntu-24.04
     needs: [changes, build]
     if: |
       needs.changes.outputs.src == 'true' ||

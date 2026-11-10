@@ -80,7 +80,8 @@ jobs:
 
   a11y-e2e:
     name: Accessibility E2E Tests (Playwright + Axe)
-    runs-on: ubuntu-latest
+    # Playwright cannot install chromium on ubuntu-26.04 (ubuntu-latest since 2026-11); unpin when it can.
+    runs-on: ubuntu-24.04
     # 60 min: ~12 min backend start + ~8 min build + ~35 min axe tests + buffer.
     timeout-minutes: 60
     defaults:
