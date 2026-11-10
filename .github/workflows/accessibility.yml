@@ -21,7 +21,7 @@ concurrency:
 jobs:
   a11y-lint:
     name: Accessibility Linting (jsx-a11y)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Playwright has no chromium build for ubuntu-latest (26.04) yet
     timeout-minutes: 10
     defaults:
       run:
@@ -52,7 +52,7 @@ jobs:
 
   a11y-unit:
     name: Accessibility Unit Tests (jest-axe)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Playwright has no chromium build for ubuntu-latest (26.04) yet
     timeout-minutes: 15
     defaults:
       run:
@@ -80,7 +80,7 @@ jobs:
 
   a11y-e2e:
     name: Accessibility E2E Tests (Playwright + Axe)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Playwright has no chromium build for ubuntu-latest (26.04) yet
     # 60 min: ~12 min backend start + ~8 min build + ~35 min axe tests + buffer.
     timeout-minutes: 60
     defaults:
@@ -224,7 +224,7 @@ jobs:
 
   lighthouse:
     name: Lighthouse Accessibility Audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Playwright has no chromium build for ubuntu-latest (26.04) yet
     timeout-minutes: 20
     defaults:
       run:
@@ -284,7 +284,7 @@ jobs:
 
   i18n-validation:
     name: Translation Coverage Validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Playwright has no chromium build for ubuntu-latest (26.04) yet
     timeout-minutes: 10
     defaults:
       run:
@@ -320,7 +320,7 @@ jobs:
 
   accessibility-summary:
     name: Accessibility Summary
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Playwright has no chromium build for ubuntu-latest (26.04) yet
     needs: [a11y-lint, a11y-unit, a11y-e2e, lighthouse, i18n-validation]
     if: always()
 

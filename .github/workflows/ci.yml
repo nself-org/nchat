@@ -341,7 +341,8 @@ jobs:
   # Stage 4: E2E tests (after successful build)
   e2e:
     name: E2E Tests
-    runs-on: ubuntu-latest
+    # Playwright cannot install chromium on ubuntu-26.04 (ubuntu-latest since 2026-11); unpin when it can.
+    runs-on: ubuntu-24.04
     needs: [build]
     # ACCEPTED: E2E tests are canary — not yet stable enough to block merges.
     # Expiry: 2026-12-01 — remove once E2E suite has <5% flakiness across 10 consecutive runs.

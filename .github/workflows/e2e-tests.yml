@@ -45,7 +45,8 @@ jobs:
   # The merge job collects all blob reports and produces a single HTML report.
   e2e-web:
     name: E2E Web Tests (shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
-    runs-on: ubuntu-latest
+    # Playwright cannot install chromium on ubuntu-26.04 (ubuntu-latest since 2026-11); unpin when it can.
+    runs-on: ubuntu-24.04
     # 75 min: ~12 min backend start + ~8 min build + ~50 min for the shard's
     # test slice with retries.
     timeout-minutes: 75
@@ -243,7 +244,8 @@ jobs:
   # Merge shard blob reports into a single HTML report
   e2e-web-merge:
     name: E2E Web Tests — Merge Reports
-    runs-on: ubuntu-latest
+    # Playwright cannot install chromium on ubuntu-26.04 (ubuntu-latest since 2026-11); unpin when it can.
+    runs-on: ubuntu-24.04
     needs: e2e-web
     if: always()
 
@@ -379,7 +381,8 @@ jobs:
   # Android E2E Tests (Emulator)
   e2e-android:
     name: E2E Android Tests (Emulator)
-    runs-on: ubuntu-latest
+    # Playwright cannot install chromium on ubuntu-26.04 (ubuntu-latest since 2026-11); unpin when it can.
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     if: github.event_name == 'workflow_dispatch' && (github.event.inputs.device == 'android' || github.event.inputs.device == 'all')
 
