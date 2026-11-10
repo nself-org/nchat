@@ -192,7 +192,7 @@
     "@jest/globals": "^29.7.0",
     "@lhci/cli": "^0.15.1",
     "@next/bundle-analyzer": "^16.3.2",
-    "@playwright/test": "^1.50.1",
+    "@playwright/test": "^1.65.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.0",
