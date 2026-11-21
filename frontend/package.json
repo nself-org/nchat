@@ -139,7 +139,7 @@
     "mediasoup-client": "^3.18.7",
     "meilisearch": "^0.55.0",
     "nanoid": "^6.0.1",
-    "next": "^15.5.23",
+    "next": "^15.5.29",
     "next-auth": "^4.24.13",
     "next-themes": "^0.4.6",
     "nodemailer": "^10.1.4",
